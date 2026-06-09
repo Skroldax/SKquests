@@ -1,0 +1,8 @@
+## Interface: 30300
+## Title: SKuests
+## Notes: Step by Step Leveling Guide
+## Author: Kevin Villalobos
+
+Core.lua
+UI.lua
+Data.lua
