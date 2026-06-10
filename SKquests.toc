@@ -1,0 +1,15 @@
+## Interface: 30300
+## Title: SKquests
+## Author: Skroldax
+## Version: Alpha 0.2.0
+## SavedVariables: SKquestsDB
+
+SKquests_Localization.lua
+quest_origin_pfquest.lua
+SKquests_DetailDB.lua
+Alliance_1_60.lua
+Horde_1_60.lua
+SKquests.lua
+SKquests_Tracker.lua
+SKquests_UI.lua
+SKquests_Config.lua
