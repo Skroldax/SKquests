@@ -65,7 +65,7 @@ end
 
 local function InitLanguage()
     if SKquests_Localization then
-        SKquests_Localization:SetLanguage(SKquests.db.language or "enUS")
+        SKquests_Localization:SetLanguage(SKquests.db.language or "esES")
     end
 end
 
@@ -238,7 +238,6 @@ local function PrintHelp()
     SKquests:Print("  /skq step N      - Ir al paso N")
     SKquests:Print("  /skq guide Alliance|Horde")
     SKquests:Print("  /skq export      - Exportar progreso para la web")
-    SKquests:Print("  /skq config      - Abrir configuracion")
     SKquests:Print('  /skq setid "Nombre" ID')
     SKquests:Print("  /skq lang enUS|esES")
     SKquests:Print("  /skq help        - Esta ayuda")
@@ -288,8 +287,6 @@ SlashCmdList["SKQUESTS"] = function(msg)
         else SKquests:Print("Uso: /skq guide Alliance|Horde") end
     elseif cmd == "export" then
         SKquests:ExportToChat()
-    elseif cmd == "config" then
-        SKquests:ShowConfig()
     elseif cmd == "setid"  then
         local name, id = rest:match('^"([^"]+)"%s+(%d+)$')
         if not name then

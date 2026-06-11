@@ -81,7 +81,8 @@ function SKquests:InitConfig()
                         SKquests_Localization:SetLanguage(lang.value)
                     end
                     UIDropDownMenu_SetSelectedValue(langDropdown, lang.value)
-                    print("|cff33ff99SKquests|r: Language changed to " .. lang.text)
+                    if SKquests.ApplyLanguage then SKquests:ApplyLanguage(lang.value) end
+                    print("|cff33ff99SKquests|r: " .. (L and L("LANG_CHANGED") or "") .. lang.text)
                     SKquests:UpdateFrame()
                 end
                 UIDropDownMenu_AddButton(info, level)
