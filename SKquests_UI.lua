@@ -253,6 +253,14 @@ local function PfText(s)
     return s
 end
 
+-- Datos de un NPC: DB classic de pfQuest con fallback a la de Ascension
+local function GetUnitData(npcId)
+    if not npcId or not pfDB or not pfDB["units"] then return nil end
+    local u = pfDB["units"]["data"] and pfDB["units"]["data"][npcId]
+    if u and u.coords and #u.coords > 0 then return u end
+    return pfDB["units"]["data-ascension"] and pfDB["units"]["data-ascension"][npcId]
+end
+
 -- Texto real de una quest del log (API del cliente), restaurando la selección
 local function GetLogQuestText(logIdx)
     if not logIdx then return nil end
@@ -1474,7 +1482,7 @@ function addon:CreateModernUI()
         imgZoom = 1; imgOffX = 0; imgOffY = 0
         for _, pin in ipairs(pinPool) do pin:Hide(); pin.relX = nil end
         local function NpcZone(npcId)
-            local u = npcId and pfDB and pfDB["units"] and pfDB["units"]["data"] and pfDB["units"]["data"][npcId]
+            local u = GetUnitData(npcId)
             local c = u and u.coords and u.coords[1]
             return c and c[3]
         end
@@ -1499,7 +1507,7 @@ function addon:CreateModernUI()
             flatTex:Hide()
             local nPin = 0
             local function AddPins(npcId, name, icon, role)
-                local u = npcId and pfDB and pfDB["units"] and pfDB["units"]["data"] and pfDB["units"]["data"][npcId]
+                local u = GetUnitData(npcId)
                 if not (u and u.coords) then return end
                 local added = 0
                 for _, c in ipairs(u.coords) do
