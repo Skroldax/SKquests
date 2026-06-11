@@ -3,6 +3,31 @@
 All notable changes to SKquests will be documented in this file.
 This project follows [Semantic Versioning](https://semver.org/) and [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.7.0-alpha] - 2026-06-11
+
+### Added
+- **Cartographer Foglight integration**: the interactive map now dynamically overlays the colored map patches on top of zone maps to reflect quest areas, replacing fog-of-war shadows while keeping the visual design intact.
+- **Cross-zone navigation**: directional arrows (`<` and `>`) anchored to the map viewer edges let the player visually switch between the quest-start zone map and the turn-in zone map when a quest requires traveling between zones (e.g. Redridge to Stormwind).
+- **Secondary lookup engine (pfQuest)**: the navigation arrows query the pfQuest database directly for turn-in NPCs missing from the local database (such as General Marcus Jonathan), enabling seamless map transitions on complex quests.
+
+### Fixed
+- **Spawn-point reload**: worked around a native 3.3.5 (WotLK) quirk where unchecking "Show spawn points" did nothing (the engine returned `nil` instead of `false`). Toggling the checkbox now reloads the map instantly without switching quests.
+- **Map layer priority (z-index)**: the sepia base map was covering Cartographer's colored highlights because the 3.3.5 engine ignores numeric sub-layers. The base map is now forced to the `BACKGROUND` layer while the colors live permanently on `ARTWORK`.
+- **Map mirage protection**: rescue logic in the map renderer — if the turn-in map of a capital city fails to load its textures (an occasional client issue), the viewer locks the flat image instead of misleadingly showing the start-zone map underneath the pins.
+- **Lua syntax cleanups**: removed multiple syntax errors and BOM (Byte Order Mark) artifacts that prevented the UI from loading after code injections.
+
+## [0.6.0-alpha] - 2026-06-11
+
+### Added
+- **All 7 themes** from the design sheet: ElvUI Dark and Minimal Dark free for everyone; Blizzard Classic, Dragonflight, Wrath Classic, RUF Modern and Warcraft Logs as **Pro Mode** themes.
+- **Pro Mode with redeemable codes**: 30 random codes (`SKPRO-XXXX-XXXX`) validated in-game through an in-UI popup — no file editing needed. Codes live in `SKquests_ProCodes.lua`, which is **git-ignored** so they never reach the public GitHub repo. Unlock persists per account.
+- **Theme dropdown** in Settings replacing the cycle button: lists every theme, marks locked ones with [Pro], and selecting a locked theme prompts for a code and applies it on unlock.
+- Theme editor now Pro-gated, opens above the main window (strata fix), and edits 6 colors (background, hover, accent, titles, borders, text) with live preview.
+- **Quest Log detail enriched from the game client**: description now falls back to the real quest text from the quest log (`GetQuestLogQuestText`) when the database lacks it — fixes quests like the Ascension-reworked starters showing "Desconocido"/empty info.
+
+### Fixed
+- Pro/admin password popup could open behind the main window (frame strata).
+
 ## [0.5.0-alpha] - 2026-06-11
 
 ### Added

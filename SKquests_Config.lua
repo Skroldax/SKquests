@@ -1,4 +1,4 @@
--- SKquests Configuration Panel
+﻿-- SKquests Configuration Panel
 -- Enhanced with language selector
 
 function SKquests:InitConfig()
@@ -285,3 +285,4 @@ function SKquests:HideConfig()
         self.configFrame:Hide()
     end
 end
+

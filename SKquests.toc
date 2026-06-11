@@ -1,7 +1,7 @@
-## Interface: 30300
+﻿## Interface: 30300
 ## Title: SKquests
 ## Author: Skroldax
-## Version: Alpha 0.6.0
+## Version: Alpha 0.7.0
 ## SavedVariables: SKquestsDB
 
 SKquests_Localization.lua
@@ -11,10 +11,18 @@ Media\db\units-ascension.lua
 Media\db\esES\quests.lua
 Media\db\esES\zones.lua
 SKquests_DetailDB.lua
+SKquests_MapData.lua
+SKquests_ObjectiveDB.lua
 Alliance_1_60.lua
 Horde_1_60.lua
 SKquests_Guide_esES.lua
 SKquests.lua
 SKquests_Themes.lua
 SKquests_ProCodes.lua
-SKquests_ThemeE
+SKquests_ThemeEditor.lua
+SKquests.lua
+SKquests_UI.lua
+SKquests_Tracker.lua
+SKquests_Config.lua
+
+
