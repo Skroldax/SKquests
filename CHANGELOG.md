@@ -3,6 +3,33 @@
 All notable changes to SKquests will be documented in this file.
 This project follows [Semantic Versioning](https://semver.org/) and [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.4.0-alpha] - 2026-06-10
+
+### Added
+- Interactive POI pins on the quest map, Wowhead-style: quest start ("!") and turn-in ("?") NPC locations from pfQuest spawn data, up to 5 spots per NPC. Pins scale with zoom, show a tooltip with the NPC name and coordinates, and print the location to chat on click.
+- Map fallback for quests without a mapped zone (dungeons, missing zoneId): the viewer derives the zone from the quest giver's (or ender's) spawn location, so far fewer quests show a blank image.
+- Full Spanish quest texts: title, objectives and description now come from the bundled pfQuest esES database (~4,900 quests) when the language is Spanish, with $B/$N token handling.
+- Spanish leveling guide: all 383 steps (Alliance 208, Horde 175) machine-translated to understandable Spanish in `SKquests_Guide_esES.lua`; chapter titles and step text switch with the language. Quest names remain in English for in-game identification.
+
+### Fixed
+- Reward item icons stuck as "?" until hovered: uncached items are now requested from the server automatically and icons refresh as the data arrives (retry loop, up to ~5s).
+
+## [0.3.0-alpha] - 2026-06-10
+
+### Added
+- Interactive quest map viewer replacing the static quest image: shows the quest's zone map (client WorldMap tiles), with mouse-wheel zoom (1x-3x), drag to pan, and click to reset. Zoom happens inside a clipped box, so the detail panel layout never shifts when zooming.
+- Full EN/ES localization of the UI chrome (tabs, section headers, titles, counters, settings labels) via an extended `SKquests_Localization` with a live-refresh registry (`ApplyLanguage`).
+- Language toggle button (Español/English) in the in-UI Settings panel; choice persists in `SKquestsDB.profile.language`.
+- Quest titles now respect the active language: Spanish shows "Nombre (English)", English shows the original name only.
+
+### Changed
+- Zones tab now lists Vanilla (and Custom) zones only — TBC and WotLK zones removed per design.
+- Default language set to Spanish (esES), matching the original UI.
+- Reverted the per-zone guide-image fallback from 0.2.0 (guide images don't correspond to quests); the map viewer covers quest visuals now.
+
+### Removed
+- `/skq config` command and its help entry — settings live inside the main interface.
+
 ## [0.2.0-alpha] - 2026-06-10
 
 ### Added
@@ -23,6 +50,18 @@ This project follows [Semantic Versioning](https://semver.org/) and [Keep a Chan
 ### Changed
 - Removed debug `print()` spam from `BuildZonesList` and `BuildFilteredQuestIds` (fired on every filter change).
 
-## [0.1.5-alpha] - earlier
+## [0.1.x-alpha] - pre-release development record
 
-- Previous development snapshot (pre-changelog).
+Comprehensive rebuild after integrating the full server database (`quest_template`), focused on stability, performance and a clean user experience.
+
+### Added
+- **Database migration & optimization**: parsed the full `quest_template` dump (7,100+ quests) and converted it into a native, heavily optimized Lua table (`SKquests_DetailDB.lua`) that the WoW engine loads instantly without excessive memory use.
+- **Smart filtering engine (Vanilla purity)**: new `BuildFilteredQuestIds` sanitizes the list — junk/test/unimplemented quests (`<UNUSED>`, `<NYI>`, `<TXT>`) are hidden, and a strict expansion block filters out all TBC/WotLK quests and anything above level 60. The raw list went from 7,119 chaotic entries to a clean, playable 4,695 quests.
+- **Dynamic zone resolution (ZoneMap)**: the database only provided raw numeric IDs (e.g. 1581). A scraper extracted all 105 unique zone IDs and a full translation dictionary was injected into the UI, covering open-world zones, capitals, dungeons and raids — actual names ("The Deadmines", "Kharanos") instead of "Zone 1581".
+- **UI & performance**: perfected the `FauxScrollFrame` system (4,695 quests scrolling at 60 FPS with zero lag) and repaired button layouts so long guide texts no longer word-wrap over other UI elements.
+
+### Fixed
+- **Rendering crash**: silent `btn.text`/`btn.txt` typo destroying the UI rendering cycle and leaving the main list blank.
+- **Zone filter crash**: `zonesData` variable scoping issue that made the zone dropdown fail silently and render as a black box.
+- **Tab freezing**: reconnected the Sidenav logic — clicking "Quest Log" or "Zones" did not refresh the central list.
+- **Sorting protection**: wrapped `table.sort` in `pcall` so minor database inconsistencies can't halt the entire addon.
