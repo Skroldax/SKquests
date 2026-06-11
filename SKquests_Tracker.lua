@@ -21,7 +21,7 @@ function T:Refresh()
 
     local numEntries = GetNumQuestLogEntries()
     for i = 1, numEntries do
-        local title, level, _, isHeader, _, isComplete = GetQuestLogTitle(i)
+        local title, level, _, _, isHeader, _, isComplete = GetQuestLogTitle(i)
         if title and not isHeader then
             local objectives = {}
             local numObj = GetNumQuestLeaderBoards(i)

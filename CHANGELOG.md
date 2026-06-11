@@ -3,6 +3,20 @@
 All notable changes to SKquests will be documented in this file.
 This project follows [Semantic Versioning](https://semver.org/) and [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.5.0-alpha] - 2026-06-11
+
+### Added
+- Two new themes available to everyone: **ElvUI Dark** and **Minimal Dark** (`SKquests_Themes.lua`), selectable from Settings by cycling the theme button (Oscuro → Claro → ElvUI Dark → Minimal Dark).
+- **Theme editor gated behind an admin password** (`SKquests_ThemeEditor.lua`): hex input + native WoW color picker for background, accent, borders and text, with live preview and per-theme persistent overrides. Password is set in `SKQUESTS_ADMIN_PASSWORD` (default `SKadmin`); unlock persists per account.
+- Spanish zone names from the bundled pfQuest esES zones database — the Zones tab, the zone dropdown and quest metadata now translate (e.g. "Valle de Villanorte") when the language is Spanish.
+
+### Fixed
+- **Quest Log always empty / active quests never marked**: the tracker misread `GetQuestLogTitle` return values (3.3.5 returns `isHeader` 5th and `isComplete` 7th; it read positions 4 and 6), so every entry looked like a header and the cache stayed empty. Active-quest dots (●/✔) in the explorer and the whole Quest Log tab now work.
+- **Guide chapters not switching**: clicking a chapter changed the selection but never rebuilt the step list nor moved the current step. It now rebuilds chapters and jumps to the chapter's first step.
+- **Blank rows when first opening the Quests tab**: the row pool was sized from a stale panel height. The list now recalculates on show and on resize.
+- Language switching now also rebuilds zones, quest filters and guide chapters, and resets the zone filter, so no stale names remain after changing language.
+- Localized remaining hardcoded strings (active-quest notice, database notices).
+
 ## [0.4.0-alpha] - 2026-06-10
 
 ### Added

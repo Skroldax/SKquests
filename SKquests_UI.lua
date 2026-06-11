@@ -264,6 +264,10 @@ end
 
 local function GetZoneName(zoneId)
     if not zoneId then return "Zona Desconocida" end
+    if SKquests_Localization and SKquests_Localization.currentLanguage == "esES"
+       and pfDB and pfDB["zones"] and pfDB["zones"]["esES"] and pfDB["zones"]["esES"][zoneId] then
+        return pfDB["zones"]["esES"][zoneId]
+    end
     return ZoneMap[zoneId] or ("Zona " .. zoneId)
 end
 
@@ -371,7 +375,7 @@ end
 
 function addon:ApplyTheme()
     local theme = SKquestsDB and SKquestsDB.config and SKquestsDB.config.theme or "dark"
-    C = Themes[theme] or Themes.dark
+    C = Themes[theme] or (addon.GetCustomPalette and addon:GetCustomPalette(theme)) or Themes.dark
 
     if not MainFrame then return end
 
@@ -511,7 +515,7 @@ local function BuildZonesList()
         local exp = q.zoneId and GetZoneExpansion(q.zoneId)
         if IsQuestEligible(id, q) and q.zoneId and ZoneMap[q.zoneId]
            and exp ~= "TBC" and exp ~= "WotLK" then
-            local name = ZoneMap[q.zoneId]
+            local name = GetZoneName(q.zoneId)
             local lvl = q.level or 0
             if not zonesData[name] then
                 zonesData[name] = { minL = 100, maxL = 0, count = 0, id = q.zoneId }
@@ -1224,6 +1228,9 @@ function addon:CreateModernUI()
                 addon:RefreshDetail()
             elseif activeTab == "guide" then
                 selectedGuideChapter = self.itemId
+                BuildGuideChapters()
+                local chData = guideChapters[selectedGuideChapter]
+                if chData then selectedStepIdx = chData.startIndex end
                 addon:UpdateListRows()
                 addon:RefreshDetail()
             elseif activeTab == "zones" then
@@ -1238,6 +1245,9 @@ function addon:CreateModernUI()
 
         listButtons[i] = btn
     end
+
+    listScroll:SetScript("OnShow", function() addon:UpdateListRows() end)
+    ListPanel:SetScript("OnSizeChanged", function() addon:UpdateListRows() end)
 
     listScroll:SetScript("OnVerticalScroll", function(self, offset)
         FauxScrollFrame_OnVerticalScroll(self, offset, ROW_H, function()
@@ -1883,14 +1893,30 @@ function addon:CreateModernUI()
     local themeBtn = CreateFrame("Button", nil, SettingsPanel, "UIPanelButtonTemplate")
     themeBtn:SetPoint("LEFT", themeLbl, "RIGHT", 10, -1)
     themeBtn:SetSize(120, 22)
-    themeBtn:SetText(SKquestsDB and SKquestsDB.config and SKquestsDB.config.theme == "light" and "Claro" or "Oscuro")
+    local themeOrder = { "dark", "light", "elvuidark", "minimaldark" }
+    local themeNames = { dark = "Oscuro", light = "Claro", elvuidark = "ElvUI Dark", minimaldark = "Minimal Dark" }
+    local curTheme = SKquestsDB and SKquestsDB.config and SKquestsDB.config.theme or "dark"
+    themeBtn:SetText(themeNames[curTheme] or "Oscuro")
     themeBtn:SetScript("OnClick", function(self)
         local current = SKquestsDB and SKquestsDB.config and SKquestsDB.config.theme or "dark"
-        local nextTheme = current == "dark" and "light" or "dark"
+        local idx = 1
+        for i, k in ipairs(themeOrder) do
+            if k == current then idx = i break end
+        end
+        local nextTheme = themeOrder[(idx % #themeOrder) + 1]
         SKquests.config.theme = nextTheme
         SKquestsDB.config.theme = nextTheme
-        self:SetText(nextTheme == "light" and "Claro" or "Oscuro")
+        self:SetText(themeNames[nextTheme])
         addon:ApplyTheme()
+    end)
+
+    -- Editor de temas (requiere contraseña de administrador)
+    local editorBtn = CreateFrame("Button", nil, SettingsPanel, "UIPanelButtonTemplate")
+    editorBtn:SetPoint("LEFT", themeBtn, "RIGHT", 10, 0)
+    editorBtn:SetSize(130, 22)
+    editorBtn:SetText("Editor (Admin)")
+    editorBtn:SetScript("OnClick", function()
+        if addon.OpenThemeEditor then addon:OpenThemeEditor() end
     end)
 
     local opLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -2453,7 +2479,7 @@ function addon:RefreshDetail()
         if active then
             local objs = addon.Tracker:GetObjectivesFor(logIdx)
             if #objs == 0 then
-                ch.objSec.box.text:SetText("Misión activa. (Sin objetivos registrados)")
+                ch.objSec.box.text:SetText(L("ACTIVE_NO_OBJ"))
             else
                 local str = ""
                 for _, obj in ipairs(objs) do
@@ -2669,7 +2695,7 @@ function addon:RefreshDetail()
         end
 
         if q then
-            ch.descSec.text:SetText("Detalles de misión cargados desde la base de datos.")
+            ch.descSec.text:SetText(L("LOADED_FROM_DB"))
             
             local giverName = q.giver_loc or q.giver or "Desconocido"
             if q.giverType == "GO" then
@@ -2745,7 +2771,7 @@ function addon:RefreshDetail()
                 RightSidebar.chain.nextBtn:Hide()
             end
         else
-            ch.descSec.text:SetText("Esta misión no se encuentra registrada en la base de datos local de SKquests.")
+            ch.descSec.text:SetText(L("NOT_IN_DB"))
             ch.npcSec.grid.startCard.title:SetText("INICIO (NPC)")
             ch.npcSec.grid.startCard.name:SetText("Desconocido")
             ch.npcSec.grid.endCard.title:SetText("ENTREGA (NPC)")
@@ -2983,6 +3009,10 @@ function addon:ApplyLanguage(lang)
         e.fs:SetText(txt)
     end
     if MainFrame then
+        selectedZoneFilter = "Todas"
+        BuildZonesList()
+        BuildFilteredQuestIds()
+        BuildGuideChapters()
         addon:SwitchTab(activeTab)
         addon:UpdateListRows()
         if addon.RefreshDetail then addon:RefreshDetail() end
