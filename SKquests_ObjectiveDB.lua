@@ -1,3 +1,5 @@
+-- SKquests — Copyright (c) 2026 Skroldax. Licencia GPL-3.0.
+-- Este aviso debe conservarse en cualquier copia o derivado (ver LICENSE).
 SKquests_ObjectiveLinks = {}
 SKquests_SpawnData = { npcs = {}, objects = {} }
 

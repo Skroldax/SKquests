@@ -67,10 +67,14 @@ Los datos de misiones, NPCs y recompensas se construyen a partir de:
 
 Ver [CHANGELOG.md](CHANGELOG.md). El proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
-## Autor
+## Autoría y créditos
 
-**Skroldax** — Bronzebeard, Warcraft Reborn (Project Ascension).
+SKquests es obra original de **Skroldax** (Bronzebeard, Warcraft Reborn — Project Ascension): el código del addon, la base de datos de quests procesada, las rutas de leveo 1–60 de ambas facciones, las traducciones y el diseño de la interfaz.
+
+El historial de commits y los tags de este repositorio constituyen el registro público y fechado de la autoría. Si redistribuyes o derivas este proyecto, la licencia exige conservar el aviso de copyright.
+
+Los componentes de terceros incluidos (base de datos pfQuest, datos de overlays de Cartographer Foglight, fuentes y texturas) **no son de mi autoría** y se atribuyen en detalle en [THIRD_PARTY.md](THIRD_PARTY.md).
 
 ## Licencia
 
-Proyecto personal en desarrollo. Las guías de leveo se basan en rutas clásicas de la comunidad; los datos de quests provienen de las bases de datos públicas listadas en [Fuentes de datos](#fuentes-de-datos).
+[GPL-3.0](LICENSE) — Copyright (c) 2026 Skroldax. Igual que Questie, WeakAuras o DBM: puedes usar, modificar y redistribuir este proyecto, pero cualquier derivado debe mantenerse open source bajo GPL, conservar el aviso de copyright y declarar sus cambios. Los componentes de terceros conservan sus licencias originales (ver [THIRD_PARTY.md](THIRD_PARTY.md)).
