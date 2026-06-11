@@ -15,13 +15,30 @@ T.OnUpdate  = nil  -- callback(T) que la UI puede suscribir
 -- ============================================================
 --  REFRESH: re-escanea el quest log completo
 -- ============================================================
+local isScanning = false
+
 function T:Refresh()
+    if isScanning then return end
+    isScanning = true
+
     self._cache   = {}
     self._byTitle = {}
 
+    -- Guardar estado de headers colapsados y expandirlos
+    local collapsedHeaders = {}
     local numEntries = GetNumQuestLogEntries()
+    for i = numEntries, 1, -1 do
+        local _, _, _, _, isHeader, isCollapsed = GetQuestLogTitle(i)
+        if isHeader and isCollapsed then
+            table.insert(collapsedHeaders, i)
+            ExpandQuestHeader(i)
+        end
+    end
+
+    -- Escanear todo (ahora esta totalmente expandido)
+    numEntries = GetNumQuestLogEntries()
     for i = 1, numEntries do
-        local title, level, _, _, isHeader, _, isComplete = GetQuestLogTitle(i)
+        local title, level, _, _, isHeader, _, isComplete, _, questID = GetQuestLogTitle(i)
         if title and not isHeader then
             local objectives = {}
             local numObj = GetNumQuestLeaderBoards(i)
@@ -45,11 +62,19 @@ function T:Refresh()
                 level      = level or 0,
                 isComplete = (isComplete == 1 or isComplete == true),
                 objectives = objectives,
+                id         = questID,
             }
             self._cache[i]              = entry
             self._byTitle[title:lower()] = i
         end
     end
+
+    -- Restaurar el estado de los headers (de abajo hacia arriba para mantener indices)
+    for _, headerIndex in ipairs(collapsedHeaders) do
+        CollapseQuestHeader(headerIndex)
+    end
+
+    isScanning = false
 
     -- Notifica a la UI si hay un callback registrado
     if self.OnUpdate then

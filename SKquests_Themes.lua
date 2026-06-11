@@ -52,6 +52,15 @@ addon.ThemesByKey = {
     minimaldark = addon.Themes.MinimalDark,
 }
 
+-- Orden de temas extra para el desplegable (esta build: solo los 2 libres)
+addon.ThemeOrder = { "elvuidark", "minimaldark" }
+
+-- Compatibilidad con la UI (sistema Pro): en esta build no hay temas Pro,
+-- así que el desbloqueo es siempre verdadero y no se gatea nada.
+function addon:IsProUnlocked() return true end
+function addon:TryUnlockPro() return true end
+function addon:RequestProCode() end
+
 -- ====================================================================
 -- Adaptador: convierte un tema nuevo a la paleta C que usa la UI.
 -- Respeta los colores personalizados guardados por el editor

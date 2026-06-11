@@ -243,6 +243,12 @@ local function PrintHelp()
     SKquests:Print("  /skq help        - Esta ayuda")
 end
 
+-- Comando de diagnóstico de una sola palabra (sin argumentos)
+SLASH_SKQDIAG1 = "/skqdiag"
+SlashCmdList["SKQDIAG"] = function()
+    SlashCmdList["SKQUESTS"]("debug")
+end
+
 SLASH_SKQUESTS1 = "/skq"
 SLASH_SKQUESTS2 = "/skquests"
 SlashCmdList["SKQUESTS"] = function(msg)
@@ -251,11 +257,35 @@ SlashCmdList["SKQUESTS"] = function(msg)
         if SKquests_DetailDB then
             for _ in pairs(SKquests_DetailDB) do numQuests = numQuests + 1 end
         end
-        print("--- SKquests Debug ---")
-        print("Total quests cargadas:", numQuests)
-        print("Total quests visibles:", addon.GetVisibleQuestsCount and addon:GetVisibleQuestsCount() or 0)
-        print("Total zonas detectadas:", addon.GetVisibleZonesCount and addon:GetVisibleZonesCount() or 0)
-        print("selectedQuestId actual:", addon.GetSelectedQuestId and addon:GetSelectedQuestId() or "nil")
+        local gN, chN, stN = 0, 0, 0
+        if SKquests.GetGuideCounts then gN, chN, stN = SKquests:GetGuideCounts() end
+        local activeN = SKquests.GetActiveQuestCount and SKquests:GetActiveQuestCount() or 0
+        local idN = 0
+        if SKquests.questIds then for _ in pairs(SKquests.questIds) do idN = idN + 1 end end
+        print("--- SKquests Debug (flujo de datos) ---")
+        print("Faccion guia:", SKquests.db and SKquests.db.currentGuide or "?")
+        print("Guide quests (GetGuideTable):", gN)
+        print("Guide chapters:", chN, "| pasos capitulo actual:", stN)
+        print("Active quests (Tracker cache):", activeN)
+        print("Quest IDs (SKquests.questIds):", idN)
+        print("Total quests DB:", numQuests)
+        print("Quests visibles (filteredQuestIds):", SKquests.GetVisibleQuestsCount and SKquests:GetVisibleQuestsCount() or 0)
+        print("Zonas visibles:", SKquests.GetVisibleZonesCount and SKquests:GetVisibleZonesCount() or 0)
+        print("Selected quest:", SKquests.GetSelectedQuestId and SKquests:GetSelectedQuestId() or "nil")
+        local d = SKquests.GetDiagRender and SKquests:GetDiagRender()
+        if d then
+            print("--- Ultimo render de lista ---")
+            print("Tab:", tostring(d.tab), "| total items:", d.total, "| botones mostrados:", d.shown)
+            print("Filas:", d.rows, "| offset:", d.offset, "| lista visible:", tostring(d.listShown), "| alto scroll:", d.scrollH)
+            print("Boton[1]:", tostring(d.btnShown), "tam:", d.btnSize, "| texto visible:", tostring(d.txtShown), "| padre visible:", tostring(d.parentShown))
+            print("Texto:", "'" .. tostring(d.sampleTxt) .. "' | color:", d.txtColor)
+            print("Pos Boton:", tostring(d.boxBtn))
+            print("Pos Scroll:", tostring(d.boxScroll))
+            print("Pos Lista:", tostring(d.boxList))
+            print("Panel Zonas visible:", tostring(d.zoneShown), "| pos:", tostring(d.boxZone))
+        else
+            print("Ultimo render: (aun no se ha dibujado ninguna lista)")
+        end
         print("----------------------")
         return
     end

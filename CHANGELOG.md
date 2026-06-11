@@ -3,6 +3,24 @@
 All notable changes to SKquests will be documented in this file.
 This project follows [Semantic Versioning](https://semver.org/) and [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.8.4-alpha] - 2026-06-11
+
+### Added
+- **Full Objective Map Pins System**: Restored and expanded the interactive map pins to show kill (red), interact (yellow), and gather (green) objectives, including clustering for nearby spawns.
+- **Dynamic Color Palettes**: Added 6 different hex color variations for each objective category. Users can cycle through colors in real-time by doing `Ctrl + Click` on any pin.
+
+### Fixed
+- **Map Rendering Bug**: Fixed a `SetTexture` return value check that is unsupported in WoW 3.3.5a, which was preventing interactive maps from rendering.
+- **Map View Reset**: Changing pin colors no longer resets the map zoom and pan state.
+- **Missing Starting Zone Quests**: Fixed an issue where quests in starting subzones (like Valley of Trials or Northshire) were unlisted by dynamically merging them under their parent zone (e.g., Durotar, Elwynn Forest).
+- **PvP Quests Filter**: PvP quests and Battleground zones are now filtered out from the database to keep the interface focused on PvE.
+
+### Fixed
+- **Quest Log map broken**: opening a quest in the Quest Log tab incorrectly displayed the map and coordinates of the last viewed quest in the Explorer tab, due to a stale ID reference. It now correctly identifies the active quest by its localized title and updates the map and details accordingly.
+- **Starting Zones missing from Quests list**: missions for Valley of Trials, Northshire, etc., silently aborted the database filtering because `IsQuestEligible` performed string/number comparisons on `q.level` (e.g., `"5" > 60` in Lua 5.1). The filter now correctly uses `tonumber()` so starting zones appear again.
+- **Map pins too thick and opaque**: reduced pin size from 10x10 to 6x6, added a glowing blend mode (`ADD`), and adjusted opacities and palettes to create a subtle, aesthetically pleasing glowing effect that makes the exact coordinate clearer when zoomed.
+- **Customizable pin colors**: you can now cycle through 6 distinct color presets for map pins (gathering, killing, interacting) by `Ctrl + Left Click` on any pin. The map updates the colors instantly without resetting your zoom or pan position.
+
 ## [0.5.0-alpha] - 2026-06-11
 
 ### Added

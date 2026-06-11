@@ -1,7 +1,7 @@
 -- File: SKquests_UI.lua
 -- Rediseño completo de la interfaz de SKquests al estilo Web 3 Columnas
 -- Soporta modo oscuro/claro, ventana ajustable y pestañas dinámicas.
--- Versión Alpha 0.8.4
+-- Versión Alpha 0.1.4
 
 local addon = SKquests
 
@@ -203,15 +203,15 @@ end
 -- Carpetas de mapa del cliente (Interface\\WorldMap\\<carpeta>\\<carpeta>1..12)
 local ZoneMapFolder = {
     [1]="DunMorogh",[3]="Badlands",[4]="BlastedLands",[8]="SwampOfSorrows",
-    [9]="Northshire",[10]="Duskwood",[11]="Wetlands",[12]="Elwynn",[14]="Durotar",
+    [9]="Elwynn",[10]="Duskwood",[11]="Wetlands",[12]="Elwynn",[14]="Durotar",
     [15]="Dustwallow",[16]="Azshara",[17]="Barrens",[19]="BlastedLands",
     [28]="WesternPlaguelands",[33]="Stranglethorn",[36]="Alterac",[38]="LochModan",
     [40]="Westfall",[44]="Redridge",[45]="Arathi",[46]="BurningSteppes",
     [47]="Hinterlands",[51]="SearingGorge",[85]="Tirisfal",[130]="Silverpine",
-    [131]="DunMorogh",[132]="ColdridgeValley",[139]="EasternPlaguelands",[141]="Teldrassil",
-    [148]="Darkshore",[154]="Deathknell",[188]="Shadowglen",[215]="Mulgore",
-    [220]="CampNarache",[221]="Durotar",[267]="Hillsbrad",[331]="Ashenvale",
-    [357]="Feralas",[361]="Felwood",[363]="ValleyOfTrials",[393]="Durotar",
+    [131]="DunMorogh",[132]="DunMorogh",[139]="EasternPlaguelands",[141]="Teldrassil",
+    [148]="Darkshore",[154]="Tirisfal",[188]="Teldrassil",[215]="Mulgore",
+    [220]="Mulgore",[221]="Durotar",[267]="Hillsbrad",[331]="Ashenvale",
+    [357]="Feralas",[361]="Felwood",[363]="Durotar",[393]="Durotar",
     [400]="ThousandNeedles",[405]="Desolace",[406]="StonetalonMountains",
     [440]="Tanaris",[490]="UngoroCrater",[493]="Moonglade",[618]="Winterspring",
     [702]="Teldrassil",[1377]="Silithus",[1497]="Undercity",[1519]="StormwindCity",
@@ -387,11 +387,6 @@ local selectedLevelFilter = "Todos"
 local filteredQuestIds = {}
 local uniqueZones = {}            -- { {name, minL, maxL, count, id}, ... }
 
--- Métodos públicos para acceder a las colecciones
-addon.GetVisibleQuestsCount = function(self) return filteredQuestIds and #filteredQuestIds or 0 end
-addon.GetVisibleZonesCount = function(self) return uniqueZones and #uniqueZones or 0 end
-addon.GetSelectedQuestId = function(self) return selectedQuestId end
-
 -- Guias
 local filteredGuideSteps = {}
 local guideChapters = {}
@@ -545,30 +540,11 @@ local function IsQuestEligible(id, q)
     if title:find("<UNUSED>") or title:find("<NYI>") or title:find("<TXT>") or title:find("%[UNUSED%]") then
         return false
     end
-    local l1 = tonumber(q.level) or 0
-    local l2 = tonumber(q.lvl) or 0
-    local l3 = tonumber(q.minLevel) or 0
-    local l4 = tonumber(q.reqLevel) or 0
+    local l1 = q.level or 0
+    local l2 = q.lvl or 0
+    local l3 = q.minLevel or 0
+    local l4 = q.reqLevel or 0
     if (l1 > 60) or (l2 > 60) or (l3 > 60) or (l4 > 60) then
-        return false
-    end
-
-    -- Filtrar misiones PvP (Campos de batalla y zonas exclusivas PvP)
-    local pvpZones = {
-        [2597] = true, -- Alterac Valley
-        [2839] = true, -- Alterac Valley
-        [3277] = true, -- Warsong Gulch
-        [3358] = true, -- Arathi Basin
-        [3820] = true, -- Eye of the Storm
-        [4384] = true, -- Strand of the Ancients
-        [4197] = true, -- Wintergrasp
-        [4710] = true, -- Isle of Conquest
-    }
-    if q.zoneId and pvpZones[q.zoneId] then
-        return false
-    end
-    -- Filtrar por titulo explicito de prueba PvP
-    if title:find("PVP") or title:find("JCJ") then
         return false
     end
     local origin = pfDB and pfDB['quest_origin'] and pfDB['quest_origin'][id]
@@ -588,12 +564,12 @@ local function BuildZonesList()
         if IsQuestEligible(id, q) and q.zoneId and ZoneMap[q.zoneId]
            and exp ~= "TBC" and exp ~= "WotLK" then
             local name = GetZoneName(q.zoneId)
+            local lvl = q.level or 0
             if not zonesData[name] then
                 zonesData[name] = { minL = 100, maxL = 0, count = 0, id = q.zoneId }
             end
             local z = zonesData[name]
             z.count = z.count + 1
-            local lvl = tonumber(q.level) or 0
             if lvl > 0 then
                 if lvl < z.minL then z.minL = lvl end
                 if lvl > z.maxL then z.maxL = lvl end
@@ -621,14 +597,13 @@ end
 -- ============================================================
 local function MatchLevelRange(lvl, range)
     if range == "Todos" then return true end
-    local l = tonumber(lvl) or 0
-    if l <= 0 then return false end
-    if range == "1-10" then return l >= 1 and l <= 10
-    elseif range == "11-20" then return l >= 11 and l <= 20
-    elseif range == "21-30" then return l >= 21 and l <= 30
-    elseif range == "31-40" then return l >= 31 and l <= 40
-    elseif range == "41-50" then return l >= 41 and l <= 50
-    elseif range == "51-59" then return l >= 51 and l <= 59
+    if not lvl or lvl <= 0 then return false end
+    if range == "1-10" then return lvl >= 1 and lvl <= 10
+    elseif range == "11-20" then return lvl >= 11 and lvl <= 20
+    elseif range == "21-30" then return lvl >= 21 and lvl <= 30
+    elseif range == "31-40" then return lvl >= 31 and lvl <= 40
+    elseif range == "41-50" then return lvl >= 41 and lvl <= 50
+    elseif range == "51-59" then return lvl >= 51 and lvl <= 59
     end
     return false
 end
@@ -667,18 +642,14 @@ local function BuildFilteredQuestIds()
         end
     end
 
-    -- Ordenar por nivel, luego por nombre (a prueba de fallos con tonumber/tostring)
+    -- Ordenar por nivel, luego por nombre
     pcall(function() table.sort(filteredQuestIds, function(a, b)
         local qa = SKquests_DetailDB[a]
         local qb = SKquests_DetailDB[b]
-        if not qa or not qb then return false end
-        
-        local la = tonumber(qa.level) or 0
-        local lb = tonumber(qb.level) or 0
-        if la ~= lb then
-            return la < lb
+        if qa.level ~= qb.level then
+            return (qa.level or 0) < (qb.level or 0)
         end
-        return tostring(qa.name or "") < tostring(qb.name or "")
+        return (qa.name or "") < (qb.name or "")
     end) end)
 end
 
@@ -718,22 +689,6 @@ local function BuildGuideChapters()
             table.insert(filteredGuideSteps, { originalIndex = i, step = guide[i] })
         end
     end
-end
-
--- Getters de diagnóstico (flujo de datos guía/tracker)
-addon.GetGuideCounts = function(self)
-    local guide = addon:GetGuideTable()
-    local guideN = guide and #guide or 0
-    local chapN = guideChapters and #guideChapters or 0
-    local stepN = filteredGuideSteps and #filteredGuideSteps or 0
-    return guideN, chapN, stepN
-end
-addon.GetActiveQuestCount = function(self)
-    local n = 0
-    if addon.Tracker and addon.Tracker.GetActiveQuests then
-        for _ in pairs(addon.Tracker:GetActiveQuests()) do n = n + 1 end
-    end
-    return n
 end
 
 -- ============================================================
@@ -877,19 +832,6 @@ function addon:CreateModernUI()
     local initialW = SKquestsDB and SKquestsDB.config and SKquestsDB.config.width or 940
     local initialH = SKquestsDB and SKquestsDB.config and SKquestsDB.config.height or 640
 
-    -- La ventana NUNCA debe ser más alta/ancha que la pantalla, o el borde
-    -- superior de la lista queda fuera de vista (filas invisibles).
-    local screenH = math.floor((UIParent:GetHeight() or 768) - 40)
-    local screenW = math.floor((UIParent:GetWidth() or 1024) - 40)
-    local maxH = math.min(1000, screenH)
-    local maxW = math.min(1600, screenW)
-    if initialH > maxH then initialH = maxH end
-    if initialW > maxW then initialW = maxW end
-    if SKquestsDB and SKquestsDB.config then
-        SKquestsDB.config.height = initialH
-        SKquestsDB.config.width = initialW
-    end
-
     -- ---- MARCO PRINCIPAL ----
     local f = CreateFrame("Frame", "SKquestsMainFrame", UIParent)
     f:SetSize(initialW, initialH)
@@ -897,7 +839,7 @@ function addon:CreateModernUI()
     f:SetMovable(true)
     f:SetResizable(true)
     f:SetMinResize(800, 480)
-    f:SetMaxResize(maxW, maxH)
+    f:SetMaxResize(1600, 1000)
     f:EnableMouse(true)
     f:RegisterForDrag("LeftButton")
     f:SetScript("OnDragStart", function(self)
@@ -1469,16 +1411,6 @@ function addon:CreateModernUI()
             end)
             pin:SetScript("OnLeave", function() GameTooltip:Hide() end)
             pin:SetScript("OnClick", function(self)
-                if IsControlKeyDown() and self.category then
-                    SKquestsDB.config.pinColors = SKquestsDB.config.pinColors or { kill=1, interact=1, gather=1 }
-                    local idx = (SKquestsDB.config.pinColors[self.category] or 1) + 1
-                    if idx > 6 then idx = 1 end
-                    SKquestsDB.config.pinColors[self.category] = idx
-                    if questImgBox.currentQuest then
-                        questImgBox:SetQuest(questImgBox.currentQuest)
-                    end
-                    return
-                end
                 if self.label then
                     print("|cff33ff99SKquests|r: " .. self.label .. (self.sub and (" - " .. self.sub) or ""))
                 end
@@ -1659,11 +1591,8 @@ function addon:CreateModernUI()
     questImgBox:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
     function questImgBox:SetQuest(q)
-        if questImgBox.currentQuest ~= q then
-            imgZoom = 1; imgOffX = 0; imgOffY = 0
-        end
-        questImgBox.currentQuest = q
-        for _, pin in ipairs(pinPool) do pin:Hide(); pin.relX = nil; pin.category = nil end
+        imgZoom = 1; imgOffX = 0; imgOffY = 0
+        for _, pin in ipairs(pinPool) do pin:Hide(); pin.relX = nil end
         OV.Hide()
         local function NpcZone(npcId)
             local u = GetUnitData(npcId)
@@ -1678,33 +1607,11 @@ function addon:CreateModernUI()
             folder = mapZone and GetZoneMapFolder(mapZone)
         end
         local usedMap = false
-        -- Intenta la carpeta de la zona; si la textura no existe (SetTexture
-        -- falla), prueba la zona padre (p. ej. Shadowglen -> Teldrassil).
-        local function TryFolder(fld)
-            if not fld then return false end
-            local base = "Interface\\WorldMap\\" .. fld .. "\\" .. fld
-            if mapTiles[1]:SetTexture(base .. "1") then
-                for i = 2, 12 do mapTiles[i]:SetTexture(base .. i) end
-                return true
-            end
-            return false
-        end
         if folder then
-            usedMap = TryFolder(folder)
-            if not usedMap then
-                -- La subzona no tiene textura propia (p. ej. Shadowglen).
-                -- Mostramos el mapa de la zona PADRE y reasignamos mapZone al
-                -- padre: así zData queda nulo y los pins se colocan en
-                -- coordenadas del padre, sin la traducción a subzona.
-                local zd = pfDB and pfDB["zones"] and pfDB["zones"]["data"] and pfDB["zones"]["data"][mapZone]
-                local parent = zd and zd[1]
-                local pf = parent and GetZoneMapFolder(parent)
-                if pf and TryFolder(pf) then
-                    usedMap = true
-                    mapZone = parent
-                    folder = pf
-                end
-            end
+            local base = "Interface\\WorldMap\\" .. folder .. "\\" .. folder
+            mapTiles[1]:SetTexture(base .. "1")
+            usedMap = true
+            for i = 2, 12 do mapTiles[i]:SetTexture(base .. i) end
         end
         if usedMap then
             imgMode = "map"
@@ -1713,9 +1620,6 @@ function addon:CreateModernUI()
             OV.Show(folder)
             local nPin = 0
             local PIN_BUDGET = 160
-
-            local zData = pfDB and pfDB["zones"] and pfDB["zones"]["data"] and pfDB["zones"]["data"][mapZone]
-            local parentZone = zData and zData[1]
 
             -- Reúne coordenadas de un NPC u objeto en la zona del mapa:
             -- pfQuest classic + pfQuest ascension + SKquests_SpawnData
@@ -1726,7 +1630,7 @@ function addon:CreateModernUI()
                 -- carpeta de mapa (el DetailDB usa subzonas, pfQuest usa zonas
                 -- de mapa: p.ej. 9 Northshire y 12 Elwynn comparten "Elwynn")
                 local function OnThisMap(z)
-                    return z == mapZone or (parentZone and z == parentZone) or (folder and GetZoneMapFolder(z) == folder)
+                    return z == mapZone or (folder and GetZoneMapFolder(z) == folder)
                 end
                 if kind == "object" then
                     local o = GetObjectData(id)
@@ -1764,21 +1668,7 @@ function addon:CreateModernUI()
 
             -- Punto coloreado de objetivo, con agrupado de spawns próximos
             local placed = {}
-            local function PlaceDot(x, y, r, g, b, label, sub, category)
-                if zData then
-                    -- Translate parent coords to subzone coords
-                    local pWidth = zData[2]
-                    local pHeight = zData[3]
-                    local pOffsetX = zData[4]
-                    local pOffsetY = zData[5]
-                    x = (x - pOffsetX) * 100 / pWidth
-                    y = (y - pOffsetY) * 100 / pHeight
-                    
-                    if x < -25 or x > 125 or y < -25 or y > 125 then
-                        return false -- Outside the bounds of the subzone map
-                    end
-                end
-                
+            local function PlaceDot(x, y, r, g, b, label, sub)
                 for _, p in ipairs(placed) do
                     if p.r == r and p.g == g and math.abs(p.x - x) < 1.0 and math.abs(p.y - y) < 1.0 then
                         return false -- cluster: ya hay un punto igual al lado
@@ -1787,60 +1677,27 @@ function addon:CreateModernUI()
                 nPin = nPin + 1
                 placed[#placed + 1] = { x = x, y = y, r = r, g = g }
                 local pin = GetPin(nPin)
-                pin.category = category
-                pin:SetSize(14, 14)
+                pin:SetSize(10, 10)
                 pin.tex:SetTexture("Interface\\AddOns\\SKquests\\Media\\circle.tga")
-                pin.tex:SetVertexColor(r, g, b, 0.5)
-                pin.tex:SetBlendMode("ADD")
-
-                -- Glow central
-                if not pin.glow then
-                    pin.glow = pin:CreateTexture(nil, "OVERLAY")
-                    pin.glow:SetTexture("Interface\\AddOns\\SKquests\\Media\\circle.tga")
-                    pin.glow:SetPoint("CENTER")
-                end
-                pin.glow:SetSize(9, 9)
-                pin.glow:SetVertexColor(r, g, b, 0.9)
-                pin.glow:SetBlendMode("ADD")
-                pin.glow:Show()
-
+                pin.tex:SetVertexColor(r, g, b, 0.95)
                 pin.relX = x / 100
                 pin.relY = y / 100
                 pin.label = label
                 pin.sub = string.format("%s (%.1f, %.1f)", sub or "", x, y)
-                pin:EnableMouse(true)
-                pin:SetScript("OnMouseDown", function(self, button)
-                    if IsControlKeyDown() and button == "LeftButton" then
-                        if self.category then
-                            SKquestsDB.config.pinColors = SKquestsDB.config.pinColors or { kill=1, interact=1, gather=1 }
-                            SKquestsDB.config.pinColors[self.category] = (SKquestsDB.config.pinColors[self.category] % 6) + 1
-                            addon:RefreshDetail()
-                        end
-                    end
-                end)
                 pin:Show()
                 return true
             end
 
-            local Palette = {
-                kill = { {0.2, 1.0, 0.2}, {0.1, 0.8, 0.4}, {0.3, 0.9, 0.6}, {0.0, 0.7, 0.3}, {0.4, 1.0, 0.5}, {0.2, 0.6, 0.1} },
-                interact = { {1.0, 0.8, 0.1}, {1.0, 0.6, 0.0}, {0.9, 0.9, 0.3}, {1.0, 0.5, 0.1}, {1.0, 0.9, 0.5}, {0.8, 0.6, 0.1} },
-                gather = { {1.0, 0.2, 0.2}, {0.9, 0.1, 0.3}, {1.0, 0.3, 0.0}, {0.8, 0.0, 0.0}, {1.0, 0.1, 0.6}, {0.9, 0.4, 0.4} }
-            }
-
-            local function AddObjectivePins(list, kind, category, roleTxt)
+            -- ROJO matar · VERDE interactuar · AMARILLO recolectar
+            local function AddObjectivePins(list, kind, r, g, b, roleTxt)
                 if not list then return end
-                SKquestsDB.config.pinColors = SKquestsDB.config.pinColors or { kill=1, interact=1, gather=1 }
-                local idx = SKquestsDB.config.pinColors[category] or 1
-                local r, g, b = unpack(Palette[category][idx])
-                
                 for _, id in ipairs(list) do
                     if nPin >= PIN_BUDGET then return end
                     local name = (kind == "object") and ObjectDisplayName(id) or UnitDisplayName(id)
                     local added = 0
                     for _, c in ipairs(CollectCoords(kind, id)) do
                         if nPin >= PIN_BUDGET or added >= 15 then break end
-                        if PlaceDot(c[1], c[2], r, g, b, name, roleTxt, category) then
+                        if PlaceDot(c[1], c[2], r, g, b, name, roleTxt) then
                             added = added + 1
                         end
                     end
@@ -1859,9 +1716,6 @@ function addon:CreateModernUI()
                         pin.relY = c[2] / 100
                         pin.tex:SetTexture(icon)
                         pin.tex:SetVertexColor(1, 1, 1, 1)
-                        pin.tex:SetBlendMode("BLEND")
-                        if pin.glow then pin.glow:Hide() end
-                        pin:SetScript("OnMouseDown", nil)
                         pin.label = name or ("NPC " .. tostring(id))
                         pin.sub = string.format("%s (%.1f, %.1f)", role, c[1], c[2])
                         pin:Show()
@@ -1878,10 +1732,10 @@ function addon:CreateModernUI()
                     local txtLoot = IsSpanish() and "Recoleccion" or "Collect"
                     local txtLootObj = IsSpanish() and "Recoleccion (Objeto)" or "Collect (Object)"
                     
-                    AddObjectivePins(links.npcs,         "npc",    "kill",     txtKill)
-                    AddObjectivePins(links.objects,      "object", "interact", txtUse)
-                    AddObjectivePins(links.item_npcs,    "npc",    "gather",   txtLoot)
-                    AddObjectivePins(links.item_objects, "object", "gather",   txtLootObj)
+                    AddObjectivePins(links.npcs,         "npc",    0.85, 0.12, 0.12, txtKill)       -- Rojo (matar)
+                    AddObjectivePins(links.objects,      "object", 0.95, 0.80, 0.10, txtUse)        -- Amarillo (interactuar)
+                    AddObjectivePins(links.item_npcs,    "npc",    0.15, 0.80, 0.20, txtLoot)       -- Verde (loot npc)
+                    AddObjectivePins(links.item_objects, "object", 0.15, 0.80, 0.20, txtLootObj)    -- Verde (loot obj)
                 end
 
                 -- 2) Giver/finisher encima (soporta inicios/entregas por objeto)
@@ -2657,23 +2511,16 @@ end
 -- ============================================================
 function addon:RefreshList()
     if not ListPanel or not ListPanel.scroll then return end
-    -- El scroll quedaba oculto en algunos tabs; forzar que se muestre
-    if not ListPanel.scroll:IsShown() then ListPanel.scroll:Show() end
 
     local offset = FauxScrollFrame_GetOffset(ListPanel.scroll)
     local h = ListPanel.scroll:GetHeight()
+    
     local visibleRows = 18
     if h and h > 0 then
         visibleRows = math.min(MAX_ROWS, math.floor(h / ROW_H))
+        -- Altura menor que una fila (panel aun sin layout): no dejar la lista en 0
         if visibleRows < 1 then visibleRows = 18 end
     end
-
-    local offset = FauxScrollFrame_GetOffset(ListPanel.scroll) or 0
-    
-    local debug_visibleQuests = addon:GetVisibleQuestsCount()
-    local debug_activeQuests = 0
-    local debug_drawnRows = visibleRows
-    local debug_shownBtns = 0
 
     for i = 1, visibleRows do
         local btn = listButtons[i]
@@ -2690,9 +2537,7 @@ function addon:RefreshList()
                 local locN = GetQuestLoc(q.id)
                 local displayName = (IsSpanish() and ((locN and locN.T) or (q.name_loc and q.name_loc ~= "" and q.name_loc))) or q.name
                 btn.txt:SetText(displayName)
-                
-                local lvl = tonumber(q.level) or 0
-                btn.lvl:SetText(lvl > 0 and lvl or "")
+                btn.lvl:SetText(q.level and q.level > 0 and q.level or "")
 
                 local act, lIdx = addon.Tracker:IsActive(q.name)
                 if act then
@@ -2715,7 +2560,6 @@ function addon:RefreshList()
                     btn.txt:SetTextColor(C.white[1], C.white[2], C.white[3])
                 end
                 btn:Show()
-                debug_shownBtns = debug_shownBtns + 1
             else
                 btn:Hide()
             end
@@ -2727,12 +2571,10 @@ function addon:RefreshList()
             for logIdx, entry in pairs(cache) do
                 table.insert(activeQuests, { idx=logIdx, entry=entry })
             end
-            debug_activeQuests = #activeQuests
             table.sort(activeQuests, function(a, b)
-                local la = tonumber(a.entry.level) or 0
-                local lb = tonumber(b.entry.level) or 0
+                local la, lb = a.entry.level or 0, b.entry.level or 0
                 if la ~= lb then return la < lb end
-                return tostring(a.entry.title or "") < tostring(b.entry.title or "")
+                return (a.entry.title or "") < (b.entry.title or "")
             end)
 
             local item = activeQuests[dataIdx]
@@ -2740,10 +2582,8 @@ function addon:RefreshList()
                 local entry = item.entry
                 btn.itemId = item.idx
                 btn.icon:Hide()
-                btn.txt:SetText(tostring(entry.title or "Misión"))
-                
-                local lvl = tonumber(entry.level) or 0
-                btn.lvl:SetText(lvl > 0 and lvl or "")
+                btn.txt:SetText(entry.title or "Misión")
+                btn.lvl:SetText(entry.level and entry.level > 0 and entry.level or "")
                 
                 if entry.isComplete then
                     btn.dot:SetText("✔")
@@ -2761,7 +2601,6 @@ function addon:RefreshList()
                     btn.txt:SetTextColor(C.white[1], C.white[2], C.white[3])
                 end
                 btn:Show()
-                debug_shownBtns = debug_shownBtns + 1
             else
                 btn:Hide()
             end
@@ -2832,58 +2671,7 @@ function addon:RefreshList()
     elseif activeTab == "zones" then
         MainFrame.hCount:SetText(string.format(L("COUNT_ZONES"), #uniqueZones))
     end
-    
-    -- Diagnóstico del último render (consultable con /skqdiag)
-    local shownNow = 0
-    for i = 1, visibleRows do
-        if listButtons[i] and listButtons[i]:IsShown() then shownNow = shownNow + 1 end
-    end
-    local totalNow = 0
-    if activeTab == "quests" then totalNow = #filteredQuestIds
-    elseif activeTab == "guide" then totalNow = guideChapters and #guideChapters or 0
-    elseif activeTab == "zones" then totalNow = #uniqueZones
-    elseif activeTab == "questlog" and addon.Tracker then
-        for _ in pairs(addon.Tracker:GetActiveQuests()) do totalNow = totalNow + 1 end
-    end
-    local b1 = listButtons[1]
-    local sampleTxt, txtShown, r1, g1, bl1, a1, bw, bh = "?", false, -1, -1, -1, -1, -1, -1
-    if b1 and b1.txt then
-        sampleTxt = b1.txt:GetText() or "(vacio)"
-        txtShown = b1.txt:IsShown()
-        r1, g1, bl1, a1 = b1.txt:GetTextColor()
-        bw, bh = b1:GetWidth(), b1:GetHeight()
-    end
-    local function box(fr)
-        if not fr or not fr.GetLeft or not fr:GetLeft() then return "nil" end
-        return string.format("L%.0f R%.0f T%.0f B%.0f", fr:GetLeft(), fr:GetRight(), fr:GetTop(), fr:GetBottom())
-    end
-    local zp = ListPanel and ListPanel.zonePanel
-    addon._diagRender = {
-        tab = activeTab, rows = visibleRows, offset = offset,
-        shown = shownNow, total = totalNow,
-        listShown = ListPanel and ListPanel:IsShown() or false,
-        scrollH = ListPanel and ListPanel.scroll and ListPanel.scroll:GetHeight() or -1,
-        sampleTxt = sampleTxt, txtShown = txtShown,
-        txtColor = string.format("%.2f,%.2f,%.2f a=%.2f", r1, g1, bl1, a1),
-        btnSize = string.format("%.0fx%.0f", bw, bh),
-        btnShown = b1 and b1:IsShown() or false,
-        boxBtn = box(b1),
-        boxScroll = box(ListPanel and ListPanel.scroll),
-        boxList = box(ListPanel),
-        zoneShown = zp and zp:IsShown() or false,
-        boxZone = box(zp),
-        parentShown = b1 and b1:GetParent() and b1:GetParent():IsShown() or false,
-    }
-
-    if SKquests.db and SKquests.db.debugLogs then
-        print("|cff33ff99[SKquests Debug]|r quests visibles (GetVisibleQuestsCount):", debug_visibleQuests)
-        print("|cff33ff99[SKquests Debug]|r filas dibujadas:", debug_drawnRows)
-        print("|cff33ff99[SKquests Debug]|r botones mostrados:", debug_shownBtns)
-        print("|cff33ff99[SKquests Debug]|r elementos en QuestLog cache:", debug_activeQuests)
-    end
 end
-
-addon.GetDiagRender = function(self) return addon._diagRender end
 
 -- ============================================================
 --  ACTUALIZAR PANEL DE DETALLES
@@ -2900,6 +2688,10 @@ function addon:RefreshDetail()
             cb:Hide()
         end
     end
+    
+    addon.GetVisibleQuestsCount = function(self) return filteredQuestIds and #filteredQuestIds or 0 end
+    addon.GetVisibleZonesCount = function(self) return uniqueZones and #uniqueZones or 0 end
+    addon.GetSelectedQuestId = function(self) return selectedQuestId end
 
     if ch.rewardSec then
         ch.rewardSec:Hide()
@@ -2953,8 +2745,7 @@ function addon:RefreshDetail()
             titleText = ((GetQuestLoc(q.id) and GetQuestLoc(q.id).T) or q.name_loc) .. " (" .. q.name .. ")"
         end
         ch.header.title:SetText(titleText)
-        local lvl = tonumber(q.level) or 0
-        ch.header.level:SetText(L("LVL_ABBR") .. " " .. (lvl > 0 and lvl or "?"))
+        ch.header.level:SetText(L("LVL_ABBR") .. " " .. (q.level and q.level > 0 and q.level or "?"))
 
         local zoneName = GetZoneName(q.zoneId)
         ch.header.meta:SetText(string.format(L("ZONE_META"), zoneName))
@@ -3019,8 +2810,7 @@ function addon:RefreshDetail()
         ch.linkSec.box:SetText(q.wowhead or "https://www.wowhead.com/wotlk/quest=" .. q.id)
 
         RightSidebar.rows.questId.val:SetText(q.id)
-        local ml = tonumber(q.minLevel) or 0
-        RightSidebar.rows.minLvl.val:SetText(ml > 0 and ml or "1")
+        RightSidebar.rows.minLvl.val:SetText(q.minLevel and q.minLevel > 0 and q.minLevel or "1")
         
         local isCompleted = addon.completedQuests and addon.completedQuests[tostring(q.id)]
         local statusText = active and L("ST_ACTIVE") or (isCompleted and L("ST_DONE") or L("ST_NOT_STARTED"))
@@ -3156,35 +2946,14 @@ function addon:RefreshDetail()
             return
         end
 
-        local q = nil
-        -- 1) Vía rápida y fiable: por ID de quest del propio log
-        if entry and entry.id and SKquests_DetailDB[entry.id] then
-            q = SKquests_DetailDB[entry.id]
-        end
-        -- 2) Respaldo: emparejar por nombre (exacto en cualquier idioma)
-        if not q and entry and entry.title then
-            local eTitle = entry.title:lower()
-            for id, quest in pairs(SKquests_DetailDB) do
-                local locN = GetQuestLoc(id)
-                local t1 = quest.name and quest.name:lower() or ""
-                local t2 = quest.name_loc and quest.name_loc:lower() or ""
-                local t3 = locN and locN.T and locN.T:lower() or ""
-                if t1 == eTitle or t2 == eTitle or t3 == eTitle then
-                    q = quest
-                    break
-                end
-            end
-        end
-        -- Guardar el id en la entrada para que el clic en la lista lo seleccione
-        if q then selectedQuestId = q.id end
+        local q = selectedQuestId and SKquests_DetailDB[selectedQuestId]
 
         local titleText = entry.title
         if q and SKquests_Localization and SKquests_Localization.currentLanguage == "esES" and q.name_loc and q.name_loc ~= "" and q.name_loc ~= q.name then
             titleText = ((GetQuestLoc(q.id) and GetQuestLoc(q.id).T) or q.name_loc) .. " (" .. q.name .. ")"
         end
         ch.header.title:SetText(titleText)
-        local lvl = tonumber(entry.level) or 0
-        ch.header.level:SetText(L("LVL_ABBR") .. " " .. (lvl > 0 and lvl or "?"))
+        ch.header.level:SetText(L("LVL_ABBR") .. " " .. (entry.level and entry.level > 0 and entry.level or "?"))
 
         local zoneName = q and q.zoneId and GetZoneName(q.zoneId) or "Quest Log"
         ch.header.meta:SetText(string.format(L("ZONE_META"), zoneName))
@@ -3232,8 +3001,7 @@ function addon:RefreshDetail()
             ch.linkSec.box:SetText(q.wowhead or "https://www.wowhead.com/wotlk/quest=" .. q.id)
 
             RightSidebar.rows.questId.val:SetText(q.id)
-            local ml = tonumber(q.minLevel) or 0
-            RightSidebar.rows.minLvl.val:SetText(ml > 0 and ml or "1")
+            RightSidebar.rows.minLvl.val:SetText(q.minLevel and q.minLevel > 0 and q.minLevel or "1")
             RightSidebar.rows.status.val:SetText(entry.isComplete and L("ST_READY") or L("ST_PROGRESS"))
 
             -- Mostrar Recompensas
@@ -3457,7 +3225,6 @@ function addon:SwitchTab(tabId)
         AboutPanel:Hide()
         ListPanel:Show()
         DetailPanel:Show()
-        if ListPanel.scroll then ListPanel.scroll:Show() end  -- el scroll quedaba oculto
 
         local showZonePanel = (tabId == "quests" or tabId == "questlog")
         if ListPanel.zonePanel then
