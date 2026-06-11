@@ -1,9 +1,13 @@
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
+<<<<<<< HEAD
  Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
+=======
+Copyright (c) 2026 Kevin Vilallobos - Skroldax
+>>>>>>> e6a5bb3a69bc7702a13d3bd975ea0ac13c5d37dd
 
                             Preamble
 
