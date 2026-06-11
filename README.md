@@ -54,6 +54,15 @@ SKquests/
 └── Media/                    # Imágenes, logos y DB pfQuest
 ```
 
+## Fuentes de datos
+
+Los datos de misiones, NPCs y recompensas se construyen a partir de:
+
+- [pfQuest](https://github.com/shagu/pfQuest) — base de datos de quests para clientes clásicos (incluida en `Media/db/`)
+- [AzerothCore](https://www.azerothcore.org/) — `quest_template` y datos del mundo 3.3.5a
+- [Wowhead](https://www.wowhead.com/wotlk/) — verificación de cadenas, niveles y recompensas (versión WotLK Classic)
+- [Ascension Database](https://db.ascension.gg/) — quests e items custom de Project Ascension
+
 ## Changelog
 
 Ver [CHANGELOG.md](CHANGELOG.md). El proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
@@ -64,4 +73,4 @@ Ver [CHANGELOG.md](CHANGELOG.md). El proyecto sigue [Semantic Versioning](https:
 
 ## Licencia
 
-Proyecto personal en desarrollo. Las guías de leveo se basan en rutas clásicas de la comunidad; los datos de quests provienen de bases de datos públicas de la comunidad (pfQuest).
+Proyecto personal en desarrollo. Las guías de leveo se basan en rutas clásicas de la comunidad; los datos de quests provienen de las bases de datos públicas listadas en [Fuentes de datos](#fuentes-de-datos).
