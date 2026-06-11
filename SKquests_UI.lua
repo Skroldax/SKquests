@@ -234,6 +234,34 @@ local function RegLoc(fs, key, tf)
     fs:SetText(txt)
 end
 
+local function IsSpanish()
+    return SKquests_Localization and SKquests_Localization.currentLanguage == "esES"
+end
+
+-- Texto de quest en español desde la DB de pfQuest (T=título, O=objetivo, D=descripción)
+local function GetQuestLoc(id)
+    if IsSpanish() and pfDB and pfDB["quests"] and pfDB["quests"]["esES"] then
+        return pfDB["quests"]["esES"][id]
+    end
+end
+
+local function PfText(s)
+    if not s then return s end
+    s = s:gsub("%$[Bb]", "\n")
+    s = s:gsub("%$[Nn]", UnitName("player") or "")
+    s = s:gsub("%$[CcRr]", "")
+    return s
+end
+
+-- Paso de guía traducido (SKquests_Guide_esES.lua)
+local function GetGuideES(i)
+    if IsSpanish() and SKquests_GuideES then
+        local fac = addon.db and addon.db.currentGuide or "Alliance"
+        local t = SKquests_GuideES[fac]
+        return t and t[i]
+    end
+end
+
 local function GetZoneName(zoneId)
     if not zoneId then return "Zona Desconocida" end
     return ZoneMap[zoneId] or ("Zona " .. zoneId)
@@ -585,7 +613,8 @@ local function BuildGuideChapters()
     local chapterStartIndex = 1
     
     for i, step in ipairs(guide) do
-        local t = step.title or "Paso " .. i
+        local ges = GetGuideES(i)
+        local t = (ges and ges.title) or step.title or "Paso " .. i
         if t ~= currentTitle then
             if currentTitle ~= "" then
                 table.insert(guideChapters, { title = currentTitle, startIndex = chapterStartIndex, endIndex = i - 1 })
@@ -1300,6 +1329,32 @@ function addon:CreateModernUI()
     flatTex:Hide()
     questImgBox.tex = flatTex -- compatibilidad
 
+    -- Pins interactivos estilo Wowhead (inicio "!" / entrega "?")
+    local pinPool = {}
+    local function GetPin(idx)
+        local pin = pinPool[idx]
+        if not pin then
+            pin = CreateFrame("Button", nil, imgCanvas)
+            pin:SetSize(20, 20)
+            pin.tex = pin:CreateTexture(nil, "OVERLAY")
+            pin.tex:SetAllPoints(pin)
+            pin:SetScript("OnEnter", function(self)
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                GameTooltip:SetText(self.label or "", 1, 0.82, 0)
+                if self.sub then GameTooltip:AddLine(self.sub, 1, 1, 1) end
+                GameTooltip:Show()
+            end)
+            pin:SetScript("OnLeave", function() GameTooltip:Hide() end)
+            pin:SetScript("OnClick", function(self)
+                if self.label then
+                    print("|cff33ff99SKquests|r: " .. self.label .. (self.sub and (" - " .. self.sub) or ""))
+                end
+            end)
+            pinPool[idx] = pin
+        end
+        return pin
+    end
+
     local imgMode = "flat"
     local imgZoom = 1
     local imgOffX, imgOffY = 0, 0
@@ -1336,6 +1391,13 @@ function addon:CreateModernUI()
         if imgOffY < 0 then imgOffY = 0 end
         imgClip:SetHorizontalScroll(imgOffX)
         imgClip:SetVerticalScroll(imgOffY)
+        local W, H = imgCanvas:GetWidth(), imgCanvas:GetHeight()
+        for _, pin in ipairs(pinPool) do
+            if pin.relX and pin:IsShown() then
+                pin:ClearAllPoints()
+                pin:SetPoint("CENTER", imgCanvas, "TOPLEFT", pin.relX * W, -pin.relY * H)
+            end
+        end
     end
     questImgBox.Relayout = ImgLayout
     questImgBox:SetScript("OnSizeChanged", ImgLayout)
@@ -1388,7 +1450,19 @@ function addon:CreateModernUI()
 
     function questImgBox:SetQuest(q)
         imgZoom = 1; imgOffX = 0; imgOffY = 0
-        local folder = q and GetZoneMapFolder(q.zoneId)
+        for _, pin in ipairs(pinPool) do pin:Hide(); pin.relX = nil end
+        local function NpcZone(npcId)
+            local u = npcId and pfDB and pfDB["units"] and pfDB["units"]["data"] and pfDB["units"]["data"][npcId]
+            local c = u and u.coords and u.coords[1]
+            return c and c[3]
+        end
+        local mapZone = q and q.zoneId
+        local folder = mapZone and GetZoneMapFolder(mapZone)
+        if q and not folder then
+            -- la quest no tiene mapa propio: usar la zona del NPC de inicio/entrega
+            mapZone = NpcZone(q.giverId) or NpcZone(q.enderId)
+            folder = mapZone and GetZoneMapFolder(mapZone)
+        end
         local usedMap = false
         if folder then
             local base = "Interface\\WorldMap\\" .. folder .. "\\" .. folder
@@ -1401,6 +1475,32 @@ function addon:CreateModernUI()
             imgMode = "map"
             for i = 1, 12 do mapTiles[i]:Show() end
             flatTex:Hide()
+            local nPin = 0
+            local function AddPins(npcId, name, icon, role)
+                local u = npcId and pfDB and pfDB["units"] and pfDB["units"]["data"] and pfDB["units"]["data"][npcId]
+                if not (u and u.coords) then return end
+                local added = 0
+                for _, c in ipairs(u.coords) do
+                    if c[3] == mapZone and added < 5 then
+                        nPin = nPin + 1; added = added + 1
+                        local pin = GetPin(nPin)
+                        pin.relX = c[1] / 100
+                        pin.relY = c[2] / 100
+                        pin.tex:SetTexture(icon)
+                        pin.label = name or ("NPC " .. tostring(npcId))
+                        pin.sub = string.format("%s (%.1f, %.1f)", role, c[1], c[2])
+                        pin:Show()
+                    end
+                end
+            end
+            if q then
+                local gName = (IsSpanish() and q.giver_loc) or q.giver
+                local eName = (IsSpanish() and q.ender_loc) or q.ender
+                AddPins(q.giverId, gName, "Interface\\GossipFrame\\AvailableQuestIcon", L("MAP_START"))
+                if q.enderId ~= q.giverId then
+                    AddPins(q.enderId, eName, "Interface\\GossipFrame\\ActiveQuestIcon", L("MAP_END"))
+                end
+            end
         else
             imgMode = "flat"
             for i = 1, 12 do mapTiles[i]:Hide() end
@@ -1599,6 +1699,57 @@ function addon:CreateModernUI()
     rewardSec.choiceButtons = {}
     for r = 1, 6 do
         rewardSec.choiceButtons[r] = MakeItemBtn(rewardSec, "SKquestsChoiceBtn" .. r, 4 + (r-1)*44, -78)
+    end
+
+    -- El servidor solo envía los datos de un item cuando se le piden:
+    -- pedimos los no cacheados y refrescamos los iconos en cuanto llegan.
+    local itemCacheTip = CreateFrame("GameTooltip", "SKquestsItemCacheTip", UIParent, "GameTooltipTemplate")
+    itemCacheTip:SetOwner(UIParent, "ANCHOR_NONE")
+    local rewardRetry = CreateFrame("Frame")
+    rewardRetry:Hide()
+    rewardRetry.elapsed = 0
+    rewardRetry.tries = 0
+    rewardRetry:SetScript("OnUpdate", function(self, e)
+        self.elapsed = self.elapsed + e
+        if self.elapsed < 0.4 then return end
+        self.elapsed = 0
+        self.tries = self.tries + 1
+        local pending = false
+        local function fill(btns)
+            for _, btn in ipairs(btns) do
+                if btn:IsShown() and btn.itemId and not btn.itemLink then
+                    local nm, lk, _, _, _, _, _, _, _, tx = GetItemInfo(btn.itemId)
+                    if nm then
+                        btn.itemLink = lk
+                        if tx then btn.tex:SetTexture(tx) end
+                    else
+                        pending = true
+                    end
+                end
+            end
+        end
+        fill(rewardSec.buttons)
+        fill(rewardSec.choiceButtons)
+        if not pending or self.tries > 12 then self:Hide() end
+    end)
+    function rewardSec:RequestUncached()
+        local any = false
+        local function req(btns)
+            for _, btn in ipairs(btns) do
+                if btn:IsShown() and btn.itemId and not btn.itemLink then
+                    itemCacheTip:SetOwner(UIParent, "ANCHOR_NONE")
+                    itemCacheTip:SetHyperlink("item:" .. btn.itemId)
+                    any = true
+                end
+            end
+        end
+        req(self.buttons)
+        req(self.choiceButtons)
+        if any then
+            rewardRetry.elapsed = 0
+            rewardRetry.tries = 0
+            rewardRetry:Show()
+        end
     end
 
     -- 7) Enlaces (Wowhead copiable con botón de copiar integrado)
@@ -2079,7 +2230,8 @@ function addon:RefreshList()
                 btn.icon:Hide()
                 
                 -- Mostrar nombre localizado (Español) si está disponible
-                local displayName = q.name_loc and q.name_loc ~= "" and q.name_loc or q.name
+                local locN = GetQuestLoc(q.id)
+                local displayName = (IsSpanish() and ((locN and locN.T) or (q.name_loc and q.name_loc ~= "" and q.name_loc))) or q.name
                 btn.txt:SetText(displayName)
                 btn.lvl:SetText(q.level and q.level > 0 and q.level or "")
 
@@ -2286,7 +2438,7 @@ function addon:RefreshDetail()
         -- Mostrar títulos bilingües: Español (Inglés)
         local titleText = q.name
         if SKquests_Localization and SKquests_Localization.currentLanguage == "esES" and q.name_loc and q.name_loc ~= "" and q.name_loc ~= q.name then
-            titleText = q.name_loc .. " (" .. q.name .. ")"
+            titleText = ((GetQuestLoc(q.id) and GetQuestLoc(q.id).T) or q.name_loc) .. " (" .. q.name .. ")"
         end
         ch.header.title:SetText(titleText)
         ch.header.level:SetText("Nv " .. (q.level and q.level > 0 and q.level or "?"))
@@ -2314,15 +2466,18 @@ function addon:RefreshDetail()
         else
             -- Mostrar logDesc (objetivo del log) si existe, si no mostrar pista de inicio
             local objText = ""
-            if q.logDesc and q.logDesc ~= "" then
-                objText = "|cffd4c078" .. q.logDesc .. "|r"
+            local locO = GetQuestLoc(q.id)
+            local logD = (locO and locO.O) or q.logDesc
+            if logD and logD ~= "" then
+                objText = "|cffd4c078" .. PfText(logD) .. "|r"
             end
             objText = objText .. "\n\n|cff888888Inicia con: " .. (q.giver_loc or q.giver or "Desconocido") .. "\nEntrega a: " .. (q.ender_loc or q.ender or "Desconocido") .. "|r"
             ch.objSec.box.text:SetText(objText)
         end
 
         -- Mostrar descripción completa de la quest si existe
-        local descText = q.desc or ""
+        local locD = GetQuestLoc(q.id)
+        local descText = PfText((locD and locD.D) or q.desc) or ""
         if descText == "" then
             descText = "Detalles de misión para WoW 3.3.5a. Consulta Wowhead para información adicional."
         end
@@ -2399,6 +2554,7 @@ function addon:RefreshDetail()
                     btn:Hide()
                 end
             end
+            ch.rewardSec:RequestUncached()
             -- Ajustar altura de rewardSec según si hay choice o no
             if hasChoice then
                 ch.rewardSec:SetHeight(110)
@@ -2487,7 +2643,7 @@ function addon:RefreshDetail()
 
         local titleText = entry.title
         if q and SKquests_Localization and SKquests_Localization.currentLanguage == "esES" and q.name_loc and q.name_loc ~= "" and q.name_loc ~= q.name then
-            titleText = q.name_loc .. " (" .. q.name .. ")"
+            titleText = ((GetQuestLoc(q.id) and GetQuestLoc(q.id).T) or q.name_loc) .. " (" .. q.name .. ")"
         end
         ch.header.title:SetText(titleText)
         ch.header.level:SetText("Nv " .. (entry.level and entry.level > 0 and entry.level or "?"))
@@ -2627,13 +2783,14 @@ function addon:RefreshDetail()
             return
         end
 
-        ch.header.title:SetText(step.title)
-        ch.header.level:SetText("Paso " .. selectedStepIdx)
-        ch.header.meta:SetText("Objetivo del Paso")
+        local ges = GetGuideES(selectedStepIdx)
+        ch.header.title:SetText((ges and ges.title) or step.title)
+        ch.header.level:SetText(L("STEP") .. " " .. selectedStepIdx)
+        ch.header.meta:SetText(L("STEP_OBJECTIVE"))
 
         -- Separar por líneas el texto de la guía
         local lines = {}
-        local rawText = step.text or step.objectives or ""
+        local rawText = (ges and ges.text) or step.text or step.objectives or ""
         for line in rawText:gmatch("[^\r\n]+") do
             line = line:gsub("^%s+", ""):gsub("%s+$", "")
             if line ~= "" then

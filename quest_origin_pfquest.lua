@@ -1,4 +1,6 @@
 pfDB = pfDB or {}
+pfDB["units"] = pfDB["units"] or {}
+pfDB["quests"] = pfDB["quests"] or {}
 pfDB['quest_origin'] = {
   [2] = 'classic',
   [5] = 'classic',
