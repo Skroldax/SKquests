@@ -282,4 +282,6 @@ end
 
 function SKquests:HideConfig()
     if self.configFrame then
-        self.configFrame:Hide
+        self.configFrame:Hide()
+    end
+end

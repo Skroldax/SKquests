@@ -69,7 +69,8 @@ end
 -- Busca una quest por titulo exacto o parcial. Devuelve logIndex o nil.
 function T:FindByTitle(name)
     if not name then return nil end
-    local lo = name:lower()
+    local lo = name:lower():gsub("^%s+", ""):gsub("%s+$", "")
+    if lo == "" then return nil end
     -- Busqueda exacta primero
     if self._byTitle[lo] then return self._byTitle[lo] end
     -- Busqueda parcial

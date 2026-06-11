@@ -12,3 +12,7 @@ Media/Interfaz/
 *.jpeg
 skquests-repo.bundle
 skquests-repo.bundle*
+
+# Modo Pro: códigos privados, nunca a GitHub
+SKquests_ProCodes.lua
+PRO_CODES.txt

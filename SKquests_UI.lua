@@ -253,6 +253,16 @@ local function PfText(s)
     return s
 end
 
+-- Texto real de una quest del log (API del cliente), restaurando la selección
+local function GetLogQuestText(logIdx)
+    if not logIdx then return nil end
+    local old = GetQuestLogSelection()
+    SelectQuestLogEntry(logIdx)
+    local desc, obj = GetQuestLogQuestText()
+    if old and old > 0 then SelectQuestLogEntry(old) end
+    return desc, obj
+end
+
 -- Paso de guía traducido (SKquests_Guide_esES.lua)
 local function GetGuideES(i)
     if IsSpanish() and SKquests_GuideES then
@@ -489,6 +499,8 @@ end
 -- Así una zona nunca puede mostrar quests que la lista después descarta.
 local function IsQuestEligible(id, q)
     local title = string.upper(q.name or "")
+    -- descartar quests sin nombre (entradas corruptas del volcado)
+    if title:gsub("%s", "") == "" then return false end
     if title:find("<UNUSED>") or title:find("<NYI>") or title:find("<TXT>") or title:find("%[UNUSED%]") then
         return false
     end
@@ -1821,9 +1833,9 @@ function addon:CreateModernUI()
     end
 
     RightSidebar.rows = {
-        questId  = MakeInfoRow(RightSidebar, "ID de Quest", -40),
-        minLvl   = MakeInfoRow(RightSidebar, "Nivel requerido", -80),
-        status   = MakeInfoRow(RightSidebar, "Estado", -120),
+        questId  = MakeInfoRow(RightSidebar, L("ROW_QUESTID"), -40),
+        minLvl   = MakeInfoRow(RightSidebar, L("ROW_MINLVL"), -80),
+        status   = MakeInfoRow(RightSidebar, L("ROW_STATUS"), -120),
     }
 
     local chainSec = CreateFrame("Frame", nil, RightSidebar)
@@ -1890,31 +1902,61 @@ function addon:CreateModernUI()
     RegLoc(themeLbl, "THEME_LBL")
     table.insert(SettingsPanel.labels, themeLbl)
 
-    local themeBtn = CreateFrame("Button", nil, SettingsPanel, "UIPanelButtonTemplate")
-    themeBtn:SetPoint("LEFT", themeLbl, "RIGHT", 10, -1)
-    themeBtn:SetSize(120, 22)
-    local themeOrder = { "dark", "light", "elvuidark", "minimaldark" }
-    local themeNames = { dark = "Oscuro", light = "Claro", elvuidark = "ElvUI Dark", minimaldark = "Minimal Dark" }
-    local curTheme = SKquestsDB and SKquestsDB.config and SKquestsDB.config.theme or "dark"
-    themeBtn:SetText(themeNames[curTheme] or "Oscuro")
-    themeBtn:SetScript("OnClick", function(self)
-        local current = SKquestsDB and SKquestsDB.config and SKquestsDB.config.theme or "dark"
-        local idx = 1
-        for i, k in ipairs(themeOrder) do
-            if k == current then idx = i break end
-        end
-        local nextTheme = themeOrder[(idx % #themeOrder) + 1]
-        SKquests.config.theme = nextTheme
-        SKquestsDB.config.theme = nextTheme
-        self:SetText(themeNames[nextTheme])
-        addon:ApplyTheme()
-    end)
+    -- ---- SELECTOR DE TEMA (desplegable) ----
+    local function ThemeDisplayName(key)
+        if key == "dark" then return "Oscuro" end
+        if key == "light" then return "Claro" end
+        local t = addon.ThemesByKey and addon.ThemesByKey[key]
+        return t and t.name or "Oscuro"
+    end
 
-    -- Editor de temas (requiere contraseña de administrador)
+    local themeDD = CreateFrame("Button", "SKquestsThemeDropdown", SettingsPanel, "UIDropDownMenuTemplate")
+    themeDD:SetPoint("LEFT", themeLbl, "RIGHT", -6, -2)
+    UIDropDownMenu_SetWidth(themeDD, 150)
+
+    function addon:RefreshThemeDropdown()
+        local cur = SKquestsDB and SKquestsDB.config and SKquestsDB.config.theme or "dark"
+        UIDropDownMenu_SetSelectedValue(themeDD, cur)
+        UIDropDownMenu_SetText(themeDD, ThemeDisplayName(cur))
+    end
+
+    local function SelectTheme(key)
+        local t = addon.ThemesByKey and addon.ThemesByKey[key]
+        if t and t.isPro and not addon:IsProUnlocked() then
+            -- tema Pro bloqueado: pedir código; se aplica al desbloquear
+            if addon.RequestProCode then addon:RequestProCode(key) end
+            return
+        end
+        SKquests.config.theme = key
+        SKquestsDB.config.theme = key
+        addon:ApplyTheme()
+        addon:RefreshThemeDropdown()
+    end
+
+    UIDropDownMenu_Initialize(themeDD, function(self, level)
+        local function AddTheme(key)
+            local info = UIDropDownMenu_CreateInfo()
+            local t = addon.ThemesByKey and addon.ThemesByKey[key]
+            local locked = t and t.isPro and not addon:IsProUnlocked()
+            info.text = ThemeDisplayName(key) .. (locked and " |cffff5555[Pro]|r" or (t and t.isPro and " |cff33ff99[Pro]|r" or ""))
+            info.value = key
+            info.func = function() SelectTheme(key) end
+            info.checked = (SKquestsDB and SKquestsDB.config and SKquestsDB.config.theme) == key
+            UIDropDownMenu_AddButton(info, level)
+        end
+        AddTheme("dark")
+        AddTheme("light")
+        if addon.ThemeOrder then
+            for _, key in ipairs(addon.ThemeOrder) do AddTheme(key) end
+        end
+    end)
+    addon:RefreshThemeDropdown()
+
+    -- Editor de temas (Modo Pro)
     local editorBtn = CreateFrame("Button", nil, SettingsPanel, "UIPanelButtonTemplate")
-    editorBtn:SetPoint("LEFT", themeBtn, "RIGHT", 10, 0)
+    editorBtn:SetPoint("LEFT", themeDD, "RIGHT", -6, 2)
     editorBtn:SetSize(130, 22)
-    editorBtn:SetText("Editor (Admin)")
+    editorBtn:SetText("Editor |cff33ff99(Pro)|r")
     editorBtn:SetScript("OnClick", function()
         if addon.OpenThemeEditor then addon:OpenThemeEditor() end
     end)
@@ -2226,6 +2268,13 @@ function addon:UpdateListRows()
 
     -- Limitar el scroll a exactamente los items disponibles
     totalItems = math.max(0, totalItems)
+    -- Si el offset quedó más allá del final (p. ej. al filtrar), volver arriba
+    local curOffset = FauxScrollFrame_GetOffset(ListPanel.scroll) or 0
+    if curOffset > math.max(0, totalItems - visibleRows) then
+        FauxScrollFrame_SetOffset(ListPanel.scroll, 0)
+        local bar = _G[ListPanel.scroll:GetName() .. "ScrollBar"]
+        if bar then bar:SetValue(0) end
+    end
     FauxScrollFrame_Update(ListPanel.scroll, totalItems, visibleRows, ROW_H)
     addon:RefreshList()
 end
@@ -2467,7 +2516,7 @@ function addon:RefreshDetail()
             titleText = ((GetQuestLoc(q.id) and GetQuestLoc(q.id).T) or q.name_loc) .. " (" .. q.name .. ")"
         end
         ch.header.title:SetText(titleText)
-        ch.header.level:SetText("Nv " .. (q.level and q.level > 0 and q.level or "?"))
+        ch.header.level:SetText(L("LVL_ABBR") .. " " .. (q.level and q.level > 0 and q.level or "?"))
 
         local zoneName = GetZoneName(q.zoneId)
         ch.header.meta:SetText(string.format(L("ZONE_META"), zoneName))
@@ -2497,7 +2546,7 @@ function addon:RefreshDetail()
             if logD and logD ~= "" then
                 objText = "|cffd4c078" .. PfText(logD) .. "|r"
             end
-            objText = objText .. "\n\n|cff888888Inicia con: " .. (q.giver_loc or q.giver or "Desconocido") .. "\nEntrega a: " .. (q.ender_loc or q.ender or "Desconocido") .. "|r"
+            objText = objText .. "\n\n|cff888888" .. L("STARTS_WITH") .. " " .. (q.giver_loc or q.giver or L("UNKNOWN")) .. "\n" .. L("ENDS_WITH") .. " " .. (q.ender_loc or q.ender or L("UNKNOWN")) .. "|r"
             ch.objSec.box.text:SetText(objText)
         end
 
@@ -2505,24 +2554,27 @@ function addon:RefreshDetail()
         local locD = GetQuestLoc(q.id)
         local descText = PfText((locD and locD.D) or q.desc) or ""
         if descText == "" then
-            descText = "Detalles de misión para WoW 3.3.5a. Consulta Wowhead para información adicional."
+            -- Si la quest está activa, usar el texto real del log del juego
+            local act2, logIdx2 = addon.Tracker:IsActive(q.name)
+            local logDesc = act2 and GetLogQuestText(logIdx2)
+            descText = logDesc or L("NO_INFORMATION")
         end
         ch.descSec.text:SetText(descText)
         
         -- Dador/Ender localizados
-        local giverName = q.giver_loc or q.giver or "Desconocido"
+        local giverName = q.giver_loc or q.giver or L("UNKNOWN")
         if q.giverType == "GO" then
-            ch.npcSec.grid.startCard.title:SetText("INICIO (Objeto)")
+            ch.npcSec.grid.startCard.title:SetText(L("START_GO"))
         else
-            ch.npcSec.grid.startCard.title:SetText("INICIO (NPC)")
+            ch.npcSec.grid.startCard.title:SetText(L("START_NPC"))
         end
         ch.npcSec.grid.startCard.name:SetText(giverName)
 
-        local enderName = q.ender_loc or q.ender or "Desconocido"
+        local enderName = q.ender_loc or q.ender or L("UNKNOWN")
         if q.enderType == "GO" then
-            ch.npcSec.grid.endCard.title:SetText("ENTREGA (Objeto)")
+            ch.npcSec.grid.endCard.title:SetText(L("END_GO"))
         else
-            ch.npcSec.grid.endCard.title:SetText("ENTREGA (NPC)")
+            ch.npcSec.grid.endCard.title:SetText(L("END_NPC"))
         end
         ch.npcSec.grid.endCard.name:SetText(enderName)
 
@@ -2532,7 +2584,7 @@ function addon:RefreshDetail()
         RightSidebar.rows.minLvl.val:SetText(q.minLevel and q.minLevel > 0 and q.minLevel or "1")
         
         local isCompleted = addon.completedQuests and addon.completedQuests[tostring(q.id)]
-        local statusText = active and "Activa" or (isCompleted and "Completada" or "No iniciada")
+        local statusText = active and L("ST_ACTIVE") or (isCompleted and L("ST_DONE") or L("ST_NOT_STARTED"))
         RightSidebar.rows.status.val:SetText(statusText)
 
         -- Mostrar Recompensas (fijas)
@@ -2672,7 +2724,7 @@ function addon:RefreshDetail()
             titleText = ((GetQuestLoc(q.id) and GetQuestLoc(q.id).T) or q.name_loc) .. " (" .. q.name .. ")"
         end
         ch.header.title:SetText(titleText)
-        ch.header.level:SetText("Nv " .. (entry.level and entry.level > 0 and entry.level or "?"))
+        ch.header.level:SetText(L("LVL_ABBR") .. " " .. (entry.level and entry.level > 0 and entry.level or "?"))
 
         local zoneName = q and q.zoneId and GetZoneName(q.zoneId) or "Quest Log"
         ch.header.meta:SetText(string.format(L("ZONE_META"), zoneName))
@@ -2694,22 +2746,26 @@ function addon:RefreshDetail()
             ch.objSec.box.text:SetText(str)
         end
 
+        -- Descripción: DB en español si existe; si no, el texto real del log
+        local logDesc = GetLogQuestText(selectedQuestLogIdx)
+        local dbDesc = q and PfText((GetQuestLoc(q.id) and GetQuestLoc(q.id).D) or nil)
+        ch.descSec.text:SetText(dbDesc or logDesc or (q and PfText(q.desc)) or L("NO_INFORMATION"))
+
         if q then
-            ch.descSec.text:SetText(L("LOADED_FROM_DB"))
             
-            local giverName = q.giver_loc or q.giver or "Desconocido"
+            local giverName = q.giver_loc or q.giver or L("UNKNOWN")
             if q.giverType == "GO" then
-                ch.npcSec.grid.startCard.title:SetText("INICIO (Objeto)")
+                ch.npcSec.grid.startCard.title:SetText(L("START_GO"))
             else
-                ch.npcSec.grid.startCard.title:SetText("INICIO (NPC)")
+                ch.npcSec.grid.startCard.title:SetText(L("START_NPC"))
             end
             ch.npcSec.grid.startCard.name:SetText(giverName)
 
-            local enderName = q.ender_loc or q.ender or "Desconocido"
+            local enderName = q.ender_loc or q.ender or L("UNKNOWN")
             if q.enderType == "GO" then
-                ch.npcSec.grid.endCard.title:SetText("ENTREGA (Objeto)")
+                ch.npcSec.grid.endCard.title:SetText(L("END_GO"))
             else
-                ch.npcSec.grid.endCard.title:SetText("ENTREGA (NPC)")
+                ch.npcSec.grid.endCard.title:SetText(L("END_NPC"))
             end
             ch.npcSec.grid.endCard.name:SetText(enderName)
 
@@ -2717,7 +2773,7 @@ function addon:RefreshDetail()
 
             RightSidebar.rows.questId.val:SetText(q.id)
             RightSidebar.rows.minLvl.val:SetText(q.minLevel and q.minLevel > 0 and q.minLevel or "1")
-            RightSidebar.rows.status.val:SetText(entry.isComplete and "Lista para entregar" or "En progreso")
+            RightSidebar.rows.status.val:SetText(entry.isComplete and L("ST_READY") or L("ST_PROGRESS"))
 
             -- Mostrar Recompensas
             if q.rewards and #q.rewards > 0 then
@@ -2772,15 +2828,15 @@ function addon:RefreshDetail()
             end
         else
             ch.descSec.text:SetText(L("NOT_IN_DB"))
-            ch.npcSec.grid.startCard.title:SetText("INICIO (NPC)")
-            ch.npcSec.grid.startCard.name:SetText("Desconocido")
-            ch.npcSec.grid.endCard.title:SetText("ENTREGA (NPC)")
-            ch.npcSec.grid.endCard.name:SetText("Desconocido")
+            ch.npcSec.grid.startCard.title:SetText(L("START_NPC"))
+            ch.npcSec.grid.startCard.name:SetText(L("UNKNOWN"))
+            ch.npcSec.grid.endCard.title:SetText(L("END_NPC"))
+            ch.npcSec.grid.endCard.name:SetText(L("UNKNOWN"))
             ch.linkSec.box:SetText("")
 
             RightSidebar.rows.questId.val:SetText("-")
             RightSidebar.rows.minLvl.val:SetText("-")
-            RightSidebar.rows.status.val:SetText(entry.isComplete and "Lista para entregar" or "En progreso")
+            RightSidebar.rows.status.val:SetText(entry.isComplete and L("ST_READY") or L("ST_PROGRESS"))
             RightSidebar.chain.prevBtn:Hide()
             RightSidebar.chain.nextBtn:Hide()
         end
@@ -3018,5 +3074,3 @@ function addon:ApplyLanguage(lang)
         if addon.RefreshDetail then addon:RefreshDetail() end
     end
 end
-
--- Patched: visor de mapa interactivo, localización EN/ES, zonas solo Vanilla (2026-06-10)
