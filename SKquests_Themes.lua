@@ -55,10 +55,11 @@ addon.ThemesByKey = {
 -- Orden de temas extra para el desplegable (esta build: solo los 2 libres)
 addon.ThemeOrder = { "elvuidark", "minimaldark" }
 
--- Compatibilidad con la UI (sistema Pro): en esta build no hay temas Pro,
--- así que el desbloqueo es siempre verdadero y no se gatea nada.
-function addon:IsProUnlocked() return true end
-function addon:TryUnlockPro() return true end
+-- Fallback del sistema Pro (build público sin SKquests_ProCodes.lua):
+-- bloqueado por defecto. SKquests_ProCodes.lua (privado) se carga DESPUÉS
+-- y sobreescribe estas funciones con la validación real de códigos.
+function addon:IsProUnlocked() return SKquestsDB and SKquestsDB.proUnlocked == true end
+function addon:TryUnlockPro() return false end
 function addon:RequestProCode() end
 
 -- ====================================================================

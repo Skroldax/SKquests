@@ -1266,18 +1266,30 @@ function addon:CreateModernUI()
     facBtn:SetBackdropColor(0,0,0,0.4)
     local facLbl = facBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     facLbl:SetPoint("CENTER", 0, 0)
+    facLbl:SetText("<- Guías")
     facBtn.lbl = facLbl
     guideFiltersFrame.facBtn = facBtn
 
     facBtn:SetScript("OnClick", function(self)
-        local currentG = addon.db and addon.db.currentGuide or "Horde"
-        local nextG = currentG == "Alliance" and "Horde" or "Alliance"
-        addon:SetCurrentGuide(nextG)
-        selectedGuideChapter = 1
-        BuildGuideChapters()
-        addon:UpdateListRows()
-        addon:RefreshDetail()
-        facBtn.lbl:SetText(nextG == "Alliance" and L("ALLIANCE") or L("HORDE"))
+        addon.selectedGuideKey = nil
+        addon:SwitchTab("guide")
+    end)
+
+    -- Botón "volver a la rejilla de guías"
+    local backBtn = CreateFrame("Button", nil, guideFiltersFrame)
+    backBtn:SetPoint("LEFT", facBtn, "RIGHT", 8, 0)
+    backBtn:SetSize(80, 20)
+    backBtn:RegisterForClicks("LeftButtonUp")
+    ApplyBD(backBtn, {0,0,0}, {0.5,0.4,0.3}, 8)
+    backBtn:SetBackdropColor(0,0,0,0.4)
+    local backLbl = backBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    backLbl:SetPoint("CENTER", 0, 0)
+    backLbl:SetText("<- Guías")
+    backBtn.lbl = backLbl
+    guideFiltersFrame.backBtn = backBtn
+    backBtn:SetScript("OnClick", function()
+        addon.selectedGuideKey = nil
+        addon:SwitchTab("guide")
     end)
 
     -- Listado Faux Scrollable — Los botones son hijos DIRECTOS del scroll frame
@@ -1423,6 +1435,122 @@ function addon:CreateModernUI()
     DetailPanel:SetPoint("BOTTOMLEFT", ListPanel, "BOTTOMRIGHT", 6, 0)
     DetailPanel:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -10, 10)
     ApplyBD(DetailPanel, C.bgDetail, C.borderDim, 8)
+
+    -- ================================================================
+    --  PANEL DE SELECCIÓN DE GUÍAS (rejilla de tarjetas, estilo Zonas)
+    --  Se muestra al entrar a la pestaña "guide" cuando Pro está
+    --  desbloqueado y aún no se eligió una guía (addon.selectedGuideKey == nil)
+    -- ================================================================
+    GuideCardsPanel = CreateFrame("Frame", nil, f)
+    GuideCardsPanel:SetPoint("TOPLEFT", ListPanel, "TOPLEFT", 0, 0)
+    GuideCardsPanel:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -10, 10)
+    ApplyBD(GuideCardsPanel, C.bgList, C.borderDim, 8)
+    GuideCardsPanel:Hide()
+    addon.GuideCardsPanel = GuideCardsPanel
+
+    local gcTitle = GuideCardsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    gcTitle:SetPoint("TOPLEFT", 16, -14)
+    gcTitle:SetText("Elige una guía de leveo")
+    gcTitle:SetTextColor(C.gold[1], C.gold[2], C.gold[3])
+    GuideCardsPanel.titleFS = gcTitle
+
+    -- Metadatos de presentación por facción (autodetectado contra SKquests_Guides)
+    local GUIDE_META = {
+        Alliance = { label = "Alianza", color = {0.30, 0.50, 0.95}, levels = "1-60" },
+        Horde    = { label = "Horda",   color = {0.90, 0.25, 0.25}, levels = "1-60" },
+    }
+
+    function addon:RefreshGuideCards()
+        local panel = addon.GuideCardsPanel
+        panel.cards = panel.cards or {}
+        for _, c in ipairs(panel.cards) do c:Hide() end
+
+        local keys = {}
+        if SKquests_Guides then
+            for k in pairs(SKquests_Guides) do table.insert(keys, k) end
+        end
+        table.sort(keys)
+
+        local COLS, CW, CH, GAP = 2, 300, 84, 14
+        for i, key in ipairs(keys) do
+            local card = panel.cards[i]
+            if not card then
+                card = CreateFrame("Button", nil, panel)
+                card:SetSize(CW, CH)
+                ApplyBD(card, C.bgDetail, C.borderDim, 6)
+                card.title = card:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+                card.title:SetPoint("TOPLEFT", 14, -12)
+                card.fac = card:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+                card.fac:SetPoint("TOPLEFT", 14, -36)
+                card.sub = card:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+                card.sub:SetPoint("BOTTOMLEFT", 14, 12)
+                card:SetScript("OnEnter", function(self) self:SetBackdropColor(C.bgHover[1], C.bgHover[2], C.bgHover[3], 1) end)
+                card:SetScript("OnLeave", function(self) self:SetBackdropColor(C.bgDetail[1], C.bgDetail[2], C.bgDetail[3], 1) end)
+                panel.cards[i] = card
+            end
+            local row = math.floor((i - 1) / COLS)
+            local col = (i - 1) % COLS
+            card:ClearAllPoints()
+            card:SetPoint("TOPLEFT", panel, "TOPLEFT", 16 + col * (CW + GAP), -44 - row * (CH + GAP))
+
+            local meta = GUIDE_META[key] or { label = key, color = {0.8, 0.8, 0.8}, levels = "" }
+            local guide = SKquests_Guides[key]
+            local steps = (type(guide) == "table") and #guide or 0
+            card.title:SetText(meta.label)
+            card.title:SetTextColor(C.white[1], C.white[2], C.white[3])
+            card.fac:SetText(meta.label)
+            card.fac:SetTextColor(meta.color[1], meta.color[2], meta.color[3])
+            card.sub:SetText(("Niveles: %s  -  %d pasos"):format(meta.levels, steps))
+            card.guideKey = key
+            card:SetScript("OnClick", function(self)
+                if addon.SetCurrentGuide then
+                    addon:SetCurrentGuide(self.guideKey)
+                else
+                    addon.db = addon.db or {}
+                    addon.db.currentGuide = self.guideKey
+                end
+                addon.selectedGuideKey = self.guideKey
+                selectedGuideChapter = 1
+                BuildGuideChapters()
+                addon:SwitchTab("guide")
+                addon:UpdateListRows()
+                if addon.RefreshDetail then addon:RefreshDetail() end
+            end)
+            card:Show()
+        end
+    end
+
+    -- ================================================================
+    --  PANEL DE CANDADO PRO (pestaña "guide" cuando Pro está bloqueado)
+    -- ================================================================
+    GuideLockPanel = CreateFrame("Frame", nil, f)
+    GuideLockPanel:SetPoint("TOPLEFT", ListPanel, "TOPLEFT", 0, 0)
+    GuideLockPanel:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -10, 10)
+    ApplyBD(GuideLockPanel, C.bgList, C.borderDim, 8)
+    GuideLockPanel:Hide()
+    addon.GuideLockPanel = GuideLockPanel
+
+    local lockIcon = GuideLockPanel:CreateTexture(nil, "ARTWORK")
+    lockIcon:SetTexture("Interface\\Buttons\\LockButton-Locked-Up")
+    lockIcon:SetSize(64, 64)
+    lockIcon:SetPoint("CENTER", 0, 50)
+
+    local lockText = GuideLockPanel:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
+    lockText:SetPoint("TOP", lockIcon, "BOTTOM", 0, -14)
+    lockText:SetText("Guías Pro bloqueadas")
+    lockText:SetTextColor(C.gold[1], C.gold[2], C.gold[3])
+
+    local lockSub = GuideLockPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    lockSub:SetPoint("TOP", lockText, "BOTTOM", 0, -8)
+    lockSub:SetText("Introduce tu código Pro para desbloquear las guías de leveo.")
+
+    local unlockBtn = CreateFrame("Button", nil, GuideLockPanel, "UIPanelButtonTemplate")
+    unlockBtn:SetSize(170, 26)
+    unlockBtn:SetPoint("TOP", lockSub, "BOTTOM", 0, -18)
+    unlockBtn:SetText("Desbloquear Pro")
+    unlockBtn:SetScript("OnClick", function()
+        if addon.RequestProCode then addon:RequestProCode("guides") end
+    end)
 
     local dScroll = CreateFrame("ScrollFrame", "SKquestsDetailScroll", DetailPanel, "UIPanelScrollFrameTemplate")
     dScroll:SetPoint("TOPLEFT", DetailPanel, "TOPLEFT", 6, -6)
@@ -2453,69 +2581,11 @@ function addon:CreateModernUI()
     CreateCheckbox(SettingsPanel, "Integración con Questie", 20, -80, "questieIntegration")
     CreateCheckbox(SettingsPanel, "Mostrar mapa en guía", 20, -110, "showImage")
 
-    local themeLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    themeLbl:SetPoint("TOPLEFT", 20, -150)
-    RegLoc(themeLbl, "THEME_LBL")
-    table.insert(SettingsPanel.labels, themeLbl)
-
-    -- ---- SELECTOR DE TEMA (desplegable) ----
-    local function ThemeDisplayName(key)
-        if key == "dark" then return "Oscuro" end
-        if key == "light" then return "Claro" end
-        local t = addon.ThemesByKey and addon.ThemesByKey[key]
-        return t and t.name or "Oscuro"
-    end
-
-    local themeDD = CreateFrame("Button", "SKquestsThemeDropdown", SettingsPanel, "UIDropDownMenuTemplate")
-    themeDD:SetPoint("LEFT", themeLbl, "RIGHT", -6, -2)
-    UIDropDownMenu_SetWidth(themeDD, 150)
-
-    function addon:RefreshThemeDropdown()
-        local cur = SKquestsDB and SKquestsDB.config and SKquestsDB.config.theme or "dark"
-        UIDropDownMenu_SetSelectedValue(themeDD, cur)
-        UIDropDownMenu_SetText(themeDD, ThemeDisplayName(cur))
-    end
-
-    local function SelectTheme(key)
-        local t = addon.ThemesByKey and addon.ThemesByKey[key]
-        if t and t.isPro and not addon:IsProUnlocked() then
-            -- tema Pro bloqueado: pedir código; se aplica al desbloquear
-            if addon.RequestProCode then addon:RequestProCode(key) end
-            return
-        end
-        SKquests.config.theme = key
-        SKquestsDB.config.theme = key
-        addon:ApplyTheme()
-        addon:RefreshThemeDropdown()
-    end
-
-    UIDropDownMenu_Initialize(themeDD, function(self, level)
-        local function AddTheme(key)
-            local info = UIDropDownMenu_CreateInfo()
-            local t = addon.ThemesByKey and addon.ThemesByKey[key]
-            local locked = t and t.isPro and not addon:IsProUnlocked()
-            info.text = ThemeDisplayName(key) .. (locked and " |cffff5555[Pro]|r" or (t and t.isPro and " |cff33ff99[Pro]|r" or ""))
-            info.value = key
-            info.func = function() SelectTheme(key) end
-            info.checked = (SKquestsDB and SKquestsDB.config and SKquestsDB.config.theme) == key
-            UIDropDownMenu_AddButton(info, level)
-        end
-        AddTheme("dark")
-        AddTheme("light")
-        if addon.ThemeOrder then
-            for _, key in ipairs(addon.ThemeOrder) do AddTheme(key) end
-        end
-    end)
-    addon:RefreshThemeDropdown()
-
-    -- Editor de temas (Modo Pro)
-    local editorBtn = CreateFrame("Button", nil, SettingsPanel, "UIPanelButtonTemplate")
-    editorBtn:SetPoint("LEFT", themeDD, "RIGHT", -6, 2)
-    editorBtn:SetSize(130, 22)
-    editorBtn:SetText("Editor |cff33ff99(Pro)|r")
-    editorBtn:SetScript("OnClick", function()
-        if addon.OpenThemeEditor then addon:OpenThemeEditor() end
-    end)
+    -- ---- SELECTOR DE TEMA Y EDITOR PRO ELIMINADOS (v0.9.0) ----
+    -- Esta build usa solo la paleta oscura. El Modo Pro ahora protege
+    -- las GUÍAS de leveo (no los temas). Se conserva un no-op por si
+    -- alguna ruta antigua llama a RefreshThemeDropdown.
+    function addon:RefreshThemeDropdown() end
 
     local opLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     opLbl:SetPoint("TOPLEFT", 20, -190)
@@ -3620,6 +3690,33 @@ end
 -- ============================================================
 function addon:SwitchTab(tabId)
     activeTab = tabId
+
+    -- Paneles de guía Pro: ocultos salvo que la pestaña "guide" los active
+    if addon.GuideCardsPanel then addon.GuideCardsPanel:Hide() end
+    if addon.GuideLockPanel then addon.GuideLockPanel:Hide() end
+
+    -- Gating Pro de la pestaña Guía: candado (bloqueado) o rejilla (sin elegir)
+    if tabId == "guide" then
+        if not addon:IsProUnlocked() then
+            SettingsPanel:Hide(); AboutPanel:Hide()
+            ListPanel:Hide(); DetailPanel:Hide(); RightSidebar:Hide()
+            if ListPanel.guideFiltersFrame then ListPanel.guideFiltersFrame:Hide() end
+            if addon.GuideLockPanel then addon.GuideLockPanel:Show() end
+            if MainFrame and MainFrame.titleText then MainFrame.titleText:SetText("Guías (Pro)") end
+            return
+        elseif not addon.selectedGuideKey then
+            SettingsPanel:Hide(); AboutPanel:Hide()
+            ListPanel:Hide(); DetailPanel:Hide(); RightSidebar:Hide()
+            if ListPanel.guideFiltersFrame then ListPanel.guideFiltersFrame:Hide() end
+            if addon.GuideCardsPanel then
+                addon.GuideCardsPanel:Show()
+                addon:RefreshGuideCards()
+            end
+            if MainFrame and MainFrame.titleText then MainFrame.titleText:SetText("Elige tu guía de leveo") end
+            return
+        end
+        -- Pro desbloqueado + guía elegida: cae al flujo normal (panel de pasos)
+    end
 
     if tabId == "settings" then
         if ListPanel.zonePanel then ListPanel.zonePanel:Hide() end

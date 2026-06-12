@@ -3,6 +3,19 @@
 All notable changes to SKquests will be documented in this file.
 This project follows [Semantic Versioning](https://semver.org/) and [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.9.0-alpha] - 2026-06-12
+
+### Added
+- Guías de leveo como función Pro: rejilla de tarjetas (autodetectadas desde `SKquests_Guides`) estilo Zonas; al elegir una se abre el panel de capítulos/pasos con imágenes.
+- Pantalla de candado en la pestaña Guía hasta introducir un código Pro válido.
+
+### Removed
+- Selector de temas y editor de temas eliminados del build (solo paleta oscura).
+
+### Changed
+- El gating Pro ahora protege las guías (antes los temas). Stub público de `IsProUnlocked` devuelve `false` por defecto.
+
+
 ## [0.8.5-alpha] - 2026-06-12
 
 ### Added

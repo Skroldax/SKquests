@@ -4,6 +4,11 @@ local altAddon  = "SKquests"
 local SKquests  = {}
 _G.SKquests = SKquests
 
+-- Fallback Pro (build público sin ProCodes): bloqueado por defecto
+if not SKquests.IsProUnlocked then function SKquests:IsProUnlocked() return false end end
+if not SKquests.TryUnlockPro  then function SKquests:TryUnlockPro()  return false end end
+if not SKquests.RequestProCode then function SKquests:RequestProCode() end end
+
 -- ====================================================
 -- DEFAULTS
 -- ====================================================
