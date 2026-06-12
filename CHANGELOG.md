@@ -3,30 +3,36 @@
 All notable changes to SKquests will be documented in this file.
 This project follows [Semantic Versioning](https://semver.org/) and [Keep a Changelog](https://keepachangelog.com/).
 
-## [0.7.0-alpha] - 2026-06-11
+## [0.8.5-alpha] - 2026-06-12
 
 ### Added
-- **Cartographer Foglight integration**: the interactive map now dynamically overlays the colored map patches on top of zone maps to reflect quest areas, replacing fog-of-war shadows while keeping the visual design intact.
-- **Cross-zone navigation**: directional arrows (`<` and `>`) anchored to the map viewer edges let the player visually switch between the quest-start zone map and the turn-in zone map when a quest requires traveling between zones (e.g. Redridge to Stormwind).
-- **Secondary lookup engine (pfQuest)**: the navigation arrows query the pfQuest database directly for turn-in NPCs missing from the local database (such as General Marcus Jonathan), enabling seamless map transitions on complex quests.
+- **Custom quest map support (azerothhub)**: custom quests from `BronzebeardQuestChains` now render their dedicated azerothhub starting-zone maps (Shadowglen, Northshire, Deathknell, Camp Narache, Valley of Trials, Coldridge Valley) with spawn pins placed directly from azerothhub coordinates.
+- **Starting-zone pin alignment**: vanilla starting subzones (Shadowglen→Teldrassil, Northshire→Elwynn, Deathknell→Tirisfal, Camp Narache→Mulgore, Valley of Trials→Durotar, Coldridge→Dun Morogh) now project their pins onto the parent map using exact pfQuest coordinates, fixing previously misaligned spawn dots.
 
 ### Fixed
-- **Spawn-point reload**: worked around a native 3.3.5 (WotLK) quirk where unchecking "Show spawn points" did nothing (the engine returned `nil` instead of `false`). Toggling the checkbox now reloads the map instantly without switching quests.
-- **Map layer priority (z-index)**: the sepia base map was covering Cartographer's colored highlights because the 3.3.5 engine ignores numeric sub-layers. The base map is now forced to the `BACKGROUND` layer while the colors live permanently on `ARTWORK`.
-- **Map mirage protection**: rescue logic in the map renderer — if the turn-in map of a capital city fails to load its textures (an occasional client issue), the viewer locks the flat image instead of misleadingly showing the start-zone map underneath the pins.
-- **Lua syntax cleanups**: removed multiple syntax errors and BOM (Byte Order Mark) artifacts that prevented the UI from loading after code injections.
+- **Duplicate "(Custom)" quests removed**: custom chain quests were being injected twice — once with a `(Custom)` name suffix and once clean — producing duplicate list entries. There is now a single, clean injection (synthetic ids `990000+`, normalized-name dedup against the main quest DB) with no suffix.
+- **Event/junk quests hidden**: quests with no real level (`level <= 0`, e.g. event or class-trainer quests) and placeholder/test entries (`<TEST>`, `<UNUSED>`, `<NYI>`, Designer Island zone) are now hidden from the list unless they are custom or currently active in the tracker.
 
-## [0.6.0-alpha] - 2026-06-11
+### Changed
+- `_G.SKquests_CustomMapOffsets` is now populated from the bundled pfQuest `zones.data` (subzone bounding boxes) instead of hardcoded values, so map projection stays consistent across starting zones.
+
+## [0.8.4-alpha] - 2026-06-11
 
 ### Added
-- **All 7 themes** from the design sheet: ElvUI Dark and Minimal Dark free for everyone; Blizzard Classic, Dragonflight, Wrath Classic, RUF Modern and Warcraft Logs as **Pro Mode** themes.
-- **Pro Mode with redeemable codes**: 30 random codes (`SKPRO-XXXX-XXXX`) validated in-game through an in-UI popup — no file editing needed. Codes live in `SKquests_ProCodes.lua`, which is **git-ignored** so they never reach the public GitHub repo. Unlock persists per account.
-- **Theme dropdown** in Settings replacing the cycle button: lists every theme, marks locked ones with [Pro], and selecting a locked theme prompts for a code and applies it on unlock.
-- Theme editor now Pro-gated, opens above the main window (strata fix), and edits 6 colors (background, hover, accent, titles, borders, text) with live preview.
-- **Quest Log detail enriched from the game client**: description now falls back to the real quest text from the quest log (`GetQuestLogQuestText`) when the database lacks it — fixes quests like the Ascension-reworked starters showing "Desconocido"/empty info.
+- **Full Objective Map Pins System**: Restored and expanded the interactive map pins to show kill (red), interact (yellow), and gather (green) objectives, including clustering for nearby spawns.
+- **Dynamic Color Palettes**: Added 6 different hex color variations for each objective category. Users can cycle through colors in real-time by doing `Ctrl + Click` on any pin.
 
 ### Fixed
-- Pro/admin password popup could open behind the main window (frame strata).
+- **Map Rendering Bug**: Fixed a `SetTexture` return value check that is unsupported in WoW 3.3.5a, which was preventing interactive maps from rendering.
+- **Map View Reset**: Changing pin colors no longer resets the map zoom and pan state.
+- **Missing Starting Zone Quests**: Fixed an issue where quests in starting subzones (like Valley of Trials or Northshire) were unlisted by dynamically merging them under their parent zone (e.g., Durotar, Elwynn Forest).
+- **PvP Quests Filter**: PvP quests and Battleground zones are now filtered out from the database to keep the interface focused on PvE.
+
+### Fixed
+- **Quest Log map broken**: opening a quest in the Quest Log tab incorrectly displayed the map and coordinates of the last viewed quest in the Explorer tab, due to a stale ID reference. It now correctly identifies the active quest by its localized title and updates the map and details accordingly.
+- **Starting Zones missing from Quests list**: missions for Valley of Trials, Northshire, etc., silently aborted the database filtering because `IsQuestEligible` performed string/number comparisons on `q.level` (e.g., `"5" > 60` in Lua 5.1). The filter now correctly uses `tonumber()` so starting zones appear again.
+- **Map pins too thick and opaque**: reduced pin size from 10x10 to 6x6, added a glowing blend mode (`ADD`), and adjusted opacities and palettes to create a subtle, aesthetically pleasing glowing effect that makes the exact coordinate clearer when zoomed.
+- **Customizable pin colors**: you can now cycle through 6 distinct color presets for map pins (gathering, killing, interacting) by `Ctrl + Left Click` on any pin. The map updates the colors instantly without resetting your zoom or pan position.
 
 ## [0.5.0-alpha] - 2026-06-11
 

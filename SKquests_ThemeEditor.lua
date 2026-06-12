@@ -1,7 +1,6 @@
 -- ====================================================================
--- SKquests - Editor de temas (Modo Pro)
--- Adaptado a WoW 3.3.5a. El desbloqueo se hace con un código Pro
--- introducido en la propia interfaz (popup).
+-- SKquests - Editor de temas (requiere contraseña de administrador)
+-- Adaptado a WoW 3.3.5a (SetTexture en lugar de SetColorTexture).
 -- ====================================================================
 
 local addon = SKquests
@@ -26,17 +25,17 @@ end
 -- ===================== WIDGET DE COLOR ==============================
 function TE:CreateColorPickerWidget(parent, labelText, key, callback)
     local container = CreateFrame("Frame", nil, parent)
-    container:SetSize(380, 28)
+    container:SetSize(360, 30)
 
     local lbl = container:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     lbl:SetPoint("LEFT", 0, 0)
-    lbl:SetWidth(200)
+    lbl:SetWidth(190)
     lbl:SetJustifyH("LEFT")
     lbl:SetText(labelText)
 
     local colorPreview = CreateFrame("Button", nil, container)
     colorPreview:SetSize(20, 20)
-    colorPreview:SetPoint("LEFT", lbl, "RIGHT", 8, 0)
+    colorPreview:SetPoint("LEFT", lbl, "RIGHT", 10, 0)
     local tex = colorPreview:CreateTexture(nil, "BACKGROUND")
     tex:SetAllPoints()
     tex:SetTexture(1, 1, 1, 1)
@@ -62,7 +61,6 @@ function TE:CreateColorPickerWidget(parent, labelText, key, callback)
 
     colorPreview:SetScript("OnClick", function()
         local r, g, b = HexToRGB(hexInput:GetText())
-        ColorPickerFrame:SetFrameStrata("TOOLTIP")
         ColorPickerFrame:SetColorRGB(r, g, b)
         ColorPickerFrame.hasOpacity = false
         ColorPickerFrame.previousValues = { r, g, b }
@@ -86,7 +84,7 @@ local function BuildEditor()
     if editorFrame then return editorFrame end
 
     editorFrame = CreateFrame("Frame", "SKquestsThemeEditorFrame", UIParent)
-    editorFrame:SetSize(440, 380)
+    editorFrame:SetSize(420, 320)
     editorFrame:SetPoint("CENTER")
     editorFrame:SetFrameStrata("FULLSCREEN_DIALOG")
     editorFrame:SetMovable(true)
@@ -105,13 +103,14 @@ local function BuildEditor()
 
     local title = editorFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("TOPLEFT", 16, -14)
-    title:SetText("Editor de Temas |cff33ff99(Pro)|r")
+    title:SetText("Editor de Temas (Admin)")
+    title:SetTextColor(0.9, 0.75, 0.3)
 
     local close = CreateFrame("Button", nil, editorFrame, "UIPanelCloseButton")
     close:SetPoint("TOPRIGHT", -6, -6)
 
     local sub = editorFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    sub:SetPoint("TOPLEFT", 16, -40)
+    sub:SetPoint("TOPLEFT", 16, -38)
     editorFrame.sub = sub
 
     editorFrame.widgets = {}
@@ -121,19 +120,17 @@ end
 local function OpenEditor()
     local f = BuildEditor()
 
+    -- tema activo: solo los editables (elvuidark / minimaldark)
     local themeKey = SKquestsDB and SKquestsDB.config and SKquestsDB.config.theme
     local theme = addon.ThemesByKey and addon.ThemesByKey[themeKey]
     if not theme then
-        addon:Print("Activa primero un tema personalizable (p. ej. ElvUI Dark) en Ajustes.")
-        return
-    end
-    if theme.isEditable == false then
-        addon:Print("El tema '" .. theme.name .. "' usa texturas prerenderizadas y no es editable.")
+        addon:Print("El editor solo funciona con los temas ElvUI Dark o Minimal Dark. Actívalo primero en Ajustes.")
         return
     end
 
-    f.sub:SetText("Editando: |cffffd100" .. theme.name .. "|r  — los cambios se aplican y guardan al instante")
+    f.sub:SetText("Editando: " .. theme.name .. "  (los cambios se guardan al instante)")
 
+    -- limpiar widgets previos
     for _, w in ipairs(f.widgets) do w:Hide() end
     f.widgets = {}
 
@@ -142,28 +139,28 @@ local function OpenEditor()
     local overrides = SKquestsDB.config.themeOverrides[themeKey]
 
     local fields = {
-        { "Fondo principal", "bgPanel" },
-        { "Fondo al pasar el ratón", "bgHover" },
-        { "Acento (selección)", "accent" },
-        { "Títulos", "textTitle" },
-        { "Bordes", "border" },
-        { "Texto normal", "textNormal" },
+        { "Color de fondo principal", "bgPanel" },
+        { "Color de acento / títulos", "accent" },
+        { "Bordes de las ventanas", "border" },
+        { "Color del texto", "textNormal" },
     }
 
-    local yOffset = -66
+    local yOffset = -64
     for _, data in ipairs(fields) do
         local label, key = data[1], data[2]
         local current = overrides[key] or theme.colors[key] or { 1, 1, 1 }
         local widget, updater = TE:CreateColorPickerWidget(f, label, key, function(r, g, b)
             overrides[key] = { r, g, b }
+            if key == "accent" then overrides.textTitle = { r, g, b } end
             if addon.ApplyTheme then addon:ApplyTheme() end
         end)
         widget:SetPoint("TOPLEFT", 16, yOffset)
         updater(current[1], current[2], current[3])
         table.insert(f.widgets, widget)
-        yOffset = yOffset - 34
+        yOffset = yOffset - 36
     end
 
+    -- botón de restablecer
     local resetBtn = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
     resetBtn:SetSize(160, 24)
     resetBtn:SetPoint("BOTTOMLEFT", 16, 14)
@@ -178,36 +175,33 @@ local function OpenEditor()
 
     f:Show()
 end
-addon.OpenEditorInternal = OpenEditor
 
--- ===================== POPUP DE CÓDIGO PRO ==========================
--- pendingAction: qué hacer tras desbloquear ("editor" o clave de tema)
-local pendingAction
-
-StaticPopupDialogs["SKQUESTS_PRO_CODE"] = {
-    text = "SKquests Modo Pro\n\nIntroduce tu código (SKPRO-XXXX-XXXX):",
-    button1 = "Activar",
+-- ===================== CONTRASEÑA DE ADMIN ==========================
+StaticPopupDialogs["SKQUESTS_ADMIN_PASS"] = {
+    text = "Editor de temas: introduce la contraseña de administrador",
+    button1 = "Aceptar",
     button2 = "Cancelar",
     hasEditBox = true,
-    maxLetters = 20,
-    OnShow = function(self)
-        self:SetFrameStrata("TOOLTIP")
-        local eb = _G[self:GetName() .. "EditBox"]
-        if eb then eb:SetText(""); eb:SetFocus() end
-    end,
+    maxLetters = 32,
     OnAccept = function(self)
-        local eb = _G[self:GetName() .. "EditBox"]
-        local code = eb and eb:GetText() or ""
-        if addon:TryUnlockPro(code) then
-            addon:RunPendingProAction()
+        local pass = self.editBox and self.editBox:GetText() or _G[self:GetName() .. "EditBox"]:GetText()
+        if pass == SKQUESTS_ADMIN_PASSWORD then
+            SKquestsDB.config.adminUnlocked = true
+            OpenEditor()
+        else
+            addon:Print("Contraseña incorrecta.")
         end
     end,
     EditBoxOnEnterPressed = function(self)
         local parent = self:GetParent()
-        local code = self:GetText()
-        parent:Hide()
-        if addon:TryUnlockPro(code) then
-            addon:RunPendingProAction()
+        local pass = self:GetText()
+        if pass == SKQUESTS_ADMIN_PASSWORD then
+            SKquestsDB.config.adminUnlocked = true
+            parent:Hide()
+            OpenEditor()
+        else
+            addon:Print("Contraseña incorrecta.")
+            parent:Hide()
         end
     end,
     EditBoxOnEscapePressed = function(self) self:GetParent():Hide() end,
@@ -216,30 +210,11 @@ StaticPopupDialogs["SKQUESTS_PRO_CODE"] = {
     hideOnEscape = true,
 }
 
-function addon:RunPendingProAction()
-    local act = pendingAction
-    pendingAction = nil
-    if act == "editor" then
-        OpenEditor()
-    elseif act and addon.ThemesByKey and addon.ThemesByKey[act] then
-        SKquests.config.theme = act
-        SKquestsDB.config.theme = act
-        if addon.ApplyTheme then addon:ApplyTheme() end
-        if addon.RefreshThemeDropdown then addon:RefreshThemeDropdown() end
-    end
-end
-
--- Pide código Pro; action = "editor" o clave de tema a aplicar tras desbloquear
-function addon:RequestProCode(action)
-    pendingAction = action
-    StaticPopup_Show("SKQUESTS_PRO_CODE")
-end
-
--- Punto de entrada del editor desde Ajustes
+-- Punto de entrada desde Ajustes
 function addon:OpenThemeEditor()
-    if addon:IsProUnlocked() then
+    if SKquestsDB and SKquestsDB.config and SKquestsDB.config.adminUnlocked then
         OpenEditor()
     else
-        addon:RequestProCode("editor")
+        StaticPopup_Show("SKQUESTS_ADMIN_PASS")
     end
 end

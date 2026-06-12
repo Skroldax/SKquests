@@ -1,5 +1,3 @@
--- SKquests — Copyright (c) 2026 Skroldax. Licencia GPL-3.0.
--- Ruta de leveo original de SKquests. Este aviso debe conservarse (ver LICENSE).
 -- Archivo generado con continuidad estricta para SKuests
 SKquests_Horde = {
     [1] = {
@@ -3164,4 +3162,8 @@ SKquests_Horde = {
 12) Once at TB, go to The Elder Rise to Nara Wildmane 76.32 and turn in "Guarding Secrets".
 13) Hearth to Everlook.  Make sure you are repaired/resupplied.
 14) In Everlook, from Felnok Steelspring under the blue tent 62.39, turn in "Chillwind Horns", accept "Return to Tinkee".  NOTE:  You can turn this in next time you head to Burning Steppes.
-15) At this point you should be very close to level 60.  I usually grind the rest of the way to level 60 at the Owl Wing Thicket (entrance 64.59, #1 on ma
+15) At this point you should be very close to level 60.  I usually grind the rest of the way to level 60 at the Owl Wing Thicket (entrance 64.59, #1 on map).  But here is a list of other things you could do instead of the owl grinding:
+        ]],
+        image = "imagen_052.jpeg",
+    },
+}

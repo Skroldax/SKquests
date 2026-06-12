@@ -1,5 +1,3 @@
--- SKquests — Copyright (c) 2026 Skroldax. Licencia GPL-3.0.
--- Ruta de leveo original de SKquests. Este aviso debe conservarse (ver LICENSE).
 -- Archivo generado con continuidad estricta para SKuests
 SKquests_Alliance = {
     [1] = {
@@ -3983,4 +3981,8 @@ SKquests_Alliance = {
 08) While in Darnassus, any cloth donations are turned in at 64.23 for the Night Elf faction.
 09) Hearth to Everlook.
 10) If you still need to, finish "Luck Be With You": go south to Frostwhisper Gorge entrance 59.66 and loot Frostmaul Shards.  Distract the elite giants and sneak in to loot the shards.  Then turn this in at Everlook once finished.
-11) At this point you should be very close to level 60.  I usually grind the rest of the way to level 60 at the Owl Wing Thicket entrance 64.
+11) At this point you should be very close to level 60.  I usually grind the rest of the way to level 60 at the Owl Wing Thicket entrance 64.59.  But here is a list of other things you could do instead of the owl grinding:
+        ]],
+        image = "imagen_053.jpeg",
+    },
+}

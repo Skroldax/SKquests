@@ -1,5 +1,3 @@
--- SKquests — Copyright (c) 2026 Skroldax. Licencia GPL-3.0.
--- Datos de overlays derivados de Cartographer Foglight (ver THIRD_PARTY.md).
 SKquests_MapData = {
 			["LochModan"] = {
 				["VALLEYOFKINGS"] = 397399025859,
@@ -1015,4 +1013,4 @@ SKquests_MapData = {
 				["Valhalas"] = 53914878190,
 			},
 			['*'] = {},
-		}
+		}
