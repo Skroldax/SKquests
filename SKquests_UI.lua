@@ -2250,12 +2250,10 @@ function addon:CreateModernUI()
             flatTex:SetTexture(GetQuestTexture(q and q.image))
             flatTex:Show()
         end
-                -- Solo mostramos la caja para quests CUSTOM (BronzebeardQuestChains,
-        -- con bqCoord) que tienen su mapa azerothhub propio. Las quests vanilla
-        -- dependen de texturas WorldMap que se ven negras en este cliente, y el
-        -- mapa azerothhub de la zona no corresponde a ellas (parecía "mapa de guía"),
-        -- así que ocultamos la caja.
-        if usedMap and customMap and q and q.bqCoord then
+                -- Mostramos la caja siempre que se haya cargado un mapa:
+        -- custom (azerothhub, Media\Maps) para quests BronzebeardQuestChains,
+        -- y el mapa WorldMap de la zona para las vanilla (con sus pines pfQuest).
+        if usedMap then
             self:Show()
             self.needsLayout = true
         else
@@ -3746,7 +3744,7 @@ function addon:RefreshDetail()
                         cb.lbl:SetWidth(availW - 44)
                         cb.lbl:SetText(line)
                         cb.lbl:SetTextColor(C.white[1], C.white[2], C.white[3])
-                        
+
                         if not cb.linkBtn then
                             cb.linkBtn = CreateFrame("Button", nil, ch.objSec)
                             cb.linkBtn:SetScript("OnClick", function()

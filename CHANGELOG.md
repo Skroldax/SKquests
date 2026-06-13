@@ -3,6 +3,19 @@
 All notable changes to SKquests will be documented in this file.
 This project follows [Semantic Versioning](https://semver.org/) and [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.10.16-alpha] - 2026-06-12
+
+### Fixed
+- **Circuitos de guía ordenados por nivel**: dentro de cada zona los circuitos estaban desordenados (5-10, 5-11, 5-9, 5-8…). Ahora se ordenan por nivel inicial y final, conservando título/texto/imagen de cada uno (los mapas siguen coincidiendo).
+- **Comillas mal anidadas (p. ej. "Wanted: Hogger")**: el texto traía comillas dentro de comillas que partían el nombre de la quest ("[Wanted: ]Hogger[]"). Corregido a un nombre limpio y enlazable.
+- **Quest falsa "Wabbit Pelts" eliminada** de la guía Alianza.
+- **Circuito duplicado de "Kobold Camp Cleanup" (Northshire) eliminado** (su quest ya estaba en el circuito completo).
+
+## [0.10.15-alpha] - 2026-06-12
+
+### Fixed
+- **Mapas de quest restaurados**: se revirtió el ocultado de la caja de mapa en quests vanilla. Ahora las quests custom muestran su mapa azerothhub y las vanilla muestran su mapa WorldMap de zona con los pines de pfQuest. La lista blanca de `TryCustomMap` se mantiene para no intentar mapas custom inexistentes.
+
 ## [0.10.14-alpha] - 2026-06-12
 
 ### Fixed

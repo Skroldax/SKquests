@@ -17,6 +17,17 @@ SKquests_Horde = {
     },
     [2] = {
         step = 2,
+        title = [[1-1 Valley of Trials — Circuit 4]],
+        objectives = [[01) Accept "Welcome!" from the quest giver.]],
+        text = [[
+01) Accept "Welcome!" from the quest giver.
+02) Do "Welcome!" (43.0, 69.4): Bring the Razor Hill Gift Voucher to Magga in Razor Hill.
+03) Turn in "Welcome!" to Magga (43.0, 69.4).
+        ]],
+        image = "",
+    },
+    [3] = {
+        step = 3,
         title = [[1-5 Valley of Trials — Circuit 2]],
         objectives = [[01) Pick up these 7 quests around Kaltunk (43.3, 68.5): "Your Place In The World", "Cutting Teeth", ]],
         text = [[
@@ -35,8 +46,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_ValleyOfTrials_c02.tga",
     },
-    [3] = {
-        step = 3,
+    [4] = {
+        step = 4,
         title = [[1-5 Valley of Trials — Circuit 3]],
         objectives = [[01) Pick up these 4 quests around Zureetha Fargaze (42.8, 69.1): "Report to Sen'jin Village", "Vile ]],
         text = [[
@@ -51,29 +62,25 @@ SKquests_Horde = {
         ]],
         image = "Horde_ValleyOfTrials_c03.tga",
     },
-    [4] = {
-        step = 4,
-        title = [[1-1 Valley of Trials — Circuit 4]],
-        objectives = [[01) Accept "Welcome!" from the quest giver.]],
-        text = [[
-01) Accept "Welcome!" from the quest giver.
-02) Do "Welcome!" (43.0, 69.4): Bring the Razor Hill Gift Voucher to Magga in Razor Hill.
-03) Turn in "Welcome!" to Magga (43.0, 69.4).
-        ]],
-        image = "",
-    },
     [5] = {
         step = 5,
-        title = [[4-13 Durotar — Circuit 1]],
-        objectives = [[01) Pick up these 2 quests around Neeru Fireblade (49.5, 50.6): "Ak'Zeloth", "Finding the Antidote".]],
+        title = [[4-10 Durotar — Circuit 4]],
+        objectives = [[01) Pick up these 6 quests around Master Gadrin (55.9, 74.7): "Report to Orgnil", "Minshina's Skull"]],
         text = [[
-01) Pick up these 2 quests around Neeru Fireblade (49.5, 50.6): "Ak'Zeloth", "Finding the Antidote".
-02) Do "Finding the Antidote" (47.2, 53.6): Bring 4 Venomtail Poison Sacs to Kor'ghan in Orgrimmar.
-03) Do "Ak'Zeloth" (62.3, 20.1): Speak with Ak'Zeloth in the Barrens.
-04) Turn in "Ak'Zeloth" to Ak'Zeloth (62.3, 20.1).
-05) KEEP "Finding the Antidote" in your log — turn it in later in Orgrimmar (grouped trip).
+01) Pick up these 6 quests around Master Gadrin (55.9, 74.7): "Report to Orgnil", "Minshina's Skull", "Zalazane", "A Solvent Spirit", "Thwarting Kolkar Aggression", "Practical Prey".
+02) Do "Minshina's Skull" (55.9, 74.7): Retrieve Minshina's skull from the circle of power on the Echo Isles. Bring it to Master Gadrin in...
+03) Do "Zalazane" (55.9, 74.7): Defeat Zalazane. Kill 8 Voodoo Trolls and 8 Hexed Trolls. Bring Zalazane's Head to Gadrin.
+04) Do "A Solvent Spirit" (55.9, 74.4): Bring 4 Intact Makrura Eyes and 8 vials of Crawler Mucus to Master Vornal in Sen'jin Village.
+05) Do "Practical Prey" (56.0, 73.9): Bring 4 Durotar Tiger Furs to Vel'rin Fang in Sen'jin Village.
+06) Do "Thwarting Kolkar Aggression" (54.2, 73.3): Lar Prowltusk outside of Sen'jin Village wants you to destroy the 3 sets of Attack Plans held...
+07) Do "Report to Orgnil" (52.2, 43.2): Speak with Orgnil Soulscar in Razor Hill.
+08) Turn in "Report to Orgnil" to Orgnil Soulscar (52.2, 43.2).
+09) Turn in "Minshina's Skull" and "Zalazane" to Master Gadrin (55.9, 74.7).
+10) Turn in "A Solvent Spirit" to Master Vornal (55.9, 74.4).
+11) Turn in "Thwarting Kolkar Aggression" to Lar Prowltusk (54.2, 73.3).
+12) Turn in "Practical Prey" to Vel'rin Fang (56.0, 73.9).
         ]],
-        image = "Horde_Durotar_c01.tga",
+        image = "Horde_Durotar_c04.tga",
     },
     [6] = {
         step = 6,
@@ -99,6 +106,30 @@ SKquests_Horde = {
     },
     [7] = {
         step = 7,
+        title = [[4-12 Durotar — Circuit 5]],
+        objectives = [[01) Accept "Burning Shadows" from the quest giver.]],
+        text = [[
+01) Accept "Burning Shadows" from the quest giver.
+02) Do "Burning Shadows" (49.5, 50.6): Take this eye to Neeru Fireblade in Orgrimmar.
+03) KEEP "Burning Shadows" in your log — turn it in later in Orgrimmar (grouped trip).
+        ]],
+        image = "",
+    },
+    [8] = {
+        step = 8,
+        title = [[4-13 Durotar — Circuit 1]],
+        objectives = [[01) Pick up these 2 quests around Neeru Fireblade (49.5, 50.6): "Ak'Zeloth", "Finding the Antidote".]],
+        text = [[
+01) Pick up these 2 quests around Neeru Fireblade (49.5, 50.6): "Ak'Zeloth", "Finding the Antidote".
+02) Do "Finding the Antidote" (47.2, 53.6): Bring 4 Venomtail Poison Sacs to Kor'ghan in Orgrimmar.
+03) Do "Ak'Zeloth" (62.3, 20.1): Speak with Ak'Zeloth in the Barrens.
+04) Turn in "Ak'Zeloth" to Ak'Zeloth (62.3, 20.1).
+05) KEEP "Finding the Antidote" in your log — turn it in later in Orgrimmar (grouped trip).
+        ]],
+        image = "Horde_Durotar_c01.tga",
+    },
+    [9] = {
+        step = 9,
         title = [[4-14 Durotar — Circuit 3]],
         objectives = [[01) Pick up these 4 quests around Margoz (56.4, 20.0): "Skull Rock", "Neeru Fireblade", "The Demon S]],
         text = [[
@@ -113,37 +144,6 @@ SKquests_Horde = {
 09) KEEP "Neeru Fireblade" in your log — turn it in later in Orgrimmar (grouped trip).
         ]],
         image = "Horde_Durotar_c03.tga",
-    },
-    [8] = {
-        step = 8,
-        title = [[4-10 Durotar — Circuit 4]],
-        objectives = [[01) Pick up these 6 quests around Master Gadrin (55.9, 74.7): "Report to Orgnil", "Minshina's Skull"]],
-        text = [[
-01) Pick up these 6 quests around Master Gadrin (55.9, 74.7): "Report to Orgnil", "Minshina's Skull", "Zalazane", "A Solvent Spirit", "Thwarting Kolkar Aggression", "Practical Prey".
-02) Do "Minshina's Skull" (55.9, 74.7): Retrieve Minshina's skull from the circle of power on the Echo Isles. Bring it to Master Gadrin in...
-03) Do "Zalazane" (55.9, 74.7): Defeat Zalazane. Kill 8 Voodoo Trolls and 8 Hexed Trolls. Bring Zalazane's Head to Gadrin.
-04) Do "A Solvent Spirit" (55.9, 74.4): Bring 4 Intact Makrura Eyes and 8 vials of Crawler Mucus to Master Vornal in Sen'jin Village.
-05) Do "Practical Prey" (56.0, 73.9): Bring 4 Durotar Tiger Furs to Vel'rin Fang in Sen'jin Village.
-06) Do "Thwarting Kolkar Aggression" (54.2, 73.3): Lar Prowltusk outside of Sen'jin Village wants you to destroy the 3 sets of Attack Plans held...
-07) Do "Report to Orgnil" (52.2, 43.2): Speak with Orgnil Soulscar in Razor Hill.
-08) Turn in "Report to Orgnil" to Orgnil Soulscar (52.2, 43.2).
-09) Turn in "Minshina's Skull" and "Zalazane" to Master Gadrin (55.9, 74.7).
-10) Turn in "A Solvent Spirit" to Master Vornal (55.9, 74.4).
-11) Turn in "Thwarting Kolkar Aggression" to Lar Prowltusk (54.2, 73.3).
-12) Turn in "Practical Prey" to Vel'rin Fang (56.0, 73.9).
-        ]],
-        image = "Horde_Durotar_c04.tga",
-    },
-    [9] = {
-        step = 9,
-        title = [[4-12 Durotar — Circuit 5]],
-        objectives = [[01) Accept "Burning Shadows" from the quest giver.]],
-        text = [[
-01) Accept "Burning Shadows" from the quest giver.
-02) Do "Burning Shadows" (49.5, 50.6): Take this eye to Neeru Fireblade in Orgrimmar.
-03) KEEP "Burning Shadows" in your log — turn it in later in Orgrimmar (grouped trip).
-        ]],
-        image = "",
     },
     [10] = {
         step = 10,
@@ -169,17 +169,6 @@ SKquests_Horde = {
     },
     [12] = {
         step = 12,
-        title = [[8-11 Durotar — Circuit 8]],
-        objectives = [[01) Accept "Lost But Not Forgotten" from Misha Tor'kren (43.1, 30.2).]],
-        text = [[
-01) Accept "Lost But Not Forgotten" from Misha Tor'kren (43.1, 30.2).
-02) Do "Lost But Not Forgotten" (43.1, 30.2): Bring a sign of Kron's fate to Misha Tor'kren at the farmstead northwest of Razor Hill.
-03) Turn in "Lost But Not Forgotten" to Misha Tor'kren (43.1, 30.2).
-        ]],
-        image = "Horde_Durotar_c08.tga",
-    },
-    [13] = {
-        step = 13,
         title = [[7-11 Durotar — Circuit 9]],
         objectives = [[01) Pick up these 3 quests around Rhinag (41.5, 18.6): "Need for a Cure", "Winds in the Desert", "Se]],
         text = [[
@@ -191,6 +180,17 @@ SKquests_Horde = {
 06) Turn in "Winds in the Desert" and "Securing the Lines" to Rezlak (46.4, 22.9).
         ]],
         image = "Horde_Durotar_c09.tga",
+    },
+    [13] = {
+        step = 13,
+        title = [[8-11 Durotar — Circuit 8]],
+        objectives = [[01) Accept "Lost But Not Forgotten" from Misha Tor'kren (43.1, 30.2).]],
+        text = [[
+01) Accept "Lost But Not Forgotten" from Misha Tor'kren (43.1, 30.2).
+02) Do "Lost But Not Forgotten" (43.1, 30.2): Bring a sign of Kron's fate to Misha Tor'kren at the farmstead northwest of Razor Hill.
+03) Turn in "Lost But Not Forgotten" to Misha Tor'kren (43.1, 30.2).
+        ]],
+        image = "Horde_Durotar_c08.tga",
     },
     [14] = {
         step = 14,
@@ -206,44 +206,17 @@ SKquests_Horde = {
     },
     [15] = {
         step = 15,
-        title = [[5-12 Mulgore — Circuit 1]],
-        objectives = [[01) Pick up these 5 quests around Morin Cloudstalker (51.9, 59.6): "The Venture Co.", "Supervisor Fi]],
+        title = [[1-6 Mulgore — Circuit 7]],
+        objectives = [[01) Accept "Sharing the Land" from the quest giver.]],
         text = [[
-01) Pick up these 5 quests around Morin Cloudstalker (51.9, 59.6): "The Venture Co.", "Supervisor Fizsprocket", "Dwarven Digging", "Journey to the Crossroads", "The Hunter's Way".
-02) Do "The Venture Co." (51.9, 59.6): Kill 14 Venture Co. Workers and 6 Venture Co. Supervisors for Morin Cloudstalker at Bloodhoof...
-03) Do "Supervisor Fizsprocket" (51.9, 59.6): Kill Supervisor Fizsprocket and return his clipboard to Morin Cloudstalker at Bloodhoof Village.
-04) Do "Dwarven Digging" (47.5, 60.2): Collect 5 Prospector's Picks. At a forge, smash the Prospector's Picks to create Broken Tools....
-05) Do "The Hunter's Way" (42.3, 33.3): Bring 4 Flatland Prowler Claws to Melor Stonehoof in Thunder Bluff.
-06) Do "Journey to the Crossroads" (51.5, 30.9): Speak with Thork at the Crossroads in the Barrens.
-07) Turn in "The Venture Co." and "Supervisor Fizsprocket" to Morin Cloudstalker (51.9, 59.6).
-08) Turn in "Dwarven Digging" to Baine Bloodhoof (47.5, 60.2).
-09) Turn in "Journey to the Crossroads" to Thork (51.5, 30.9).
-10) Turn in "The Hunter's Way" to Melor Stonehoof (42.3, 33.3).
+01) Accept "Sharing the Land" from the quest giver.
+02) Do "Sharing the Land": Kill 10 Palemane Tanners, 8 Palemane Skinners, and 5 Palemane Poachers, then return to Ahmo...
+03) Turn in "Sharing the Land" to the quest giver.
         ]],
-        image = "Horde_Mulgore_c01.tga",
+        image = "",
     },
     [16] = {
         step = 16,
-        title = [[4-10 Mulgore — Circuit 2]],
-        objectives = [[01) Pick up these 7 quests around Mull Thunderhorn (48.5, 60.4): "Thunderhorn Totem", "Thunderhorn C]],
-        text = [[
-01) Pick up these 7 quests around Mull Thunderhorn (48.5, 60.4): "Thunderhorn Totem", "Thunderhorn Cleansing", "Wildmane Totem", "Wildmane Cleansing", "Dangers of the Windfury", "The Ravaged Caravan", "Mazzranache".
-02) Do "Thunderhorn Totem" (48.5, 60.4): Bring 6 Stalker Claws and 6 Cougar Claws to Mull Thunderhorn.
-03) Do "Thunderhorn Cleansing" (48.5, 60.4): Use the Thunderhorn Cleansing Totem at the Thunderhorn Water Well, then return to Mull.
-04) Do "Wildmane Totem" (48.5, 60.4): Bring 8 Prairie Alpha Teeth to Mull Thunderhorn in Bloodhoof Village.
-05) Do "Wildmane Cleansing" (48.5, 60.4): Use the Wildmane Cleansing Totem at the Wildmane Water Well, then return to Mull Thunderhorn.
-06) Do "Dangers of the Windfury" (47.4, 62.0): Bring 8 Windfury Talons to Ruul Eagletalon in Bloodhoof Village.
-07) Do "Mazzranache" (47.0, 57.1): Bring a Prairie Wolf Heart, Flatland Cougar Femur, Plainstrider Scale and Swoop Gizzard to Maur...
-08) Do "The Ravaged Caravan" (3.1, 45.9): Morin Cloudstalker wants you to examine the contents of a supply crate at the Ravaged Caravan.
-09) Turn in "Thunderhorn Totem" and "Thunderhorn Cleansing" and "Wildmane Totem" and "Wildmane Cleansing" to Mull Thunderhorn (48.5, 60.4).
-10) Turn in "Dangers of the Windfury" to Ruul Eagletalon (47.4, 62.0).
-11) Turn in "The Ravaged Caravan" to Sealed Supply Crate (3.1, 45.9).
-12) Turn in "Mazzranache" to Maur Raincaller (47.0, 57.1).
-        ]],
-        image = "Horde_Mulgore_c02.tga",
-    },
-    [17] = {
-        step = 17,
         title = [[1-7 Mulgore — Circuit 3]],
         objectives = [[01) Pick up these 7 quests around Baine Bloodhoof (47.5, 60.2): "Sharing the Land", "Rite of Vision"]],
         text = [[
@@ -263,8 +236,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Mulgore_c03.tga",
     },
-    [18] = {
-        step = 18,
+    [17] = {
+        step = 17,
         title = [[3-10 Mulgore — Circuit 4]],
         objectives = [[01) Pick up these 3 quests around Seer Wiserunner (32.7, 36.1): "Rite of Wisdom", "Journey into Thun]],
         text = [[
@@ -277,6 +250,17 @@ SKquests_Horde = {
 07) Turn in "A Sacred Burial" to Lorekeeper Raintotem (36.0, 40.9).
         ]],
         image = "Horde_Mulgore_c04.tga",
+    },
+    [18] = {
+        step = 18,
+        title = [[3-10 Mulgore — Circuit 8]],
+        objectives = [[01) Accept "Journey into Thunder Bluff" from the quest giver.]],
+        text = [[
+01) Accept "Journey into Thunder Bluff" from the quest giver.
+02) Do "Journey into Thunder Bluff": Speak with Baine Bloodhoof in Thunder Bluff.
+03) Turn in "Journey into Thunder Bluff" to the quest giver.
+        ]],
+        image = "",
     },
     [19] = {
         step = 19,
@@ -291,6 +275,37 @@ SKquests_Horde = {
     },
     [20] = {
         step = 20,
+        title = [[3-14 Mulgore — Circuit 9]],
+        objectives = [[01) Accept "Rites of the Earthmother" from the quest giver.]],
+        text = [[
+01) Accept "Rites of the Earthmother" from the quest giver.
+02) Do "Rites of the Earthmother": Baine Bloodhoof in Thunder Bluff wants you to bring him the Horn of Arra'chea.
+03) Turn in "Rites of the Earthmother" to the quest giver.
+        ]],
+        image = "",
+    },
+    [21] = {
+        step = 21,
+        title = [[4-10 Mulgore — Circuit 2]],
+        objectives = [[01) Pick up these 7 quests around Mull Thunderhorn (48.5, 60.4): "Thunderhorn Totem", "Thunderhorn C]],
+        text = [[
+01) Pick up these 7 quests around Mull Thunderhorn (48.5, 60.4): "Thunderhorn Totem", "Thunderhorn Cleansing", "Wildmane Totem", "Wildmane Cleansing", "Dangers of the Windfury", "The Ravaged Caravan", "Mazzranache".
+02) Do "Thunderhorn Totem" (48.5, 60.4): Bring 6 Stalker Claws and 6 Cougar Claws to Mull Thunderhorn.
+03) Do "Thunderhorn Cleansing" (48.5, 60.4): Use the Thunderhorn Cleansing Totem at the Thunderhorn Water Well, then return to Mull.
+04) Do "Wildmane Totem" (48.5, 60.4): Bring 8 Prairie Alpha Teeth to Mull Thunderhorn in Bloodhoof Village.
+05) Do "Wildmane Cleansing" (48.5, 60.4): Use the Wildmane Cleansing Totem at the Wildmane Water Well, then return to Mull Thunderhorn.
+06) Do "Dangers of the Windfury" (47.4, 62.0): Bring 8 Windfury Talons to Ruul Eagletalon in Bloodhoof Village.
+07) Do "Mazzranache" (47.0, 57.1): Bring a Prairie Wolf Heart, Flatland Cougar Femur, Plainstrider Scale and Swoop Gizzard to Maur...
+08) Do "The Ravaged Caravan" (3.1, 45.9): Morin Cloudstalker wants you to examine the contents of a supply crate at the Ravaged Caravan.
+09) Turn in "Thunderhorn Totem" and "Thunderhorn Cleansing" and "Wildmane Totem" and "Wildmane Cleansing" to Mull Thunderhorn (48.5, 60.4).
+10) Turn in "Dangers of the Windfury" to Ruul Eagletalon (47.4, 62.0).
+11) Turn in "The Ravaged Caravan" to Sealed Supply Crate (3.1, 45.9).
+12) Turn in "Mazzranache" to Maur Raincaller (47.0, 57.1).
+        ]],
+        image = "Horde_Mulgore_c02.tga",
+    },
+    [22] = {
+        step = 22,
         title = [[5-8 Mulgore — Circuit 6]],
         objectives = [[01) Accept "The Ravaged Caravan" from Sealed Supply Crate (3.1, 45.9).]],
         text = [[
@@ -300,38 +315,23 @@ SKquests_Horde = {
         ]],
         image = "Horde_Mulgore_c06.tga",
     },
-    [21] = {
-        step = 21,
-        title = [[1-6 Mulgore — Circuit 7]],
-        objectives = [[01) Accept "Sharing the Land" from the quest giver.]],
-        text = [[
-01) Accept "Sharing the Land" from the quest giver.
-02) Do "Sharing the Land": Kill 10 Palemane Tanners, 8 Palemane Skinners, and 5 Palemane Poachers, then return to Ahmo...
-03) Turn in "Sharing the Land" to the quest giver.
-        ]],
-        image = "",
-    },
-    [22] = {
-        step = 22,
-        title = [[3-10 Mulgore — Circuit 8]],
-        objectives = [[01) Accept "Journey into Thunder Bluff" from the quest giver.]],
-        text = [[
-01) Accept "Journey into Thunder Bluff" from the quest giver.
-02) Do "Journey into Thunder Bluff": Speak with Baine Bloodhoof in Thunder Bluff.
-03) Turn in "Journey into Thunder Bluff" to the quest giver.
-        ]],
-        image = "",
-    },
     [23] = {
         step = 23,
-        title = [[3-14 Mulgore — Circuit 9]],
-        objectives = [[01) Accept "Rites of the Earthmother" from the quest giver.]],
+        title = [[5-12 Mulgore — Circuit 1]],
+        objectives = [[01) Pick up these 5 quests around Morin Cloudstalker (51.9, 59.6): "The Venture Co.", "Supervisor Fi]],
         text = [[
-01) Accept "Rites of the Earthmother" from the quest giver.
-02) Do "Rites of the Earthmother": Baine Bloodhoof in Thunder Bluff wants you to bring him the Horn of Arra'chea.
-03) Turn in "Rites of the Earthmother" to the quest giver.
+01) Pick up these 5 quests around Morin Cloudstalker (51.9, 59.6): "The Venture Co.", "Supervisor Fizsprocket", "Dwarven Digging", "Journey to the Crossroads", "The Hunter's Way".
+02) Do "The Venture Co." (51.9, 59.6): Kill 14 Venture Co. Workers and 6 Venture Co. Supervisors for Morin Cloudstalker at Bloodhoof...
+03) Do "Supervisor Fizsprocket" (51.9, 59.6): Kill Supervisor Fizsprocket and return his clipboard to Morin Cloudstalker at Bloodhoof Village.
+04) Do "Dwarven Digging" (47.5, 60.2): Collect 5 Prospector's Picks. At a forge, smash the Prospector's Picks to create Broken Tools....
+05) Do "The Hunter's Way" (42.3, 33.3): Bring 4 Flatland Prowler Claws to Melor Stonehoof in Thunder Bluff.
+06) Do "Journey to the Crossroads" (51.5, 30.9): Speak with Thork at the Crossroads in the Barrens.
+07) Turn in "The Venture Co." and "Supervisor Fizsprocket" to Morin Cloudstalker (51.9, 59.6).
+08) Turn in "Dwarven Digging" to Baine Bloodhoof (47.5, 60.2).
+09) Turn in "Journey to the Crossroads" to Thork (51.5, 30.9).
+10) Turn in "The Hunter's Way" to Melor Stonehoof (42.3, 33.3).
         ]],
-        image = "",
+        image = "Horde_Mulgore_c01.tga",
     },
     [24] = {
         step = 24,
@@ -357,6 +357,30 @@ SKquests_Horde = {
     },
     [26] = {
         step = 26,
+        title = [[4-7 Tirisfal Glades — Circuit 5]],
+        objectives = [[01) Pick up these 2 quests around Deathguard Simmer (40.9, 54.2): "Fields of Grief", "Gordo's Task".]],
+        text = [[
+01) Pick up these 2 quests around Deathguard Simmer (40.9, 54.2): "Fields of Grief", "Gordo's Task".
+02) Do "Gordo's Task" (57.4, 48.8): Collect 3 Gloom Weed and deliver them to Junior Apothecary Holland in the Brill graveyard.
+03) Do "Fields of Grief" (59.4, 52.4): Steal 10 pumpkins from the farm to the west, just north of Deathknell and take them to Apothecary...
+04) Turn in "Fields of Grief" to Apothecary Johaan (59.4, 52.4).
+05) Turn in "Gordo's Task" to Junior Apothecary Holland (57.4, 48.8).
+        ]],
+        image = "Horde_Tirisfal_c05.tga",
+    },
+    [27] = {
+        step = 27,
+        title = [[4-7 Tirisfal Glades — Circuit 8]],
+        objectives = [[01) Accept "A Letter Undelivered" from the quest giver.]],
+        text = [[
+01) Accept "A Letter Undelivered" from the quest giver.
+02) Do "A Letter Undelivered" (61.6, 52.6): Find Yvette Farthing, and deliver to her the letter from Thurman Agamand.
+03) Turn in "A Letter Undelivered" to Yvette Farthing (61.6, 52.6).
+        ]],
+        image = "",
+    },
+    [28] = {
+        step = 28,
         title = [[4-8 Tirisfal Glades — Circuit 1]],
         objectives = [[01) Pick up these 7 quests around Deathguard Dillinger (58.2, 51.4): "A Putrid Task", "Fields of Gri]],
         text = [[
@@ -378,8 +402,52 @@ SKquests_Horde = {
         ]],
         image = "Horde_Tirisfal_c01.tga",
     },
-    [27] = {
-        step = 27,
+    [29] = {
+        step = 29,
+        title = [[4-10 Tirisfal Glades — Circuit 7]],
+        objectives = [[01) Accept "Wanted: Maggot Eye" from Wanted! (17.1, 17.4).]],
+        text = [[
+01) Accept "Wanted: Maggot Eye" from Wanted! (17.1, 17.4).
+02) Do "Wanted: Maggot Eye" (60.6, 51.8): Kill Maggot Eye and return to Executor Zygand in Brill with his paw for a reward.
+03) Turn in "Wanted: Maggot Eye" to Executor Zygand (60.6, 51.8).
+        ]],
+        image = "Horde_Tirisfal_c07.tga",
+    },
+    [30] = {
+        step = 30,
+        title = [[5-8 Tirisfal Glades — Circuit 4]],
+        objectives = [[01) Accept "Return the Book" from Bethor Iceshard (65.7, 68.8).]],
+        text = [[
+01) Accept "Return the Book" from Bethor Iceshard (65.7, 68.8).
+02) Do "Return the Book" (68.2, 41.9): Return Gunther's Spellbook to him, on the island of Gunther's Retreat.
+03) Turn in "Return the Book" to Gunther Arcanus (68.2, 41.9).
+        ]],
+        image = "Horde_Tirisfal_c04.tga",
+    },
+    [31] = {
+        step = 31,
+        title = [[5-10 Tirisfal Glades — Circuit 6]],
+        objectives = [[01) Accept "The Dormant Shade" from Lillith's Dinner Table (32.3, 68.4).]],
+        text = [[
+01) Accept "The Dormant Shade" from Lillith's Dinner Table (32.3, 68.4).
+02) Do "The Dormant Shade" (32.3, 68.4).
+03) Turn in "The Dormant Shade" to Lillith's Dinner Table (32.3, 68.4).
+        ]],
+        image = "Horde_Tirisfal_c06.tga",
+    },
+    [32] = {
+        step = 32,
+        title = [[5-10 Tirisfal Glades — Circuit 9]],
+        objectives = [[01) Accept "Candles of Beckoning" from Crate of Candles.]],
+        text = [[
+01) Accept "Candles of Beckoning" from Crate of Candles.
+02) Do "Candles of Beckoning".
+03) Turn in "Candles of Beckoning" to Crate of Candles.
+        ]],
+        image = "",
+    },
+    [33] = {
+        step = 33,
         title = [[5-12 Tirisfal Glades — Circuit 2]],
         objectives = [[01) Pick up these 7 quests around Executor Zygand (60.6, 51.8): "At War With The Scarlet Crusade", "]],
         text = [[
@@ -398,8 +466,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Tirisfal_c02.tga",
     },
-    [28] = {
-        step = 28,
+    [34] = {
+        step = 34,
         title = [[5-12 Tirisfal Glades — Circuit 3]],
         objectives = [[01) Pick up these 2 quests around Gunther Arcanus (68.2, 41.9): "Proving Allegiance", "The Prodigal ]],
         text = [[
@@ -411,76 +479,21 @@ SKquests_Horde = {
         ]],
         image = "Horde_Tirisfal_c03.tga",
     },
-    [29] = {
-        step = 29,
-        title = [[5-8 Tirisfal Glades — Circuit 4]],
-        objectives = [[01) Accept "Return the Book" from Bethor Iceshard (65.7, 68.8).]],
-        text = [[
-01) Accept "Return the Book" from Bethor Iceshard (65.7, 68.8).
-02) Do "Return the Book" (68.2, 41.9): Return Gunther's Spellbook to him, on the island of Gunther's Retreat.
-03) Turn in "Return the Book" to Gunther Arcanus (68.2, 41.9).
-        ]],
-        image = "Horde_Tirisfal_c04.tga",
-    },
-    [30] = {
-        step = 30,
-        title = [[4-7 Tirisfal Glades — Circuit 5]],
-        objectives = [[01) Pick up these 2 quests around Deathguard Simmer (40.9, 54.2): "Fields of Grief", "Gordo's Task".]],
-        text = [[
-01) Pick up these 2 quests around Deathguard Simmer (40.9, 54.2): "Fields of Grief", "Gordo's Task".
-02) Do "Gordo's Task" (57.4, 48.8): Collect 3 Gloom Weed and deliver them to Junior Apothecary Holland in the Brill graveyard.
-03) Do "Fields of Grief" (59.4, 52.4): Steal 10 pumpkins from the farm to the west, just north of Deathknell and take them to Apothecary...
-04) Turn in "Fields of Grief" to Apothecary Johaan (59.4, 52.4).
-05) Turn in "Gordo's Task" to Junior Apothecary Holland (57.4, 48.8).
-        ]],
-        image = "Horde_Tirisfal_c05.tga",
-    },
-    [31] = {
-        step = 31,
-        title = [[5-10 Tirisfal Glades — Circuit 6]],
-        objectives = [[01) Accept "The Dormant Shade" from Lillith's Dinner Table (32.3, 68.4).]],
-        text = [[
-01) Accept "The Dormant Shade" from Lillith's Dinner Table (32.3, 68.4).
-02) Do "The Dormant Shade" (32.3, 68.4).
-03) Turn in "The Dormant Shade" to Lillith's Dinner Table (32.3, 68.4).
-        ]],
-        image = "Horde_Tirisfal_c06.tga",
-    },
-    [32] = {
-        step = 32,
-        title = [[4-10 Tirisfal Glades — Circuit 7]],
-        objectives = [[01) Accept "Wanted: Maggot Eye" from Wanted! (17.1, 17.4).]],
-        text = [[
-01) Accept "Wanted: Maggot Eye" from Wanted! (17.1, 17.4).
-02) Do "Wanted: Maggot Eye" (60.6, 51.8): Kill Maggot Eye and return to Executor Zygand in Brill with his paw for a reward.
-03) Turn in "Wanted: Maggot Eye" to Executor Zygand (60.6, 51.8).
-        ]],
-        image = "Horde_Tirisfal_c07.tga",
-    },
-    [33] = {
-        step = 33,
-        title = [[4-7 Tirisfal Glades — Circuit 8]],
-        objectives = [[01) Accept "A Letter Undelivered" from the quest giver.]],
-        text = [[
-01) Accept "A Letter Undelivered" from the quest giver.
-02) Do "A Letter Undelivered" (61.6, 52.6): Find Yvette Farthing, and deliver to her the letter from Thurman Agamand.
-03) Turn in "A Letter Undelivered" to Yvette Farthing (61.6, 52.6).
-        ]],
-        image = "",
-    },
-    [34] = {
-        step = 34,
-        title = [[5-10 Tirisfal Glades — Circuit 9]],
-        objectives = [[01) Accept "Candles of Beckoning" from Crate of Candles.]],
-        text = [[
-01) Accept "Candles of Beckoning" from Crate of Candles.
-02) Do "Candles of Beckoning".
-03) Turn in "Candles of Beckoning" to Crate of Candles.
-        ]],
-        image = "",
-    },
     [35] = {
         step = 35,
+        title = [[6-11 Tirisfal Glades — Circuit 12]],
+        objectives = [[01) Pick up these 2 quests around Deathguard Linnea (65.5, 60.3): "Return to the Magistrate", "Rear ]],
+        text = [[
+01) Pick up these 2 quests around Deathguard Linnea (65.5, 60.3): "Return to the Magistrate", "Rear Guard Patrol".
+02) Do "Rear Guard Patrol" (65.5, 60.3): Kill 8 Bleeding Horrors and 8 Wandering Spirits, then report back to Linnea at her camp.
+03) Do "Return to the Magistrate" (61.3, 50.8): Return to Magistrate Sevren in Brill.
+04) Turn in "Return to the Magistrate" to Magistrate Sevren (61.3, 50.8).
+05) Turn in "Rear Guard Patrol" to Deathguard Linnea (65.5, 60.3).
+        ]],
+        image = "Horde_Tirisfal_c12.tga",
+    },
+    [36] = {
+        step = 36,
         title = [[6-13 Tirisfal Glades — Circuit 10]],
         objectives = [[01) Pick up these 7 quests around Apothecary Johaan (59.4, 52.4): "A New Plague", "A New Plague", "T]],
         text = [[
@@ -500,8 +513,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Tirisfal_c10.tga",
     },
-    [36] = {
-        step = 36,
+    [37] = {
+        step = 37,
         title = [[9-10 Tirisfal Glades — Circuit 11]],
         objectives = [[01) Accept "Delivery to Silverpine Forest" from Apothecary Johaan (59.4, 52.4).]],
         text = [[
@@ -511,40 +524,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Tirisfal_c11.tga",
     },
-    [37] = {
-        step = 37,
-        title = [[6-11 Tirisfal Glades — Circuit 12]],
-        objectives = [[01) Pick up these 2 quests around Deathguard Linnea (65.5, 60.3): "Return to the Magistrate", "Rear ]],
-        text = [[
-01) Pick up these 2 quests around Deathguard Linnea (65.5, 60.3): "Return to the Magistrate", "Rear Guard Patrol".
-02) Do "Rear Guard Patrol" (65.5, 60.3): Kill 8 Bleeding Horrors and 8 Wandering Spirits, then report back to Linnea at her camp.
-03) Do "Return to the Magistrate" (61.3, 50.8): Return to Magistrate Sevren in Brill.
-04) Turn in "Return to the Magistrate" to Magistrate Sevren (61.3, 50.8).
-05) Turn in "Rear Guard Patrol" to Deathguard Linnea (65.5, 60.3).
-        ]],
-        image = "Horde_Tirisfal_c12.tga",
-    },
     [38] = {
         step = 38,
-        title = [[10-20 The Barrens — Circuit 1]],
-        objectives = [[01) Pick up these 7 quests around Doras (45.1, 63.9): "Return to the Crossroads.", "Enraged Thunder ]],
-        text = [[
-01) Pick up these 7 quests around Doras (45.1, 63.9): "Return to the Crossroads.", "Enraged Thunder Lizards", "Ishamuhale", "Cry of the Thunderhawk", "Spirit of the Wind", "Agamaggan's Strength", "Agamaggan's Agility".
-02) Do "Spirit of the Wind" (44.5, 59.3).
-03) Do "Agamaggan's Strength" (44.5, 59.3).
-04) Do "Agamaggan's Agility" (44.5, 59.3).
-05) Do "Enraged Thunder Lizards" (44.9, 59.1): Bring 3 Thunder Lizard Blood to Jorn Skyseer at Camp Taurajo.
-06) Do "Ishamuhale" (44.9, 59.1): Bring Ishamuhale's Fang to Jorn at Camp Taurajo.
-07) Do "Cry of the Thunderhawk" (44.9, 59.1): Find and slay a Thunderhawk, return its wings to Jorn Skyseer at Camp Taurajo.
-08) Do "Return to the Crossroads." (52.6, 29.8): Buy a wind rider to the Crossroads from the wind rider master Doras, then bring Gryshka's Letter to...
-09) Turn in "Return to the Crossroads." to Zargh (52.6, 29.8).
-10) Turn in "Enraged Thunder Lizards" and "Ishamuhale" and "Cry of the Thunderhawk" to Jorn Skyseer (44.9, 59.1).
-11) Turn in "Spirit of the Wind" and "Agamaggan's Strength" and "Agamaggan's Agility" to Mangletooth (44.5, 59.3).
-        ]],
-        image = "Horde_Barrens_c01.tga",
-    },
-    [39] = {
-        step = 39,
         title = [[10-10 The Barrens — Circuit 2]],
         objectives = [[01) Accept "Doras the Wind Rider Master" from Innkeeper Gryshka (54.1, 68.4).]],
         text = [[
@@ -554,47 +535,48 @@ SKquests_Horde = {
         ]],
         image = "Horde_Barrens_c02.tga",
     },
+    [39] = {
+        step = 39,
+        title = [[10-13 The Barrens — Circuit 6]],
+        objectives = [[01) Pick up these 7 quests around Jahan Hawkwing (51.2, 29.0): "A Bundle of Hides", "Ride to Thunder]],
+        text = [[
+01) Pick up these 7 quests around Jahan Hawkwing (51.2, 29.0): "A Bundle of Hides", "Ride to Thunder Bluff", "Meats to Orgrimmar", "Ride to Orgrimmar", "Plainstrider Menace", "The Zhevra", "The Forgotten Pools".
+02) Do "A Bundle of Hides" (51.5, 30.3): Bring the Bundle of Hides to the wind rider master Devrak in the Crossroads.
+03) Do "Meats to Orgrimmar" (51.5, 30.3): Bring Zargh's Meats to Devrak in the Crossroads.
+04) Do "Plainstrider Menace" (52.2, 31.0): Collect 7 Plainstrider Beaks and return them to Sergra Darkthorn in the Crossroads.
+05) Do "The Zhevra" (52.2, 31.0): Slay Zhevra Runners to collect 4 Zhevra Hooves for Sergra Darkthorn in the Crossroads.
+06) Do "The Forgotten Pools" (52.3, 31.9): Report back to Tonga Runetotem with your findings.
+07) Do "Ride to Thunder Bluff" (39.1, 28.2): Buy a wind rider to Thunder Bluff from the wind rider master Devrak, then bring the Bundle of Hides...
+08) Do "Ride to Orgrimmar" (54.1, 68.4): Buy a wind rider to Orgrimmar from the wind rider master Devrak, then bring Zargh's Meats to...
+09) Turn in "A Bundle of Hides" and "Meats to Orgrimmar" to Devrak (51.5, 30.3).
+10) Turn in "Ride to Thunder Bluff" to Ahanu (39.1, 28.2).
+11) Turn in "Plainstrider Menace" and "The Zhevra" to Sergra Darkthorn (52.2, 31.0).
+12) Turn in "The Forgotten Pools" to Tonga Runetotem (52.3, 31.9).
+13) KEEP "Ride to Orgrimmar" in your log — turn it in later in Orgrimmar (grouped trip).
+        ]],
+        image = "Horde_Barrens_c06.tga",
+    },
     [40] = {
         step = 40,
-        title = [[10-27 The Barrens — Circuit 3]],
-        objectives = [[01) Pick up these 7 quests around Sputtervalve (63.0, 37.2): "Samophlange", "Wenikee Boltbucket", "I]],
+        title = [[10-14 The Barrens — Circuit 11]],
+        objectives = [[01) Accept "Samophlange" from Control Console.]],
         text = [[
-01) Pick up these 7 quests around Sputtervalve (63.0, 37.2): "Samophlange", "Wenikee Boltbucket", "Isha Awak", "Chen's Empty Keg", "Chen's Empty Keg", "Raptor Horns", "Miner's Fortune".
-02) Do "Samophlange" (63.0, 37.2): Access the control console at the Venture Company research site.
-03) Do "Raptor Horns" (62.4, 37.6): Gather 5 Intact Raptor Horns from Sunscale Scytheclaws, and bring them to Mebok Mizzyrix in Ratchet.
-04) Do "Chen's Empty Keg" (62.3, 38.4): Bring 5 Savannah Lion Tusks, 5 Plainstrider Kidneys, and 1 Thunder Lizard Horn to Brewmaster Drohn...
-05) Do "Chen's Empty Keg" (62.3, 38.4): Bring 5 Lightning Glands, 1 Thunderhawk Saliva Gland and 1 Kodo Liver to Brewmaster Drohn in...
-06) Do "Miner's Fortune" (63.4, 38.5): Retrieve the Cats Eye Emerald from one of the Venture Co. Overseers or Enforcers for Wharfmaster...
-07) Do "Isha Awak" (65.8, 43.9): Bring the Heart of Isha Awak to Mahren Skyseer.
-08) Do "Wenikee Boltbucket" (49.1, 11.2): Bring the Broken Samophlange to Wenikee Boltbucket.
-09) Turn in "Samophlange" to Control Console.
-10) Turn in "Wenikee Boltbucket" to Wenikee Boltbucket (49.1, 11.2).
-11) Turn in "Isha Awak" to Mahren Skyseer (65.8, 43.9).
-12) Turn in "Chen's Empty Keg" and "Chen's Empty Keg" to Brewmaster Drohn (62.3, 38.4).
-13) Turn in "Raptor Horns" to Mebok Mizzyrix (62.4, 37.6).
-14) Turn in "Miner's Fortune" to Wharfmaster Dizzywig (63.4, 38.5).
+01) Accept "Samophlange" from Control Console.
+02) Do "Samophlange": Close off the Fuel Control Valve, the Regulator Valve and the Main Control Valve then use the...
+03) Turn in "Samophlange" to Control Console.
         ]],
-        image = "Horde_Barrens_c03.tga",
+        image = "",
     },
     [41] = {
         step = 41,
-        title = [[10-20 The Barrens — Circuit 4]],
-        objectives = [[01) Pick up these 7 quests around Sergra Darkthorn (52.2, 31.0): "The Angry Scytheclaws", "Jorn Skys]],
+        title = [[10-14 The Barrens — Circuit 12]],
+        objectives = [[01) Accept "Samophlange" from Control Console.]],
         text = [[
-01) Pick up these 7 quests around Sergra Darkthorn (52.2, 31.0): "The Angry Scytheclaws", "Jorn Skyseer", "Harpy Raiders", "Harpy Lieutenants", "Serena Bloodfeather", "Consumed by Hatred", "Lost in Battle".
-02) Do "The Angry Scytheclaws" (52.2, 31.0): Kill Sunscale raptors and collect their feathers. Use the feathers on the 3 Scytheclaw nests....
-03) Do "Harpy Raiders" (51.6, 30.9): Collect 8 Witchwing talons. Return them to Darsok Swiftdagger at the Crossroads.
-04) Do "Harpy Lieutenants" (51.6, 30.9): Collect 6 Harpy Lieutenant Rings from Witchwing Slayers and return them to Darsok Swiftdagger at...
-05) Do "Serena Bloodfeather" (51.6, 30.9): Slay Serena Bloodfeather and return her head to Darsok Swiftdagger at the Crossroads.
-06) Do "Consumed by Hatred" (52.0, 31.6): Bring 60 Bristleback Quilboar Tusks to Mankrik at the Crossroads.
-07) Do "Lost in Battle" (49.3, 50.3): Find Mankrik's wife and then return to him in the Crossroads.
-08) Do "Jorn Skyseer" (44.9, 59.1): Speak with Jorn Skyseer at Camp Taurajo.
-09) Turn in "The Angry Scytheclaws" to Sergra Darkthorn (52.2, 31.0).
-10) Turn in "Jorn Skyseer" to Jorn Skyseer (44.9, 59.1).
-11) Turn in "Harpy Raiders" and "Harpy Lieutenants" and "Serena Bloodfeather" to Darsok Swiftdagger (51.6, 30.9).
-12) Turn in "Consumed by Hatred" and "Lost in Battle" to Mankrik (52.0, 31.6).
+01) Accept "Samophlange" from Control Console.
+02) Do "Samophlange": Get the Console Key from Tinkerer Sniggles to use on the control console.
+03) Turn in "Samophlange" to Control Console.
         ]],
-        image = "Horde_Barrens_c04.tga",
+        image = "",
     },
     [42] = {
         step = 42,
@@ -619,27 +601,80 @@ SKquests_Horde = {
     },
     [43] = {
         step = 43,
-        title = [[10-13 The Barrens — Circuit 6]],
-        objectives = [[01) Pick up these 7 quests around Jahan Hawkwing (51.2, 29.0): "A Bundle of Hides", "Ride to Thunder]],
+        title = [[10-16 The Barrens — Circuit 13]],
+        objectives = [[01) Accept "Samophlange" from Control Console.]],
         text = [[
-01) Pick up these 7 quests around Jahan Hawkwing (51.2, 29.0): "A Bundle of Hides", "Ride to Thunder Bluff", "Meats to Orgrimmar", "Ride to Orgrimmar", "Plainstrider Menace", "The Zhevra", "The Forgotten Pools".
-02) Do "A Bundle of Hides" (51.5, 30.3): Bring the Bundle of Hides to the wind rider master Devrak in the Crossroads.
-03) Do "Meats to Orgrimmar" (51.5, 30.3): Bring Zargh's Meats to Devrak in the Crossroads.
-04) Do "Plainstrider Menace" (52.2, 31.0): Collect 7 Plainstrider Beaks and return them to Sergra Darkthorn in the Crossroads.
-05) Do "The Zhevra" (52.2, 31.0): Slay Zhevra Runners to collect 4 Zhevra Hooves for Sergra Darkthorn in the Crossroads.
-06) Do "The Forgotten Pools" (52.3, 31.9): Report back to Tonga Runetotem with your findings.
-07) Do "Ride to Thunder Bluff" (39.1, 28.2): Buy a wind rider to Thunder Bluff from the wind rider master Devrak, then bring the Bundle of Hides...
-08) Do "Ride to Orgrimmar" (54.1, 68.4): Buy a wind rider to Orgrimmar from the wind rider master Devrak, then bring Zargh's Meats to...
-09) Turn in "A Bundle of Hides" and "Meats to Orgrimmar" to Devrak (51.5, 30.3).
-10) Turn in "Ride to Thunder Bluff" to Ahanu (39.1, 28.2).
-11) Turn in "Plainstrider Menace" and "The Zhevra" to Sergra Darkthorn (52.2, 31.0).
-12) Turn in "The Forgotten Pools" to Tonga Runetotem (52.3, 31.9).
-13) KEEP "Ride to Orgrimmar" in your log — turn it in later in Orgrimmar (grouped trip).
+01) Accept "Samophlange" from Control Console.
+02) Do "Samophlange" (63.0, 37.2): Return the Samophlange to Sputtervalve in Ratchet.
+03) Turn in "Samophlange" to Sputtervalve (63.0, 37.2).
         ]],
-        image = "Horde_Barrens_c06.tga",
+        image = "",
     },
     [44] = {
         step = 44,
+        title = [[10-18 The Barrens — Circuit 9]],
+        objectives = [[01) Pick up these 2 quests around Wenikee Boltbucket (49.1, 11.2): "Nugget Slugs", "Rilli Greasygob"]],
+        text = [[
+01) Pick up these 2 quests around Wenikee Boltbucket (49.1, 11.2): "Nugget Slugs", "Rilli Greasygob".
+02) Do "Nugget Slugs" (49.1, 11.2): Bring 15 Nugget Slugs to Wenikee Boltbucket in the Barrens.
+03) Do "Rilli Greasygob" (76.5, 24.4): Bring the Broken and Battered Samophlange to Rilli Greasygob in Orgrimmar.
+04) Turn in "Nugget Slugs" to Wenikee Boltbucket (49.1, 11.2).
+05) KEEP "Rilli Greasygob" in your log — turn it in later in Orgrimmar (grouped trip).
+        ]],
+        image = "Horde_Barrens_c09.tga",
+    },
+    [45] = {
+        step = 45,
+        title = [[10-19 The Barrens — Circuit 10]],
+        objectives = [[01) Accept "Samophlange Manual" from Rilli Greasygob (76.5, 24.4).]],
+        text = [[
+01) Accept "Samophlange Manual" from Rilli Greasygob (76.5, 24.4).
+02) Do "Samophlange Manual" (76.5, 24.4): Bring the Samophlange Manual to Rilli Greasygob in Orgrimmar.
+03) KEEP "Samophlange Manual" in your log — turn it in later in Orgrimmar (grouped trip).
+        ]],
+        image = "Horde_Barrens_c10.tga",
+    },
+    [46] = {
+        step = 46,
+        title = [[10-20 The Barrens — Circuit 1]],
+        objectives = [[01) Pick up these 7 quests around Doras (45.1, 63.9): "Return to the Crossroads.", "Enraged Thunder ]],
+        text = [[
+01) Pick up these 7 quests around Doras (45.1, 63.9): "Return to the Crossroads.", "Enraged Thunder Lizards", "Ishamuhale", "Cry of the Thunderhawk", "Spirit of the Wind", "Agamaggan's Strength", "Agamaggan's Agility".
+02) Do "Spirit of the Wind" (44.5, 59.3).
+03) Do "Agamaggan's Strength" (44.5, 59.3).
+04) Do "Agamaggan's Agility" (44.5, 59.3).
+05) Do "Enraged Thunder Lizards" (44.9, 59.1): Bring 3 Thunder Lizard Blood to Jorn Skyseer at Camp Taurajo.
+06) Do "Ishamuhale" (44.9, 59.1): Bring Ishamuhale's Fang to Jorn at Camp Taurajo.
+07) Do "Cry of the Thunderhawk" (44.9, 59.1): Find and slay a Thunderhawk, return its wings to Jorn Skyseer at Camp Taurajo.
+08) Do "Return to the Crossroads." (52.6, 29.8): Buy a wind rider to the Crossroads from the wind rider master Doras, then bring Gryshka's Letter to...
+09) Turn in "Return to the Crossroads." to Zargh (52.6, 29.8).
+10) Turn in "Enraged Thunder Lizards" and "Ishamuhale" and "Cry of the Thunderhawk" to Jorn Skyseer (44.9, 59.1).
+11) Turn in "Spirit of the Wind" and "Agamaggan's Strength" and "Agamaggan's Agility" to Mangletooth (44.5, 59.3).
+        ]],
+        image = "Horde_Barrens_c01.tga",
+    },
+    [47] = {
+        step = 47,
+        title = [[10-20 The Barrens — Circuit 4]],
+        objectives = [[01) Pick up these 7 quests around Sergra Darkthorn (52.2, 31.0): "The Angry Scytheclaws", "Jorn Skys]],
+        text = [[
+01) Pick up these 7 quests around Sergra Darkthorn (52.2, 31.0): "The Angry Scytheclaws", "Jorn Skyseer", "Harpy Raiders", "Harpy Lieutenants", "Serena Bloodfeather", "Consumed by Hatred", "Lost in Battle".
+02) Do "The Angry Scytheclaws" (52.2, 31.0): Kill Sunscale raptors and collect their feathers. Use the feathers on the 3 Scytheclaw nests....
+03) Do "Harpy Raiders" (51.6, 30.9): Collect 8 Witchwing talons. Return them to Darsok Swiftdagger at the Crossroads.
+04) Do "Harpy Lieutenants" (51.6, 30.9): Collect 6 Harpy Lieutenant Rings from Witchwing Slayers and return them to Darsok Swiftdagger at...
+05) Do "Serena Bloodfeather" (51.6, 30.9): Slay Serena Bloodfeather and return her head to Darsok Swiftdagger at the Crossroads.
+06) Do "Consumed by Hatred" (52.0, 31.6): Bring 60 Bristleback Quilboar Tusks to Mankrik at the Crossroads.
+07) Do "Lost in Battle" (49.3, 50.3): Find Mankrik's wife and then return to him in the Crossroads.
+08) Do "Jorn Skyseer" (44.9, 59.1): Speak with Jorn Skyseer at Camp Taurajo.
+09) Turn in "The Angry Scytheclaws" to Sergra Darkthorn (52.2, 31.0).
+10) Turn in "Jorn Skyseer" to Jorn Skyseer (44.9, 59.1).
+11) Turn in "Harpy Raiders" and "Harpy Lieutenants" and "Serena Bloodfeather" to Darsok Swiftdagger (51.6, 30.9).
+12) Turn in "Consumed by Hatred" and "Lost in Battle" to Mankrik (52.0, 31.6).
+        ]],
+        image = "Horde_Barrens_c04.tga",
+    },
+    [48] = {
+        step = 48,
         title = [[10-20 The Barrens — Circuit 7]],
         objectives = [[01) Pick up these 2 quests around Arch Druid Hamuul Runetotem (45.8, 22.7): "The Barrens Oases", "Co]],
         text = [[
@@ -651,8 +686,41 @@ SKquests_Horde = {
         ]],
         image = "Horde_Barrens_c07.tga",
     },
-    [45] = {
-        step = 45,
+    [49] = {
+        step = 49,
+        title = [[10-22 The Barrens — Circuit 14]],
+        objectives = [[01) Accept "Lakota'mani" from the quest giver.]],
+        text = [[
+01) Accept "Lakota'mani" from the quest giver.
+02) Do "Lakota'mani" (44.9, 59.1): Bring the Hoof of Lakota'mani to Jorn at Camp Taurajo.
+03) Turn in "Lakota'mani" to Jorn Skyseer (44.9, 59.1).
+        ]],
+        image = "",
+    },
+    [50] = {
+        step = 50,
+        title = [[10-24 The Barrens — Circuit 15]],
+        objectives = [[01) Accept "Owatanka" from the quest giver.]],
+        text = [[
+01) Accept "Owatanka" from the quest giver.
+02) Do "Owatanka" (44.9, 59.1): Bring Owatanka's Tailspike to Jorn at Camp Taurajo.
+03) Turn in "Owatanka" to Jorn Skyseer (44.9, 59.1).
+        ]],
+        image = "",
+    },
+    [51] = {
+        step = 51,
+        title = [[10-24 The Barrens — Circuit 16]],
+        objectives = [[01) Accept "The Harvester" from the quest giver.]],
+        text = [[
+01) Accept "The Harvester" from the quest giver.
+02) Do "The Harvester" (44.9, 59.1): Bring the Harvester's Head to Jorn Skyseer.
+03) Turn in "The Harvester" to Jorn Skyseer (44.9, 59.1).
+        ]],
+        image = "",
+    },
+    [52] = {
+        step = 52,
         title = [[10-25 The Barrens — Circuit 8]],
         objectives = [[01) Pick up these 7 quests around Melor Stonehoof (42.3, 33.3): "Sergra Darkthorn", "Tal the Wind Ri]],
         text = [[
@@ -672,98 +740,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Barrens_c08.tga",
     },
-    [46] = {
-        step = 46,
-        title = [[10-18 The Barrens — Circuit 9]],
-        objectives = [[01) Pick up these 2 quests around Wenikee Boltbucket (49.1, 11.2): "Nugget Slugs", "Rilli Greasygob"]],
-        text = [[
-01) Pick up these 2 quests around Wenikee Boltbucket (49.1, 11.2): "Nugget Slugs", "Rilli Greasygob".
-02) Do "Nugget Slugs" (49.1, 11.2): Bring 15 Nugget Slugs to Wenikee Boltbucket in the Barrens.
-03) Do "Rilli Greasygob" (76.5, 24.4): Bring the Broken and Battered Samophlange to Rilli Greasygob in Orgrimmar.
-04) Turn in "Nugget Slugs" to Wenikee Boltbucket (49.1, 11.2).
-05) KEEP "Rilli Greasygob" in your log — turn it in later in Orgrimmar (grouped trip).
-        ]],
-        image = "Horde_Barrens_c09.tga",
-    },
-    [47] = {
-        step = 47,
-        title = [[10-19 The Barrens — Circuit 10]],
-        objectives = [[01) Accept "Samophlange Manual" from Rilli Greasygob (76.5, 24.4).]],
-        text = [[
-01) Accept "Samophlange Manual" from Rilli Greasygob (76.5, 24.4).
-02) Do "Samophlange Manual" (76.5, 24.4): Bring the Samophlange Manual to Rilli Greasygob in Orgrimmar.
-03) KEEP "Samophlange Manual" in your log — turn it in later in Orgrimmar (grouped trip).
-        ]],
-        image = "Horde_Barrens_c10.tga",
-    },
-    [48] = {
-        step = 48,
-        title = [[10-14 The Barrens — Circuit 11]],
-        objectives = [[01) Accept "Samophlange" from Control Console.]],
-        text = [[
-01) Accept "Samophlange" from Control Console.
-02) Do "Samophlange": Close off the Fuel Control Valve, the Regulator Valve and the Main Control Valve then use the...
-03) Turn in "Samophlange" to Control Console.
-        ]],
-        image = "",
-    },
-    [49] = {
-        step = 49,
-        title = [[10-14 The Barrens — Circuit 12]],
-        objectives = [[01) Accept "Samophlange" from Control Console.]],
-        text = [[
-01) Accept "Samophlange" from Control Console.
-02) Do "Samophlange": Get the Console Key from Tinkerer Sniggles to use on the control console.
-03) Turn in "Samophlange" to Control Console.
-        ]],
-        image = "",
-    },
-    [50] = {
-        step = 50,
-        title = [[10-16 The Barrens — Circuit 13]],
-        objectives = [[01) Accept "Samophlange" from Control Console.]],
-        text = [[
-01) Accept "Samophlange" from Control Console.
-02) Do "Samophlange" (63.0, 37.2): Return the Samophlange to Sputtervalve in Ratchet.
-03) Turn in "Samophlange" to Sputtervalve (63.0, 37.2).
-        ]],
-        image = "",
-    },
-    [51] = {
-        step = 51,
-        title = [[10-22 The Barrens — Circuit 14]],
-        objectives = [[01) Accept "Lakota'mani" from the quest giver.]],
-        text = [[
-01) Accept "Lakota'mani" from the quest giver.
-02) Do "Lakota'mani" (44.9, 59.1): Bring the Hoof of Lakota'mani to Jorn at Camp Taurajo.
-03) Turn in "Lakota'mani" to Jorn Skyseer (44.9, 59.1).
-        ]],
-        image = "",
-    },
-    [52] = {
-        step = 52,
-        title = [[10-24 The Barrens — Circuit 15]],
-        objectives = [[01) Accept "Owatanka" from the quest giver.]],
-        text = [[
-01) Accept "Owatanka" from the quest giver.
-02) Do "Owatanka" (44.9, 59.1): Bring Owatanka's Tailspike to Jorn at Camp Taurajo.
-03) Turn in "Owatanka" to Jorn Skyseer (44.9, 59.1).
-        ]],
-        image = "",
-    },
     [53] = {
         step = 53,
-        title = [[10-24 The Barrens — Circuit 16]],
-        objectives = [[01) Accept "The Harvester" from the quest giver.]],
-        text = [[
-01) Accept "The Harvester" from the quest giver.
-02) Do "The Harvester" (44.9, 59.1): Bring the Harvester's Head to Jorn Skyseer.
-03) Turn in "The Harvester" to Jorn Skyseer (44.9, 59.1).
-        ]],
-        image = "",
-    },
-    [54] = {
-        step = 54,
         title = [[10-25 The Barrens — Circuit 17]],
         objectives = [[01) Accept "Washte Pawne" from the quest giver.]],
         text = [[
@@ -772,6 +750,28 @@ SKquests_Horde = {
 03) Turn in "Washte Pawne" to Jorn Skyseer (44.9, 59.1).
         ]],
         image = "",
+    },
+    [54] = {
+        step = 54,
+        title = [[10-27 The Barrens — Circuit 3]],
+        objectives = [[01) Pick up these 7 quests around Sputtervalve (63.0, 37.2): "Samophlange", "Wenikee Boltbucket", "I]],
+        text = [[
+01) Pick up these 7 quests around Sputtervalve (63.0, 37.2): "Samophlange", "Wenikee Boltbucket", "Isha Awak", "Chen's Empty Keg", "Chen's Empty Keg", "Raptor Horns", "Miner's Fortune".
+02) Do "Samophlange" (63.0, 37.2): Access the control console at the Venture Company research site.
+03) Do "Raptor Horns" (62.4, 37.6): Gather 5 Intact Raptor Horns from Sunscale Scytheclaws, and bring them to Mebok Mizzyrix in Ratchet.
+04) Do "Chen's Empty Keg" (62.3, 38.4): Bring 5 Savannah Lion Tusks, 5 Plainstrider Kidneys, and 1 Thunder Lizard Horn to Brewmaster Drohn...
+05) Do "Chen's Empty Keg" (62.3, 38.4): Bring 5 Lightning Glands, 1 Thunderhawk Saliva Gland and 1 Kodo Liver to Brewmaster Drohn in...
+06) Do "Miner's Fortune" (63.4, 38.5): Retrieve the Cats Eye Emerald from one of the Venture Co. Overseers or Enforcers for Wharfmaster...
+07) Do "Isha Awak" (65.8, 43.9): Bring the Heart of Isha Awak to Mahren Skyseer.
+08) Do "Wenikee Boltbucket" (49.1, 11.2): Bring the Broken Samophlange to Wenikee Boltbucket.
+09) Turn in "Samophlange" to Control Console.
+10) Turn in "Wenikee Boltbucket" to Wenikee Boltbucket (49.1, 11.2).
+11) Turn in "Isha Awak" to Mahren Skyseer (65.8, 43.9).
+12) Turn in "Chen's Empty Keg" and "Chen's Empty Keg" to Brewmaster Drohn (62.3, 38.4).
+13) Turn in "Raptor Horns" to Mebok Mizzyrix (62.4, 37.6).
+14) Turn in "Miner's Fortune" to Wharfmaster Dizzywig (63.4, 38.5).
+        ]],
+        image = "Horde_Barrens_c03.tga",
     },
     [55] = {
         step = 55,
@@ -786,6 +786,30 @@ SKquests_Horde = {
     },
     [56] = {
         step = 56,
+        title = [[13-18 The Barrens — Circuit 21]],
+        objectives = [[01) Pick up these 2 quests around Wizzlecrank's Shredder (56.5, 7.5): "Ignition", "The Escape".]],
+        text = [[
+01) Pick up these 2 quests around Wizzlecrank's Shredder (56.5, 7.5): "Ignition", "The Escape".
+02) Do "Ignition" (56.5, 7.5): Get the Ignition Key and bring it to Wizzlecrank.
+03) Do "The Escape" (63.0, 37.2): Protect Wizzlecrank and the stolen goblin shredder on the way to Sputtervalve in Ratchet.
+04) Turn in "Ignition" to Wizzlecrank's Shredder (56.5, 7.5).
+05) Turn in "The Escape" to Sputtervalve (63.0, 37.2).
+        ]],
+        image = "Horde_Barrens_c21.tga",
+    },
+    [57] = {
+        step = 57,
+        title = [[13-20 The Barrens — Circuit 22]],
+        objectives = [[01) Accept "Free From the Hold" from Gilthares Firebough (62.0, 55.0).]],
+        text = [[
+01) Accept "Free From the Hold" from Gilthares Firebough (62.0, 55.0).
+02) Do "Free From the Hold" (62.3, 39.0): Safely escort Gilthares Firebough back to Captain Brightsun in Ratchet.
+03) Turn in "Free From the Hold" to Captain Thalo'thas Brightsun (62.3, 39.0).
+        ]],
+        image = "Horde_Barrens_c22.tga",
+    },
+    [58] = {
+        step = 58,
         title = [[13-21 The Barrens — Circuit 19]],
         objectives = [[01) Pick up these 4 quests around Captain Thalo'thas Brightsun (62.3, 39.0): "The Guns of Northwatch]],
         text = [[
@@ -801,47 +825,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Barrens_c19.tga",
     },
-    [57] = {
-        step = 57,
-        title = [[15-22 The Barrens — Circuit 20]],
-        objectives = [[01) Pick up these 3 quests around Darsok Swiftdagger (51.6, 30.9): "Letter to Jin'Zil", "Report to K]],
-        text = [[
-01) Pick up these 3 quests around Darsok Swiftdagger (51.6, 30.9): "Letter to Jin'Zil", "Report to Kadrak", "Egg Hunt".
-02) Do "Egg Hunt" (51.1, 29.6): Bring 12 Silithid Eggs and the Digging Claw to Korran at the Crossroads.
-03) Do "Report to Kadrak" (68.6, 89.1): Report to Kadrak at the watch tower in northern Barrens.
-04) Do "Letter to Jin'Zil" (74.5, 97.9): Deliver Darsok's letter to Jin'Zil within his cave in Malaka'Jin, in Stonetalon.
-05) Turn in "Letter to Jin'Zil" to Witch Doctor Jin'Zil (74.5, 97.9).
-06) Turn in "Report to Kadrak" to Kadrak (68.6, 89.1).
-07) Turn in "Egg Hunt" to Korran (51.1, 29.6).
-        ]],
-        image = "Horde_Barrens_c20.tga",
-    },
-    [58] = {
-        step = 58,
-        title = [[13-18 The Barrens — Circuit 21]],
-        objectives = [[01) Pick up these 2 quests around Wizzlecrank's Shredder (56.5, 7.5): "Ignition", "The Escape".]],
-        text = [[
-01) Pick up these 2 quests around Wizzlecrank's Shredder (56.5, 7.5): "Ignition", "The Escape".
-02) Do "Ignition" (56.5, 7.5): Get the Ignition Key and bring it to Wizzlecrank.
-03) Do "The Escape" (63.0, 37.2): Protect Wizzlecrank and the stolen goblin shredder on the way to Sputtervalve in Ratchet.
-04) Turn in "Ignition" to Wizzlecrank's Shredder (56.5, 7.5).
-05) Turn in "The Escape" to Sputtervalve (63.0, 37.2).
-        ]],
-        image = "Horde_Barrens_c21.tga",
-    },
     [59] = {
         step = 59,
-        title = [[13-20 The Barrens — Circuit 22]],
-        objectives = [[01) Accept "Free From the Hold" from Gilthares Firebough (62.0, 55.0).]],
-        text = [[
-01) Accept "Free From the Hold" from Gilthares Firebough (62.0, 55.0).
-02) Do "Free From the Hold" (62.3, 39.0): Safely escort Gilthares Firebough back to Captain Brightsun in Ratchet.
-03) Turn in "Free From the Hold" to Captain Thalo'thas Brightsun (62.3, 39.0).
-        ]],
-        image = "Horde_Barrens_c22.tga",
-    },
-    [60] = {
-        step = 60,
         title = [[14-25 The Barrens — Circuit 23]],
         objectives = [[01) Pick up these 7 quests around Mangletooth (44.5, 59.3): "Wisdom of Agamaggan", "Rising Spirit", ]],
         text = [[
@@ -858,8 +843,45 @@ SKquests_Horde = {
         ]],
         image = "Horde_Barrens_c23.tga",
     },
+    [60] = {
+        step = 60,
+        title = [[15-22 The Barrens — Circuit 20]],
+        objectives = [[01) Pick up these 3 quests around Darsok Swiftdagger (51.6, 30.9): "Letter to Jin'Zil", "Report to K]],
+        text = [[
+01) Pick up these 3 quests around Darsok Swiftdagger (51.6, 30.9): "Letter to Jin'Zil", "Report to Kadrak", "Egg Hunt".
+02) Do "Egg Hunt" (51.1, 29.6): Bring 12 Silithid Eggs and the Digging Claw to Korran at the Crossroads.
+03) Do "Report to Kadrak" (68.6, 89.1): Report to Kadrak at the watch tower in northern Barrens.
+04) Do "Letter to Jin'Zil" (74.5, 97.9): Deliver Darsok's letter to Jin'Zil within his cave in Malaka'Jin, in Stonetalon.
+05) Turn in "Letter to Jin'Zil" to Witch Doctor Jin'Zil (74.5, 97.9).
+06) Turn in "Report to Kadrak" to Kadrak (68.6, 89.1).
+07) Turn in "Egg Hunt" to Korran (51.1, 29.6).
+        ]],
+        image = "Horde_Barrens_c20.tga",
+    },
     [61] = {
         step = 61,
+        title = [[15-25 The Barrens — Circuit 27]],
+        objectives = [[01) Accept "The Runed Scroll" from the quest giver.]],
+        text = [[
+01) Accept "The Runed Scroll" from the quest giver.
+02) Do "The Runed Scroll" (68.6, 89.1): Take the Runed Scroll to the northern guard tower in the Barrens.
+03) Turn in "The Runed Scroll" to Kadrak (68.6, 89.1).
+        ]],
+        image = "",
+    },
+    [62] = {
+        step = 62,
+        title = [[15-29 The Barrens — Circuit 26]],
+        objectives = [[01) Accept "Horde Presence" from Kadrak (68.6, 89.1).]],
+        text = [[
+01) Accept "Horde Presence" from Kadrak (68.6, 89.1).
+02) Do "Horde Presence" (68.6, 89.1): Kill the leader of the Talon Den, Rynthariel the Keymaster.
+03) Turn in "Horde Presence" to Kadrak (68.6, 89.1).
+        ]],
+        image = "Horde_Barrens_c26.tga",
+    },
+    [63] = {
+        step = 63,
         title = [[17-25 The Barrens — Circuit 24]],
         objectives = [[01) Pick up these 2 quests around Mangletooth (44.5, 59.3): "Betrayal from Within", "The Ashenvale H]],
         text = [[
@@ -871,8 +893,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Barrens_c24.tga",
     },
-    [62] = {
-        step = 62,
+    [64] = {
+        step = 64,
         title = [[17-26 The Barrens — Circuit 25]],
         objectives = [[01) Pick up these 3 quests around Gann Stonespire (45.9, 77.0): "Gann's Reclamation", "Revenge of Ga]],
         text = [[
@@ -883,28 +905,6 @@ SKquests_Horde = {
 05) Turn in "Gann's Reclamation" and "Revenge of Gann" and "Revenge of Gann" to Gann Stonespire (45.9, 77.0).
         ]],
         image = "Horde_Barrens_c25.tga",
-    },
-    [63] = {
-        step = 63,
-        title = [[15-29 The Barrens — Circuit 26]],
-        objectives = [[01) Accept "Horde Presence" from Kadrak (68.6, 89.1).]],
-        text = [[
-01) Accept "Horde Presence" from Kadrak (68.6, 89.1).
-02) Do "Horde Presence" (68.6, 89.1): Kill the leader of the Talon Den, Rynthariel the Keymaster.
-03) Turn in "Horde Presence" to Kadrak (68.6, 89.1).
-        ]],
-        image = "Horde_Barrens_c26.tga",
-    },
-    [64] = {
-        step = 64,
-        title = [[15-25 The Barrens — Circuit 27]],
-        objectives = [[01) Accept "The Runed Scroll" from the quest giver.]],
-        text = [[
-01) Accept "The Runed Scroll" from the quest giver.
-02) Do "The Runed Scroll" (68.6, 89.1): Take the Runed Scroll to the northern guard tower in the Barrens.
-03) Turn in "The Runed Scroll" to Kadrak (68.6, 89.1).
-        ]],
-        image = "",
     },
     [65] = {
         step = 65,
@@ -943,6 +943,22 @@ SKquests_Horde = {
     },
     [68] = {
         step = 68,
+        title = [[10-12 Silverpine Forest — Circuit 7]],
+        objectives = [[01) Pick up these 4 quests around Rane Yorick (53.5, 13.4): "Wild Hearts", "Escorting Erland", "The ]],
+        text = [[
+01) Pick up these 4 quests around Rane Yorick (53.5, 13.4): "Wild Hearts", "Escorting Erland", "The Deathstalkers' Report", "Ivar the Foul".
+02) Do "Escorting Erland" (53.5, 13.4): Escort Erland through the wolves, to Rane Yorick.
+03) Do "Ivar the Foul" (53.5, 13.4): Kill Ivar the Foul, and bring Ivar's Head to Rane Yorick at the Ivar Patch.
+04) Do "The Deathstalkers' Report" (43.4, 40.9): Bring the Deathstalker Report to High Executor Hadrec at the Sepulcher.
+05) Do "Wild Hearts" (42.8, 40.9): Gather 6 discolored worg hearts and bring them to Apothecary Renferrel at the Sepulcher.
+06) Turn in "Wild Hearts" to Apothecary Renferrel (42.8, 40.9).
+07) Turn in "Escorting Erland" and "Ivar the Foul" to Rane Yorick (53.5, 13.4).
+08) Turn in "The Deathstalkers' Report" to High Executor Hadrec (43.4, 40.9).
+        ]],
+        image = "Horde_Silverpine_c07.tga",
+    },
+    [69] = {
+        step = 69,
         title = [[10-14 Silverpine Forest — Circuit 1]],
         objectives = [[01) Pick up these 7 quests around Deathguard Podrig (43.4, 41.7): "Supplying the Sepulcher", "Ride t]],
         text = [[
@@ -964,8 +980,52 @@ SKquests_Horde = {
         ]],
         image = "Horde_Silverpine_c01.tga",
     },
-    [69] = {
-        step = 69,
+    [70] = {
+        step = 70,
+        title = [[10-14 Silverpine Forest — Circuit 8]],
+        objectives = [[01) Accept "Maps and Runes" from Dalaran Crate.]],
+        text = [[
+01) Accept "Maps and Runes" from Dalaran Crate.
+02) Do "Maps and Runes" (44.0, 40.9): Bring the strange pendant to Shadow Priest Allister at the Sepulcher.
+03) Turn in "Maps and Runes" to Shadow Priest Allister (44.0, 40.9).
+        ]],
+        image = "",
+    },
+    [71] = {
+        step = 71,
+        title = [[10-16 Silverpine Forest — Circuit 5]],
+        objectives = [[01) Accept "Raleigh and the Undercity" from Magistrate Sevren (61.3, 50.8).]],
+        text = [[
+01) Accept "Raleigh and the Undercity" from Magistrate Sevren (61.3, 50.8).
+02) Do "Raleigh and the Undercity" (62.0, 42.7): Bring Deliah's Ring to Raleigh.
+03) KEEP "Raleigh and the Undercity" in your log — turn it in later in Undercity (grouped trip).
+        ]],
+        image = "Horde_Silverpine_c05.tga",
+    },
+    [72] = {
+        step = 72,
+        title = [[10-16 Silverpine Forest — Circuit 6]],
+        objectives = [[01) Accept "Thule Ravenclaw" from Bethor Iceshard (65.7, 68.8).]],
+        text = [[
+01) Accept "Thule Ravenclaw" from Bethor Iceshard (65.7, 68.8).
+02) Do "Thule Ravenclaw" (42.8, 40.9): Bring Bethor's Scroll to Apothecary Renferrel at the Silverpine Sepulcher.
+03) Turn in "Thule Ravenclaw" to Apothecary Renferrel (42.8, 40.9).
+        ]],
+        image = "Horde_Silverpine_c06.tga",
+    },
+    [73] = {
+        step = 73,
+        title = [[10-16 Silverpine Forest — Circuit 9]],
+        objectives = [[01) Accept "Rot Hide Clues" from Corpse Laden Boat.]],
+        text = [[
+01) Accept "Rot Hide Clues" from Corpse Laden Boat.
+02) Do "Rot Hide Clues" (43.4, 40.9): Bring Deliah's Ring to High Executor Hadrec at the Sepulcher.
+03) Turn in "Rot Hide Clues" to High Executor Hadrec (43.4, 40.9).
+        ]],
+        image = "",
+    },
+    [74] = {
+        step = 74,
         title = [[10-17 Silverpine Forest — Circuit 2]],
         objectives = [[01) Pick up these 7 quests around Shadow Priest Allister (44.0, 40.9): "Dalar's Analysis", "Dalaran']],
         text = [[
@@ -986,24 +1046,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Silverpine_c02.tga",
     },
-    [70] = {
-        step = 70,
-        title = [[10-22 Silverpine Forest — Circuit 3]],
-        objectives = [[01) Pick up these 4 quests around Apothecary Renferrel (42.8, 40.9): "Rot Hide Origins", "Assault on]],
-        text = [[
-01) Pick up these 4 quests around Apothecary Renferrel (42.8, 40.9): "Rot Hide Origins", "Assault on Fenris Isle", "The Weaver", "Beren's Peril".
-02) Do "Assault on Fenris Isle" (43.4, 40.9): Bring Thule's Head to High Executor Hadrec at the Sepulcher.
-03) Do "The Weaver" (44.0, 40.9): Kill the Dalaran archmage, then retrieve his staff for Shadow Priest Allister at the Sepulcher.
-04) Do "Rot Hide Origins" (65.7, 68.8): Bring the Sample Ichor to Bethor Iceshard in the Undercity.
-05) Do "Beren's Peril" (60.0, 72.9): Locate Beren's Peril, then kill 6 Ravenclaw Drudgers and 6 Ravenclaw Guardians, then return to...
-06) Turn in "Rot Hide Origins" to Bethor Iceshard (65.7, 68.8).
-07) Turn in "Assault on Fenris Isle" to High Executor Hadrec (43.4, 40.9).
-08) Turn in "The Weaver" and "Beren's Peril" to Shadow Priest Allister (44.0, 40.9).
-        ]],
-        image = "Horde_Silverpine_c03.tga",
-    },
-    [71] = {
-        step = 71,
+    [75] = {
+        step = 75,
         title = [[10-20 Silverpine Forest — Circuit 4]],
         objectives = [[01) Pick up these 3 quests around Gordon Wendham (61.5, 41.8): "Michael Garrett", "Return to Podrig"]],
         text = [[
@@ -1017,65 +1061,21 @@ SKquests_Horde = {
         ]],
         image = "Horde_Silverpine_c04.tga",
     },
-    [72] = {
-        step = 72,
-        title = [[10-16 Silverpine Forest — Circuit 5]],
-        objectives = [[01) Accept "Raleigh and the Undercity" from Magistrate Sevren (61.3, 50.8).]],
-        text = [[
-01) Accept "Raleigh and the Undercity" from Magistrate Sevren (61.3, 50.8).
-02) Do "Raleigh and the Undercity" (62.0, 42.7): Bring Deliah's Ring to Raleigh.
-03) KEEP "Raleigh and the Undercity" in your log — turn it in later in Undercity (grouped trip).
-        ]],
-        image = "Horde_Silverpine_c05.tga",
-    },
-    [73] = {
-        step = 73,
-        title = [[10-16 Silverpine Forest — Circuit 6]],
-        objectives = [[01) Accept "Thule Ravenclaw" from Bethor Iceshard (65.7, 68.8).]],
-        text = [[
-01) Accept "Thule Ravenclaw" from Bethor Iceshard (65.7, 68.8).
-02) Do "Thule Ravenclaw" (42.8, 40.9): Bring Bethor's Scroll to Apothecary Renferrel at the Silverpine Sepulcher.
-03) Turn in "Thule Ravenclaw" to Apothecary Renferrel (42.8, 40.9).
-        ]],
-        image = "Horde_Silverpine_c06.tga",
-    },
-    [74] = {
-        step = 74,
-        title = [[10-12 Silverpine Forest — Circuit 7]],
-        objectives = [[01) Pick up these 4 quests around Rane Yorick (53.5, 13.4): "Wild Hearts", "Escorting Erland", "The ]],
-        text = [[
-01) Pick up these 4 quests around Rane Yorick (53.5, 13.4): "Wild Hearts", "Escorting Erland", "The Deathstalkers' Report", "Ivar the Foul".
-02) Do "Escorting Erland" (53.5, 13.4): Escort Erland through the wolves, to Rane Yorick.
-03) Do "Ivar the Foul" (53.5, 13.4): Kill Ivar the Foul, and bring Ivar's Head to Rane Yorick at the Ivar Patch.
-04) Do "The Deathstalkers' Report" (43.4, 40.9): Bring the Deathstalker Report to High Executor Hadrec at the Sepulcher.
-05) Do "Wild Hearts" (42.8, 40.9): Gather 6 discolored worg hearts and bring them to Apothecary Renferrel at the Sepulcher.
-06) Turn in "Wild Hearts" to Apothecary Renferrel (42.8, 40.9).
-07) Turn in "Escorting Erland" and "Ivar the Foul" to Rane Yorick (53.5, 13.4).
-08) Turn in "The Deathstalkers' Report" to High Executor Hadrec (43.4, 40.9).
-        ]],
-        image = "Horde_Silverpine_c07.tga",
-    },
-    [75] = {
-        step = 75,
-        title = [[10-14 Silverpine Forest — Circuit 8]],
-        objectives = [[01) Accept "Maps and Runes" from Dalaran Crate.]],
-        text = [[
-01) Accept "Maps and Runes" from Dalaran Crate.
-02) Do "Maps and Runes" (44.0, 40.9): Bring the strange pendant to Shadow Priest Allister at the Sepulcher.
-03) Turn in "Maps and Runes" to Shadow Priest Allister (44.0, 40.9).
-        ]],
-        image = "",
-    },
     [76] = {
         step = 76,
-        title = [[10-16 Silverpine Forest — Circuit 9]],
-        objectives = [[01) Accept "Rot Hide Clues" from Corpse Laden Boat.]],
+        title = [[10-22 Silverpine Forest — Circuit 3]],
+        objectives = [[01) Pick up these 4 quests around Apothecary Renferrel (42.8, 40.9): "Rot Hide Origins", "Assault on]],
         text = [[
-01) Accept "Rot Hide Clues" from Corpse Laden Boat.
-02) Do "Rot Hide Clues" (43.4, 40.9): Bring Deliah's Ring to High Executor Hadrec at the Sepulcher.
-03) Turn in "Rot Hide Clues" to High Executor Hadrec (43.4, 40.9).
+01) Pick up these 4 quests around Apothecary Renferrel (42.8, 40.9): "Rot Hide Origins", "Assault on Fenris Isle", "The Weaver", "Beren's Peril".
+02) Do "Assault on Fenris Isle" (43.4, 40.9): Bring Thule's Head to High Executor Hadrec at the Sepulcher.
+03) Do "The Weaver" (44.0, 40.9): Kill the Dalaran archmage, then retrieve his staff for Shadow Priest Allister at the Sepulcher.
+04) Do "Rot Hide Origins" (65.7, 68.8): Bring the Sample Ichor to Bethor Iceshard in the Undercity.
+05) Do "Beren's Peril" (60.0, 72.9): Locate Beren's Peril, then kill 6 Ravenclaw Drudgers and 6 Ravenclaw Guardians, then return to...
+06) Turn in "Rot Hide Origins" to Bethor Iceshard (65.7, 68.8).
+07) Turn in "Assault on Fenris Isle" to High Executor Hadrec (43.4, 40.9).
+08) Turn in "The Weaver" and "Beren's Peril" to Shadow Priest Allister (44.0, 40.9).
         ]],
-        image = "",
+        image = "Horde_Silverpine_c03.tga",
     },
     [77] = {
         step = 77,
@@ -1147,6 +1147,57 @@ SKquests_Horde = {
     },
     [83] = {
         step = 83,
+        title = [[16-27 Stonetalon Mountains — Circuit 2]],
+        objectives = [[01) Pick up these 3 quests around Ziz Fizziks (59.0, 62.6): "Super Reaper 6000", "Further Instructio]],
+        text = [[
+01) Pick up these 3 quests around Ziz Fizziks (59.0, 62.6): "Super Reaper 6000", "Further Instructions", "Gerenzo Wrenchwhistle".
+02) Do "Super Reaper 6000" (59.0, 62.6): Get the Super Reaper 6000 Blueprints for Ziz Fizziks in the Stonetalon Mountains.
+03) Do "Gerenzo Wrenchwhistle" (59.0, 62.6): Bring Gerenzo Wrenchwhistle's Mechanical Arm to Ziz Fizziks in the Stonetalon Mountains.
+04) Do "Further Instructions" (63.0, 37.2): Deliver the Sealed Envelope to Sputtervalve at Ratchet in the Barrens.
+05) Turn in "Super Reaper 6000" and "Gerenzo Wrenchwhistle" to Ziz Fizziks (59.0, 62.6).
+06) Turn in "Further Instructions" to Sputtervalve (63.0, 37.2).
+        ]],
+        image = "Horde_Stonetalon_c02.tga",
+    },
+    [84] = {
+        step = 84,
+        title = [[16-27 Stonetalon Mountains — Circuit 4]],
+        objectives = [[01) Accept "Further Instructions" from Sputtervalve (63.0, 37.2).]],
+        text = [[
+01) Accept "Further Instructions" from Sputtervalve (63.0, 37.2).
+02) Do "Further Instructions" (59.0, 62.6): Bring the new orders to Ziz Fizziks in the Stonetalon Mountains.
+03) Turn in "Further Instructions" to Ziz Fizziks (59.0, 62.6).
+        ]],
+        image = "Horde_Stonetalon_c04.tga",
+    },
+    [85] = {
+        step = 85,
+        title = [[17-22 Stonetalon Mountains — Circuit 3]],
+        objectives = [[01) Pick up these 2 quests around Piznik (71.9, 60.0): "Gerenzo's Orders", "Gerenzo's Orders".]],
+        text = [[
+01) Pick up these 2 quests around Piznik (71.9, 60.0): "Gerenzo's Orders", "Gerenzo's Orders".
+02) Do "Gerenzo's Orders" (71.9, 60.0): Get the mysterious ore from Piznik after he finishes mining it.
+03) Do "Gerenzo's Orders" (59.0, 62.6): Deliver the Unidentified Ore to Ziz Fizziks in the Stonetalon Mountains.
+04) Turn in "Gerenzo's Orders" to Piznik (71.9, 60.0).
+05) Turn in "Gerenzo's Orders" to Ziz Fizziks (59.0, 62.6).
+        ]],
+        image = "Horde_Stonetalon_c03.tga",
+    },
+    [86] = {
+        step = 86,
+        title = [[17-26 Stonetalon Mountains — Circuit 5]],
+        objectives = [[01) Pick up these 2 quests around Darn Talongrip (73.2, 94.9): "Report to Kadrak", "Jin'Zil's Forest]],
+        text = [[
+01) Pick up these 2 quests around Darn Talongrip (73.2, 94.9): "Report to Kadrak", "Jin'Zil's Forest Magic".
+02) Do "Jin'Zil's Forest Magic" (74.5, 97.9): Witch Doctor Jin'Zil at Malaka'jin wants 5 portions of Stonetalon Sap, 5 Twilight Whiskers, 30...
+03) Do "Report to Kadrak" (68.6, 89.1): Report to Kadrak at the watch tower in northern Barrens.
+04) Turn in "Report to Kadrak" to Kadrak (68.6, 89.1).
+05) Turn in "Jin'Zil's Forest Magic" to Witch Doctor Jin'Zil (74.5, 97.9).
+        ]],
+        image = "Horde_Stonetalon_c05.tga",
+    },
+    [87] = {
+        step = 87,
         title = [[17-29 Stonetalon Mountains — Circuit 1]],
         objectives = [[01) Pick up these 7 quests around Tammra Windfield (47.5, 58.4): "Cycle of Rebirth", "New Life", "Ha]],
         text = [[
@@ -1166,57 +1217,6 @@ SKquests_Horde = {
 14) TIP: Bank any [Coal] you loot here (~4% drop) — needed for "Restoring Fiery Flux Supplies via Kingsblood" (lvl ~45, Searing Gorge).
         ]],
         image = "Horde_Stonetalon_c01.tga",
-    },
-    [84] = {
-        step = 84,
-        title = [[16-27 Stonetalon Mountains — Circuit 2]],
-        objectives = [[01) Pick up these 3 quests around Ziz Fizziks (59.0, 62.6): "Super Reaper 6000", "Further Instructio]],
-        text = [[
-01) Pick up these 3 quests around Ziz Fizziks (59.0, 62.6): "Super Reaper 6000", "Further Instructions", "Gerenzo Wrenchwhistle".
-02) Do "Super Reaper 6000" (59.0, 62.6): Get the Super Reaper 6000 Blueprints for Ziz Fizziks in the Stonetalon Mountains.
-03) Do "Gerenzo Wrenchwhistle" (59.0, 62.6): Bring Gerenzo Wrenchwhistle's Mechanical Arm to Ziz Fizziks in the Stonetalon Mountains.
-04) Do "Further Instructions" (63.0, 37.2): Deliver the Sealed Envelope to Sputtervalve at Ratchet in the Barrens.
-05) Turn in "Super Reaper 6000" and "Gerenzo Wrenchwhistle" to Ziz Fizziks (59.0, 62.6).
-06) Turn in "Further Instructions" to Sputtervalve (63.0, 37.2).
-        ]],
-        image = "Horde_Stonetalon_c02.tga",
-    },
-    [85] = {
-        step = 85,
-        title = [[17-22 Stonetalon Mountains — Circuit 3]],
-        objectives = [[01) Pick up these 2 quests around Piznik (71.9, 60.0): "Gerenzo's Orders", "Gerenzo's Orders".]],
-        text = [[
-01) Pick up these 2 quests around Piznik (71.9, 60.0): "Gerenzo's Orders", "Gerenzo's Orders".
-02) Do "Gerenzo's Orders" (71.9, 60.0): Get the mysterious ore from Piznik after he finishes mining it.
-03) Do "Gerenzo's Orders" (59.0, 62.6): Deliver the Unidentified Ore to Ziz Fizziks in the Stonetalon Mountains.
-04) Turn in "Gerenzo's Orders" to Piznik (71.9, 60.0).
-05) Turn in "Gerenzo's Orders" to Ziz Fizziks (59.0, 62.6).
-        ]],
-        image = "Horde_Stonetalon_c03.tga",
-    },
-    [86] = {
-        step = 86,
-        title = [[16-27 Stonetalon Mountains — Circuit 4]],
-        objectives = [[01) Accept "Further Instructions" from Sputtervalve (63.0, 37.2).]],
-        text = [[
-01) Accept "Further Instructions" from Sputtervalve (63.0, 37.2).
-02) Do "Further Instructions" (59.0, 62.6): Bring the new orders to Ziz Fizziks in the Stonetalon Mountains.
-03) Turn in "Further Instructions" to Ziz Fizziks (59.0, 62.6).
-        ]],
-        image = "Horde_Stonetalon_c04.tga",
-    },
-    [87] = {
-        step = 87,
-        title = [[17-26 Stonetalon Mountains — Circuit 5]],
-        objectives = [[01) Pick up these 2 quests around Darn Talongrip (73.2, 94.9): "Report to Kadrak", "Jin'Zil's Forest]],
-        text = [[
-01) Pick up these 2 quests around Darn Talongrip (73.2, 94.9): "Report to Kadrak", "Jin'Zil's Forest Magic".
-02) Do "Jin'Zil's Forest Magic" (74.5, 97.9): Witch Doctor Jin'Zil at Malaka'jin wants 5 portions of Stonetalon Sap, 5 Twilight Whiskers, 30...
-03) Do "Report to Kadrak" (68.6, 89.1): Report to Kadrak at the watch tower in northern Barrens.
-04) Turn in "Report to Kadrak" to Kadrak (68.6, 89.1).
-05) Turn in "Jin'Zil's Forest Magic" to Witch Doctor Jin'Zil (74.5, 97.9).
-        ]],
-        image = "Horde_Stonetalon_c05.tga",
     },
     [88] = {
         step = 88,
@@ -1260,19 +1260,6 @@ SKquests_Horde = {
     },
     [91] = {
         step = 91,
-        title = [[23-27 Ashenvale — Circuit 3]],
-        objectives = [[01) Pick up these 2 quests around Mastok Wrilehiss (73.7, 60.0): "Stonetalon Standstill", "Je'neu of]],
-        text = [[
-01) Pick up these 2 quests around Mastok Wrilehiss (73.7, 60.0): "Stonetalon Standstill", "Je'neu of the Earthen Ring".
-02) Do "Stonetalon Standstill" (73.7, 60.0): Dispatch 12 Befouled Water Elementals at Mystral Lake, due east of the Talondeep Path and southwest...
-03) Do "Je'neu of the Earthen Ring" (11.6, 34.3): Bring the Befouled Water Globe to Je'neu Sancrea at Zoram'gar Outpost, Ashenvale.
-04) Turn in "Stonetalon Standstill" to Mastok Wrilehiss (73.7, 60.0).
-05) Turn in "Je'neu of the Earthen Ring" to Je'neu Sancrea (11.6, 34.3).
-        ]],
-        image = "Horde_Ashenvale_c03.tga",
-    },
-    [92] = {
-        step = 92,
         title = [[19-30 Ashenvale — Circuit 4]],
         objectives = [[01) Pick up these 7 quests around Kuray'bin (71.1, 68.1): "Ashenvale Outrunners", "The Ashenvale Hun]],
         text = [[
@@ -1292,19 +1279,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Ashenvale_c04.tga",
     },
-    [93] = {
-        step = 93,
-        title = [[23-30 Ashenvale — Circuit 5]],
-        objectives = [[01) Accept "The Lost Pages" from Gurda Ragescar (70.0, 71.2).]],
-        text = [[
-01) Accept "The Lost Pages" from Gurda Ragescar (70.0, 71.2).
-02) Do "The Lost Pages" (70.0, 71.2): Find the 12 missing pages of the Shredder Operating Manual, and put them together to form Chapters...
-03) Turn in "The Lost Pages" to Gurda Ragescar (70.0, 71.2).
-        ]],
-        image = "Horde_Ashenvale_c05.tga",
-    },
-    [94] = {
-        step = 94,
+    [92] = {
+        step = 92,
         title = [[20-24 Ashenvale — Circuit 6]],
         objectives = [[01) Accept "Ursangous's Paw" from the quest giver.]],
         text = [[
@@ -1314,8 +1290,8 @@ SKquests_Horde = {
         ]],
         image = "",
     },
-    [95] = {
-        step = 95,
+    [93] = {
+        step = 93,
         title = [[20-27 Ashenvale — Circuit 7]],
         objectives = [[01) Accept "Shadumbra's Head" from the quest giver.]],
         text = [[
@@ -1325,8 +1301,8 @@ SKquests_Horde = {
         ]],
         image = "",
     },
-    [96] = {
-        step = 96,
+    [94] = {
+        step = 94,
         title = [[20-30 Ashenvale — Circuit 8]],
         objectives = [[01) Accept "Sharptalon's Claw" from the quest giver.]],
         text = [[
@@ -1336,8 +1312,8 @@ SKquests_Horde = {
         ]],
         image = "",
     },
-    [97] = {
-        step = 97,
+    [95] = {
+        step = 95,
         title = [[21-30 Ashenvale — Circuit 9]],
         objectives = [[01) Accept "Baron Aquanis" from the quest giver.]],
         text = [[
@@ -1347,8 +1323,21 @@ SKquests_Horde = {
         ]],
         image = "",
     },
-    [98] = {
-        step = 98,
+    [96] = {
+        step = 96,
+        title = [[23-27 Ashenvale — Circuit 3]],
+        objectives = [[01) Pick up these 2 quests around Mastok Wrilehiss (73.7, 60.0): "Stonetalon Standstill", "Je'neu of]],
+        text = [[
+01) Pick up these 2 quests around Mastok Wrilehiss (73.7, 60.0): "Stonetalon Standstill", "Je'neu of the Earthen Ring".
+02) Do "Stonetalon Standstill" (73.7, 60.0): Dispatch 12 Befouled Water Elementals at Mystral Lake, due east of the Talondeep Path and southwest...
+03) Do "Je'neu of the Earthen Ring" (11.6, 34.3): Bring the Befouled Water Globe to Je'neu Sancrea at Zoram'gar Outpost, Ashenvale.
+04) Turn in "Stonetalon Standstill" to Mastok Wrilehiss (73.7, 60.0).
+05) Turn in "Je'neu of the Earthen Ring" to Je'neu Sancrea (11.6, 34.3).
+        ]],
+        image = "Horde_Ashenvale_c03.tga",
+    },
+    [97] = {
+        step = 97,
         title = [[23-27 Ashenvale — Circuit 10]],
         objectives = [[01) Accept "The Befouled Element" from the quest giver.]],
         text = [[
@@ -1358,19 +1347,19 @@ SKquests_Horde = {
         ]],
         image = "",
     },
+    [98] = {
+        step = 98,
+        title = [[23-30 Ashenvale — Circuit 5]],
+        objectives = [[01) Accept "The Lost Pages" from Gurda Ragescar (70.0, 71.2).]],
+        text = [[
+01) Accept "The Lost Pages" from Gurda Ragescar (70.0, 71.2).
+02) Do "The Lost Pages" (70.0, 71.2): Find the 12 missing pages of the Shredder Operating Manual, and put them together to form Chapters...
+03) Turn in "The Lost Pages" to Gurda Ragescar (70.0, 71.2).
+        ]],
+        image = "Horde_Ashenvale_c05.tga",
+    },
     [99] = {
         step = 99,
-        title = [[25-34 Ashenvale — Circuit 11]],
-        objectives = [[01) Accept "Outrider Basic Care Package" from Kelm Hargunth (46.7, 8.4).]],
-        text = [[
-01) Accept "Outrider Basic Care Package" from Kelm Hargunth (46.7, 8.4).
-02) Do "Outrider Basic Care Package" (46.7, 8.4).
-03) Turn in "Outrider Basic Care Package" to Kelm Hargunth (46.7, 8.4).
-        ]],
-        image = "Horde_Ashenvale_c11.tga",
-    },
-    [100] = {
-        step = 100,
         title = [[25-27 Ashenvale — Circuit 12]],
         objectives = [[01) Accept "Amongst the Ruins" from the quest giver.]],
         text = [[
@@ -1380,8 +1369,8 @@ SKquests_Horde = {
         ]],
         image = "",
     },
-    [101] = {
-        step = 101,
+    [100] = {
+        step = 100,
         title = [[25-30 Ashenvale — Circuit 13]],
         objectives = [[01) Accept "Baron Aquanis" from the quest giver.]],
         text = [[
@@ -1391,23 +1380,41 @@ SKquests_Horde = {
         ]],
         image = "",
     },
+    [101] = {
+        step = 101,
+        title = [[25-34 Ashenvale — Circuit 11]],
+        objectives = [[01) Accept "Outrider Basic Care Package" from Kelm Hargunth (46.7, 8.4).]],
+        text = [[
+01) Accept "Outrider Basic Care Package" from Kelm Hargunth (46.7, 8.4).
+02) Do "Outrider Basic Care Package" (46.7, 8.4).
+03) Turn in "Outrider Basic Care Package" to Kelm Hargunth (46.7, 8.4).
+        ]],
+        image = "Horde_Ashenvale_c11.tga",
+    },
     [102] = {
         step = 102,
-        title = [[25-39 Thousand Needles — Circuit 1]],
-        objectives = [[01) Pick up these 3 quests around Elu (44.9, 48.9): "Wind Rider", "News for Fizzle", "Indurium".]],
+        title = [[25-29 Thousand Needles — Circuit 11]],
+        objectives = [[01) Accept "Free at Last" from Lakota Windsong (46.6, 94.1).]],
         text = [[
-01) Pick up these 3 quests around Elu (44.9, 48.9): "Wind Rider", "News for Fizzle", "Indurium".
-02) Do "Wind Rider" (44.9, 48.9): Bring 10 Highperch Wyvern Eggs to Elu in Freewind Post.
-03) Do "Indurium" (42.2, 52.7): Bring 10 Indurium Flakes to Martek the Exiled in the Badlands.
-04) Do "News for Fizzle" (78.1, 77.1): Speak with Fizzle Brassbolts on the Shimmering Flats in Thousand Needles.
-05) Turn in "Wind Rider" to Elu (44.9, 48.9).
-06) Turn in "News for Fizzle" to Fizzle Brassbolts (78.1, 77.1).
-07) Turn in "Indurium" to Martek the Exiled (42.2, 52.7).
+01) Accept "Free at Last" from Lakota Windsong (46.6, 94.1).
+02) Do "Free at Last" (46.0, 51.6): Escort Lakota Windsong from the Darkcloud Pinnacle, and then talk to Thalia Amberhide at Freewind...
+03) Turn in "Free at Last" to Thalia Amberhide (46.0, 51.6).
         ]],
-        image = "Horde_ThousandNeedles_c01.tga",
+        image = "Horde_ThousandNeedles_c11.tga",
     },
     [103] = {
         step = 103,
+        title = [[25-29 Thousand Needles — Circuit 13]],
+        objectives = [[01) Accept "Homeward Bound" from Pao'ka Swiftmountain (17.9, 40.6).]],
+        text = [[
+01) Accept "Homeward Bound" from Pao'ka Swiftmountain (17.9, 40.6).
+02) Do "Homeward Bound" (21.5, 32.3): Escort Pao'ka Swiftmountain from Highperch, and then talk to Motega Firemane in Whitereach Post.
+03) Turn in "Homeward Bound" to Motega Firemane (21.5, 32.3).
+        ]],
+        image = "Horde_ThousandNeedles_c13.tga",
+    },
+    [104] = {
+        step = 104,
         title = [[25-30 Thousand Needles — Circuit 2]],
         objectives = [[01) Pick up these 4 quests around Dorn Plainstalker (53.9, 41.5): "Test of Faith", "Test of Enduranc]],
         text = [[
@@ -1421,34 +1428,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_ThousandNeedles_c02.tga",
     },
-    [104] = {
-        step = 104,
-        title = [[29-37 Thousand Needles — Circuit 3]],
-        objectives = [[01) Pick up these 2 quests around Gazlowe (62.7, 36.2): "Goblin Sponsorship", "Parts for Kravel".]],
-        text = [[
-01) Pick up these 2 quests around Gazlowe (62.7, 36.2): "Goblin Sponsorship", "Parts for Kravel".
-02) Do "Parts for Kravel" (77.8, 77.3): Bring Kravel's Parts to Kravel Koalbeard on the Shimmering Flats in Thousand Needles.
-03) Do "Goblin Sponsorship" (26.3, 73.6): Speak with Wharfmaster Lozgil at Booty Bay in Stranglethorn Vale.
-04) Turn in "Goblin Sponsorship" to Wharfmaster Lozgil (26.3, 73.6).
-05) Turn in "Parts for Kravel" to Kravel Koalbeard (77.8, 77.3).
-        ]],
-        image = "Horde_ThousandNeedles_c03.tga",
-    },
     [105] = {
         step = 105,
-        title = [[28-41 Thousand Needles — Circuit 4]],
-        objectives = [[01) Pick up these 2 quests around Korran (51.1, 29.6): "Parts of the Swarm", "Safety First".]],
-        text = [[
-01) Pick up these 2 quests around Korran (51.1, 29.6): "Parts of the Swarm", "Safety First".
-02) Do "Parts of the Swarm" (75.2, 34.2): Return to Belgrom Rockmaul in Orgrimmar.
-03) Do "Safety First" (80.3, 76.1): Return the Modified Seaforium Booster to Razzeric on the Shimmering Flats in Thousand Needles.
-04) Turn in "Safety First" to Razzeric (80.3, 76.1).
-05) KEEP "Parts of the Swarm" in your log — turn it in later in Orgrimmar (grouped trip).
-        ]],
-        image = "Horde_ThousandNeedles_c04.tga",
-    },
-    [106] = {
-        step = 106,
         title = [[25-30 Thousand Needles — Circuit 5]],
         objectives = [[01) Pick up these 3 quests around Braug Dimspirit (78.8, 45.7): "Test of Lore", "Test of Lore", "Tes]],
         text = [[
@@ -1461,19 +1442,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_ThousandNeedles_c05.tga",
     },
-    [107] = {
-        step = 107,
-        title = [[29-35 Thousand Needles — Circuit 6]],
-        objectives = [[01) Accept "The Swarm Grows" from Moktar Krin (67.6, 63.9).]],
-        text = [[
-01) Accept "The Swarm Grows" from Moktar Krin (67.6, 63.9).
-02) Do "The Swarm Grows" (69.9, 87.4): Kill 5 Silithid Searchers, 5 Silithid Hive Drones, and 5 Silithid Invaders and return to Moktar...
-03) Turn in "The Swarm Grows" to Moktar Krin (67.6, 63.9).
-        ]],
-        image = "Horde_ThousandNeedles_c06.tga",
-    },
-    [108] = {
-        step = 108,
+    [106] = {
+        step = 106,
         title = [[25-36 Thousand Needles — Circuit 7]],
         objectives = [[01) Pick up these 2 quests around Parqual Fintallas (57.8, 65.4): "Test of Lore", "Final Passage".]],
         text = [[
@@ -1485,8 +1455,23 @@ SKquests_Horde = {
         ]],
         image = "Horde_ThousandNeedles_c07.tga",
     },
-    [109] = {
-        step = 109,
+    [107] = {
+        step = 107,
+        title = [[25-39 Thousand Needles — Circuit 1]],
+        objectives = [[01) Pick up these 3 quests around Elu (44.9, 48.9): "Wind Rider", "News for Fizzle", "Indurium".]],
+        text = [[
+01) Pick up these 3 quests around Elu (44.9, 48.9): "Wind Rider", "News for Fizzle", "Indurium".
+02) Do "Wind Rider" (44.9, 48.9): Bring 10 Highperch Wyvern Eggs to Elu in Freewind Post.
+03) Do "Indurium" (42.2, 52.7): Bring 10 Indurium Flakes to Martek the Exiled in the Badlands.
+04) Do "News for Fizzle" (78.1, 77.1): Speak with Fizzle Brassbolts on the Shimmering Flats in Thousand Needles.
+05) Turn in "Wind Rider" to Elu (44.9, 48.9).
+06) Turn in "News for Fizzle" to Fizzle Brassbolts (78.1, 77.1).
+07) Turn in "Indurium" to Martek the Exiled (42.2, 52.7).
+        ]],
+        image = "Horde_ThousandNeedles_c01.tga",
+    },
+    [108] = {
+        step = 108,
         title = [[26-35 Thousand Needles — Circuit 8]],
         objectives = [[01) Pick up these 7 quests around Fizzle Brassbolts (78.1, 77.1): "Martek the Exiled", "Salt Flat Ve]],
         text = [[
@@ -1507,8 +1492,56 @@ SKquests_Horde = {
         ]],
         image = "Horde_ThousandNeedles_c08.tga",
     },
+    [109] = {
+        step = 109,
+        title = [[28-35 Thousand Needles — Circuit 14]],
+        objectives = [[01) Accept "Parts of the Swarm" from the quest giver.]],
+        text = [[
+01) Accept "Parts of the Swarm" from the quest giver.
+02) Do "Parts of the Swarm" (51.1, 29.6): Bring 1 Silithid Heart, 5 Silithid Talons, and 3 Intact Silithid Carapaces, to Korran at the...
+03) Turn in "Parts of the Swarm" to Korran (51.1, 29.6).
+        ]],
+        image = "",
+    },
     [110] = {
         step = 110,
+        title = [[28-41 Thousand Needles — Circuit 4]],
+        objectives = [[01) Pick up these 2 quests around Korran (51.1, 29.6): "Parts of the Swarm", "Safety First".]],
+        text = [[
+01) Pick up these 2 quests around Korran (51.1, 29.6): "Parts of the Swarm", "Safety First".
+02) Do "Parts of the Swarm" (75.2, 34.2): Return to Belgrom Rockmaul in Orgrimmar.
+03) Do "Safety First" (80.3, 76.1): Return the Modified Seaforium Booster to Razzeric on the Shimmering Flats in Thousand Needles.
+04) Turn in "Safety First" to Razzeric (80.3, 76.1).
+05) KEEP "Parts of the Swarm" in your log — turn it in later in Orgrimmar (grouped trip).
+        ]],
+        image = "Horde_ThousandNeedles_c04.tga",
+    },
+    [111] = {
+        step = 111,
+        title = [[29-35 Thousand Needles — Circuit 6]],
+        objectives = [[01) Accept "The Swarm Grows" from Moktar Krin (67.6, 63.9).]],
+        text = [[
+01) Accept "The Swarm Grows" from Moktar Krin (67.6, 63.9).
+02) Do "The Swarm Grows" (69.9, 87.4): Kill 5 Silithid Searchers, 5 Silithid Hive Drones, and 5 Silithid Invaders and return to Moktar...
+03) Turn in "The Swarm Grows" to Moktar Krin (67.6, 63.9).
+        ]],
+        image = "Horde_ThousandNeedles_c06.tga",
+    },
+    [112] = {
+        step = 112,
+        title = [[29-37 Thousand Needles — Circuit 3]],
+        objectives = [[01) Pick up these 2 quests around Gazlowe (62.7, 36.2): "Goblin Sponsorship", "Parts for Kravel".]],
+        text = [[
+01) Pick up these 2 quests around Gazlowe (62.7, 36.2): "Goblin Sponsorship", "Parts for Kravel".
+02) Do "Parts for Kravel" (77.8, 77.3): Bring Kravel's Parts to Kravel Koalbeard on the Shimmering Flats in Thousand Needles.
+03) Do "Goblin Sponsorship" (26.3, 73.6): Speak with Wharfmaster Lozgil at Booty Bay in Stranglethorn Vale.
+04) Turn in "Goblin Sponsorship" to Wharfmaster Lozgil (26.3, 73.6).
+05) Turn in "Parts for Kravel" to Kravel Koalbeard (77.8, 77.3).
+        ]],
+        image = "Horde_ThousandNeedles_c03.tga",
+    },
+    [113] = {
+        step = 113,
         title = [[29-41 Thousand Needles — Circuit 9]],
         objectives = [[01) Pick up these 7 quests around Pozzik (80.2, 75.9): "Load Lightening", "Goblin Sponsorship", "The]],
         text = [[
@@ -1529,8 +1562,19 @@ SKquests_Horde = {
         ]],
         image = "Horde_ThousandNeedles_c09.tga",
     },
-    [111] = {
-        step = 111,
+    [114] = {
+        step = 114,
+        title = [[29-41 Thousand Needles — Circuit 15]],
+        objectives = [[01) Accept "Rizzle's Schematics" from Rizzle's Unguarded Plans.]],
+        text = [[
+01) Accept "Rizzle's Schematics" from Rizzle's Unguarded Plans.
+02) Do "Rizzle's Schematics" (80.2, 75.9): Bring the Sample of Indurium Ore to Pozzik on the Shimmering Flats in Thousand Needles.
+03) Turn in "Rizzle's Schematics" to Pozzik (80.2, 75.9).
+        ]],
+        image = "",
+    },
+    [115] = {
+        step = 115,
         title = [[29-44 Thousand Needles — Circuit 10]],
         objectives = [[01) Pick up these 7 quests around Pozzik (80.2, 75.9): "Indurium Ore", "Wharfmaster Dizzywig", "Deli]],
         text = [[
@@ -1552,19 +1596,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_ThousandNeedles_c10.tga",
     },
-    [112] = {
-        step = 112,
-        title = [[25-29 Thousand Needles — Circuit 11]],
-        objectives = [[01) Accept "Free at Last" from Lakota Windsong (46.6, 94.1).]],
-        text = [[
-01) Accept "Free at Last" from Lakota Windsong (46.6, 94.1).
-02) Do "Free at Last" (46.0, 51.6): Escort Lakota Windsong from the Darkcloud Pinnacle, and then talk to Thalia Amberhide at Freewind...
-03) Turn in "Free at Last" to Thalia Amberhide (46.0, 51.6).
-        ]],
-        image = "Horde_ThousandNeedles_c11.tga",
-    },
-    [113] = {
-        step = 113,
+    [116] = {
+        step = 116,
         title = [[29-44 Thousand Needles — Circuit 12]],
         objectives = [[01) Pick up these 5 quests around Wharfmaster Lozgil (26.3, 73.6): "Goblin Sponsorship", "Goblin Spo]],
         text = [[
@@ -1579,39 +1612,6 @@ SKquests_Horde = {
 09) Turn in "Rumors for Kravel" and "Zanzil's Mixture and a Fool's Stout" to Kravel Koalbeard (77.8, 77.3).
         ]],
         image = "Horde_ThousandNeedles_c12.tga",
-    },
-    [114] = {
-        step = 114,
-        title = [[25-29 Thousand Needles — Circuit 13]],
-        objectives = [[01) Accept "Homeward Bound" from Pao'ka Swiftmountain (17.9, 40.6).]],
-        text = [[
-01) Accept "Homeward Bound" from Pao'ka Swiftmountain (17.9, 40.6).
-02) Do "Homeward Bound" (21.5, 32.3): Escort Pao'ka Swiftmountain from Highperch, and then talk to Motega Firemane in Whitereach Post.
-03) Turn in "Homeward Bound" to Motega Firemane (21.5, 32.3).
-        ]],
-        image = "Horde_ThousandNeedles_c13.tga",
-    },
-    [115] = {
-        step = 115,
-        title = [[28-35 Thousand Needles — Circuit 14]],
-        objectives = [[01) Accept "Parts of the Swarm" from the quest giver.]],
-        text = [[
-01) Accept "Parts of the Swarm" from the quest giver.
-02) Do "Parts of the Swarm" (51.1, 29.6): Bring 1 Silithid Heart, 5 Silithid Talons, and 3 Intact Silithid Carapaces, to Korran at the...
-03) Turn in "Parts of the Swarm" to Korran (51.1, 29.6).
-        ]],
-        image = "",
-    },
-    [116] = {
-        step = 116,
-        title = [[29-41 Thousand Needles — Circuit 15]],
-        objectives = [[01) Accept "Rizzle's Schematics" from Rizzle's Unguarded Plans.]],
-        text = [[
-01) Accept "Rizzle's Schematics" from Rizzle's Unguarded Plans.
-02) Do "Rizzle's Schematics" (80.2, 75.9): Bring the Sample of Indurium Ore to Pozzik on the Shimmering Flats in Thousand Needles.
-03) Turn in "Rizzle's Schematics" to Pozzik (80.2, 75.9).
-        ]],
-        image = "",
     },
     [117] = {
         step = 117,
@@ -1669,6 +1669,28 @@ SKquests_Horde = {
     },
     [121] = {
         step = 121,
+        title = [[24-30 Hillsbrad Foothills — Circuit 3]],
+        objectives = [[01) Accept "Elixir of Agony" from Master Apothecary Faranell (48.8, 69.3).]],
+        text = [[
+01) Accept "Elixir of Agony" from Master Apothecary Faranell (48.8, 69.3).
+02) Do "Elixir of Agony" (60.1, 80.7): Bring the Mudsnout Mixture, a Strong Troll's Blood Potion, 5 Daggerspine Scales and 5 Torn Fin Eyes...
+03) Turn in "Elixir of Agony" to Apothecary Lydon (60.1, 80.7).
+        ]],
+        image = "",
+    },
+    [122] = {
+        step = 122,
+        title = [[25-32 Hillsbrad Foothills — Circuit 4]],
+        objectives = [[01) Accept "Farren's Proof" from Marshal Redpath (49.5, 58.7).]],
+        text = [[
+01) Accept "Farren's Proof" from Marshal Redpath (49.5, 58.7).
+02) Do "Farren's Proof" (51.5, 58.4): Speak with Lieutenant Farren Orinelle in Southshore.
+03) Turn in "Farren's Proof" to Lieutenant Farren Orinelle (51.5, 58.4).
+        ]],
+        image = "",
+    },
+    [123] = {
+        step = 123,
         title = [[26-42 Hillsbrad Foothills — Circuit 2]],
         objectives = [[01) Pick up these 7 quests around Deathguard Humbert (61.6, 82.0): "Humbert's Sword", "Helcular's Re]],
         text = [[
@@ -1688,28 +1710,6 @@ SKquests_Horde = {
 14) Turn in "Lord Aliden Perenolde" to Elysa (39.3, 14.3).
 15) Turn in "Stone Tokens" to Keeper Bel'varil (60.2, 82.9).
 16) TIP: Bank any [Mageweave Cloth] you loot here (~3% drop) — needed for "War at Sea" (lvl ~40, Tanaris).
-        ]],
-        image = "",
-    },
-    [122] = {
-        step = 122,
-        title = [[24-30 Hillsbrad Foothills — Circuit 3]],
-        objectives = [[01) Accept "Elixir of Agony" from Master Apothecary Faranell (48.8, 69.3).]],
-        text = [[
-01) Accept "Elixir of Agony" from Master Apothecary Faranell (48.8, 69.3).
-02) Do "Elixir of Agony" (60.1, 80.7): Bring the Mudsnout Mixture, a Strong Troll's Blood Potion, 5 Daggerspine Scales and 5 Torn Fin Eyes...
-03) Turn in "Elixir of Agony" to Apothecary Lydon (60.1, 80.7).
-        ]],
-        image = "",
-    },
-    [123] = {
-        step = 123,
-        title = [[25-32 Hillsbrad Foothills — Circuit 4]],
-        objectives = [[01) Accept "Farren's Proof" from Marshal Redpath (49.5, 58.7).]],
-        text = [[
-01) Accept "Farren's Proof" from Marshal Redpath (49.5, 58.7).
-02) Do "Farren's Proof" (51.5, 58.4): Speak with Lieutenant Farren Orinelle in Southshore.
-03) Turn in "Farren's Proof" to Lieutenant Farren Orinelle (51.5, 58.4).
         ]],
         image = "",
     },
@@ -1737,20 +1737,6 @@ SKquests_Horde = {
     },
     [126] = {
         step = 126,
-        title = [[30-37 Hillsbrad Foothills — Circuit 7]],
-        objectives = [[01) Pick up these 3 quests around Quae (60.2, 53.8): "Hints of a New Plague?", "Hints of a New Plagu]],
-        text = [[
-01) Pick up these 3 quests around Quae (60.2, 53.8): "Hints of a New Plague?", "Hints of a New Plague?", "Hints of a New Plague?".
-02) Do "Hints of a New Plague?" (60.2, 53.8): Find the Forsaken Courier and bring back her Sealed Folder to Quae near the Go'Shek Farm.
-03) Do "Hints of a New Plague?" (60.2, 53.8): Protect Kinelory until she returns to Quae.
-04) Do "Hints of a New Plague?" (60.2, 53.9): Speak to Kinelory near Go'Shek Farm in Arathi Highlands.
-05) Turn in "Hints of a New Plague?" to Kinelory (60.2, 53.9).
-06) Turn in "Hints of a New Plague?" and "Hints of a New Plague?" to Quae (60.2, 53.8).
-        ]],
-        image = "",
-    },
-    [127] = {
-        step = 127,
         title = [[30-35 Hillsbrad Foothills — Circuit 8]],
         objectives = [[01) Pick up these 4 quests around Tallow (60.6, 81.3): "The Hammer May Fall", "Prison Break In", "Br]],
         text = [[
@@ -1765,8 +1751,44 @@ SKquests_Horde = {
         ]],
         image = "",
     },
+    [127] = {
+        step = 127,
+        title = [[30-37 Hillsbrad Foothills — Circuit 7]],
+        objectives = [[01) Pick up these 3 quests around Quae (60.2, 53.8): "Hints of a New Plague?", "Hints of a New Plagu]],
+        text = [[
+01) Pick up these 3 quests around Quae (60.2, 53.8): "Hints of a New Plague?", "Hints of a New Plague?", "Hints of a New Plague?".
+02) Do "Hints of a New Plague?" (60.2, 53.8): Find the Forsaken Courier and bring back her Sealed Folder to Quae near the Go'Shek Farm.
+03) Do "Hints of a New Plague?" (60.2, 53.8): Protect Kinelory until she returns to Quae.
+04) Do "Hints of a New Plague?" (60.2, 53.9): Speak to Kinelory near Go'Shek Farm in Arathi Highlands.
+05) Turn in "Hints of a New Plague?" to Kinelory (60.2, 53.9).
+06) Turn in "Hints of a New Plague?" and "Hints of a New Plague?" to Quae (60.2, 53.8).
+        ]],
+        image = "",
+    },
     [128] = {
         step = 128,
+        title = [[30-32 Desolace — Circuit 4]],
+        objectives = [[01) Accept "Regthar Deathgate" from Vol'jin (34.3, 36.3).]],
+        text = [[
+01) Accept "Regthar Deathgate" from Vol'jin (34.3, 36.3).
+02) Do "Regthar Deathgate" (45.3, 28.4): Speak with Regthar Deathgate in the Barrens.
+03) Turn in "Regthar Deathgate" to Regthar Deathgate (45.3, 28.4).
+        ]],
+        image = "Horde_Desolace_c04.tga",
+    },
+    [129] = {
+        step = 129,
+        title = [[30-36 Desolace — Circuit 9]],
+        objectives = [[01) Accept "Claim Rackmore's Treasure!" from Rackmore's Log.]],
+        text = [[
+01) Accept "Claim Rackmore's Treasure!" from Rackmore's Log.
+02) Do "Claim Rackmore's Treasure!": Find Rackmore's Silver Key. Find Rackmore's Golden Key. Find and open Rackmore's Chest.
+03) Turn in "Claim Rackmore's Treasure!" to Rackmore's Chest.
+        ]],
+        image = "",
+    },
+    [130] = {
+        step = 130,
         title = [[30-37 Desolace — Circuit 1]],
         objectives = [[01) Pick up these 6 quests around Felgur Twocuts (56.2, 59.6): "Centaur Bounty", "Magram Alliance", ]],
         text = [[
@@ -1785,41 +1807,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Desolace_c01.tga",
     },
-    [129] = {
-        step = 129,
-        title = [[34-39 Desolace — Circuit 2]],
-        objectives = [[01) Accept "Ghost-o-plasm Round Up" from Hornizz Brimbuzzle (47.8, 61.8).]],
-        text = [[
-01) Accept "Ghost-o-plasm Round Up" from Hornizz Brimbuzzle (47.8, 61.8).
-02) Do "Ghost-o-plasm Round Up" (47.8, 61.8): Bring 8 Ghost-o-plasms and the Crate of Ghost Magnets to Hornizz Brimbuzzle in Desolace.
-03) Turn in "Ghost-o-plasm Round Up" to Hornizz Brimbuzzle (47.8, 61.8).
-        ]],
-        image = "Horde_Desolace_c02.tga",
-    },
-    [130] = {
-        step = 130,
-        title = [[34-39 Desolace — Circuit 3]],
-        objectives = [[01) Accept "Get Me Out of Here!" from Melizza Brimbuzzle (33.9, 53.5).]],
-        text = [[
-01) Accept "Get Me Out of Here!" from Melizza Brimbuzzle (33.9, 53.5).
-02) Do "Get Me Out of Here!" (47.8, 61.8): Escort Melizza Brimbuzzle, then speak with Hornizz Brimbuzzle at the Kodo Graveyard in Desolace.
-03) Turn in "Get Me Out of Here!" to Hornizz Brimbuzzle (47.8, 61.8).
-        ]],
-        image = "Horde_Desolace_c03.tga",
-    },
     [131] = {
         step = 131,
-        title = [[30-32 Desolace — Circuit 4]],
-        objectives = [[01) Accept "Regthar Deathgate" from Vol'jin (34.3, 36.3).]],
-        text = [[
-01) Accept "Regthar Deathgate" from Vol'jin (34.3, 36.3).
-02) Do "Regthar Deathgate" (45.3, 28.4): Speak with Regthar Deathgate in the Barrens.
-03) Turn in "Regthar Deathgate" to Regthar Deathgate (45.3, 28.4).
-        ]],
-        image = "Horde_Desolace_c04.tga",
-    },
-    [132] = {
-        step = 132,
         title = [[30-38 Desolace — Circuit 5]],
         objectives = [[01) Pick up these 3 quests around Regthar Deathgate (45.3, 28.4): "The Kolkar of Desolace", "Sceptre]],
         text = [[
@@ -1832,24 +1821,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Desolace_c05.tga",
     },
-    [133] = {
-        step = 133,
-        title = [[31-38 Desolace — Circuit 6]],
-        objectives = [[01) Pick up these 4 quests around Mai'Lahii (22.6, 72.0): "Clam Bait", "Other Fish to Fry", "Hand of]],
-        text = [[
-01) Pick up these 4 quests around Mai'Lahii (22.6, 72.0): "Clam Bait", "Other Fish to Fry", "Hand of Iruxos", "Portals of the Legion".
-02) Do "Clam Bait" (22.6, 72.0): Find 10 pieces of Soft-shelled Clam Meat and bring it back to Mai'Lahii at Shadowprey Village.
-03) Do "Hand of Iruxos" (25.8, 68.2): Retrieve the Demon Box from Thunder Axe Fortress, and return it, along with the Demon Pick to Taiga...
-04) Do "Portals of the Legion" (25.8, 68.2): Banish 6 Portals at Mannoroc Coven and return to Taiga Wisemane at Shadowprey Village.
-05) Do "Other Fish to Fry" (34.4, 26.7): Slay 7 Slitherblade Myrmidon, 7 Slitherblade Naga, and 5 Slitherblade Sorceresses, and then talk to...
-06) Turn in "Clam Bait" to Mai'Lahii (22.6, 72.0).
-07) Turn in "Other Fish to Fry" to Drulzegar Skraghook (23.3, 72.9).
-08) Turn in "Hand of Iruxos" and "Portals of the Legion" to Taiga Wisemane (25.8, 68.2).
-        ]],
-        image = "Horde_Desolace_c06.tga",
-    },
-    [134] = {
-        step = 134,
+    [132] = {
+        step = 132,
         title = [[30-42 Desolace — Circuit 7]],
         objectives = [[01) Pick up these 5 quests around Uthek the Wise (36.2, 79.2): "Stealing Supplies", "Bodyguard for H]],
         text = [[
@@ -1864,8 +1837,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Desolace_c07.tga",
     },
-    [135] = {
-        step = 135,
+    [133] = {
+        step = 133,
         title = [[30-42 Desolace — Circuit 8]],
         objectives = [[01) Pick up these 5 quests around Warug (75.0, 68.2): "Assault on the Kolkar", "Broken Tears", "Gizm]],
         text = [[
@@ -1879,19 +1852,24 @@ SKquests_Horde = {
         ]],
         image = "Horde_Desolace_c08.tga",
     },
-    [136] = {
-        step = 136,
-        title = [[30-36 Desolace — Circuit 9]],
-        objectives = [[01) Accept "Claim Rackmore's Treasure!" from Rackmore's Log.]],
+    [134] = {
+        step = 134,
+        title = [[31-38 Desolace — Circuit 6]],
+        objectives = [[01) Pick up these 4 quests around Mai'Lahii (22.6, 72.0): "Clam Bait", "Other Fish to Fry", "Hand of]],
         text = [[
-01) Accept "Claim Rackmore's Treasure!" from Rackmore's Log.
-02) Do "Claim Rackmore's Treasure!": Find Rackmore's Silver Key. Find Rackmore's Golden Key. Find and open Rackmore's Chest.
-03) Turn in "Claim Rackmore's Treasure!" to Rackmore's Chest.
+01) Pick up these 4 quests around Mai'Lahii (22.6, 72.0): "Clam Bait", "Other Fish to Fry", "Hand of Iruxos", "Portals of the Legion".
+02) Do "Clam Bait" (22.6, 72.0): Find 10 pieces of Soft-shelled Clam Meat and bring it back to Mai'Lahii at Shadowprey Village.
+03) Do "Hand of Iruxos" (25.8, 68.2): Retrieve the Demon Box from Thunder Axe Fortress, and return it, along with the Demon Pick to Taiga...
+04) Do "Portals of the Legion" (25.8, 68.2): Banish 6 Portals at Mannoroc Coven and return to Taiga Wisemane at Shadowprey Village.
+05) Do "Other Fish to Fry" (34.4, 26.7): Slay 7 Slitherblade Myrmidon, 7 Slitherblade Naga, and 5 Slitherblade Sorceresses, and then talk to...
+06) Turn in "Clam Bait" to Mai'Lahii (22.6, 72.0).
+07) Turn in "Other Fish to Fry" to Drulzegar Skraghook (23.3, 72.9).
+08) Turn in "Hand of Iruxos" and "Portals of the Legion" to Taiga Wisemane (25.8, 68.2).
         ]],
-        image = "",
+        image = "Horde_Desolace_c06.tga",
     },
-    [137] = {
-        step = 137,
+    [135] = {
+        step = 135,
         title = [[32-38 Desolace — Circuit 10]],
         objectives = [[01) Accept "Gizelton Caravan" from Rigger Gizelton.]],
         text = [[
@@ -1900,6 +1878,28 @@ SKquests_Horde = {
 03) Turn in "Gizelton Caravan" to Smeed Scrabblescrew (60.9, 61.9).
         ]],
         image = "",
+    },
+    [136] = {
+        step = 136,
+        title = [[34-39 Desolace — Circuit 2]],
+        objectives = [[01) Accept "Ghost-o-plasm Round Up" from Hornizz Brimbuzzle (47.8, 61.8).]],
+        text = [[
+01) Accept "Ghost-o-plasm Round Up" from Hornizz Brimbuzzle (47.8, 61.8).
+02) Do "Ghost-o-plasm Round Up" (47.8, 61.8): Bring 8 Ghost-o-plasms and the Crate of Ghost Magnets to Hornizz Brimbuzzle in Desolace.
+03) Turn in "Ghost-o-plasm Round Up" to Hornizz Brimbuzzle (47.8, 61.8).
+        ]],
+        image = "Horde_Desolace_c02.tga",
+    },
+    [137] = {
+        step = 137,
+        title = [[34-39 Desolace — Circuit 3]],
+        objectives = [[01) Accept "Get Me Out of Here!" from Melizza Brimbuzzle (33.9, 53.5).]],
+        text = [[
+01) Accept "Get Me Out of Here!" from Melizza Brimbuzzle (33.9, 53.5).
+02) Do "Get Me Out of Here!" (47.8, 61.8): Escort Melizza Brimbuzzle, then speak with Hornizz Brimbuzzle at the Kodo Graveyard in Desolace.
+03) Turn in "Get Me Out of Here!" to Hornizz Brimbuzzle (47.8, 61.8).
+        ]],
+        image = "Horde_Desolace_c03.tga",
     },
     [138] = {
         step = 138,
@@ -1934,17 +1934,32 @@ SKquests_Horde = {
     },
     [140] = {
         step = 140,
-        title = [[32-35 Stranglethorn Vale — Circuit 1]],
-        objectives = [[01) Accept "Stranglethorn Fever" from Witch Doctor Unbagwa (35.3, 60.4).]],
+        title = [[30-40 Stranglethorn Vale — Circuit 10]],
+        objectives = [[01) Pick up these 5 quests around Barnil Stonepot (35.7, 10.5): "The Green Hills of Stranglethorn", ]],
         text = [[
-01) Accept "Stranglethorn Fever" from Witch Doctor Unbagwa (35.3, 60.4).
-02) Do "Stranglethorn Fever" (35.3, 60.4): temp text 02 - log
-03) Turn in "Stranglethorn Fever" to Witch Doctor Unbagwa (35.3, 60.4).
+01) Pick up these 5 quests around Barnil Stonepot (35.7, 10.5): "The Green Hills of Stranglethorn", "Chapter I", "Chapter II", "Chapter III", "Chapter IV".
+02) Do "The Green Hills of Stranglethorn" (35.7, 10.5): Collect the missing pages from The Green Hills of Stranglethorn manuscript. Once all four chapters...
+03) Do "Chapter I" (35.7, 10.5): Bring pages 1, 4, 6, and 8 of Nesingwary's The Green Hills of Stranglethorn to Barnil Stonepot in...
+04) Do "Chapter II" (35.7, 10.5): Bring pages 10, 11, 14 and 16 of Nesingwary's The Green Hills of Stranglethorn to Barnil Stonepot...
+05) Do "Chapter III" (35.7, 10.5): Bring pages 18, 20, 21and 24 of Nesingwary's The Green Hills of Stranglethorn to Barnil Stonepot in...
+06) Do "Chapter IV" (35.7, 10.5): Bring pages 25, 26, and 27 of Nesingwary's The Green Hills of Stranglethorn to Barnil Stonepot in...
+07) Turn in "The Green Hills of Stranglethorn" and "Chapter I" and "Chapter II" and "Chapter III" and "Chapter IV" to Barnil Stonepot (35.7, 10.5).
         ]],
-        image = "Horde_Stranglethorn_c01.tga",
+        image = "Horde_Stranglethorn_c10.tga",
     },
     [141] = {
         step = 141,
+        title = [[30-40 Stranglethorn Vale — Circuit 11]],
+        objectives = [[01) Accept "Speaking with Nezzliok" from Bubbling Cauldron.]],
+        text = [[
+01) Accept "Speaking with Nezzliok" from Bubbling Cauldron.
+02) Do "Speaking with Nezzliok": Bring a Balia'mah Trophy, a Ziata'jai Trophy and a Zul'Mamwe Trophy to the Bubbling Cauldron at the...
+03) Turn in "Speaking with Nezzliok" to Bubbling Cauldron.
+        ]],
+        image = "",
+    },
+    [142] = {
+        step = 142,
         title = [[30-44 Stranglethorn Vale — Circuit 2]],
         objectives = [[01) Pick up these 7 quests around Bloodsail Traitor (31.8, 70.9): "Traitor to the Bloodsail", "Blood]],
         text = [[
@@ -1964,8 +1979,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Stranglethorn_c02.tga",
     },
-    [142] = {
-        step = 142,
+    [143] = {
+        step = 143,
         title = [[30-44 Stranglethorn Vale — Circuit 3]],
         objectives = [[01) Pick up these 7 quests around "Sea Wolf" MacKinley (27.8, 77.1): "Cracking Maury's Foot", "Hosti]],
         text = [[
@@ -1985,8 +2000,115 @@ SKquests_Horde = {
         ]],
         image = "Horde_Stranglethorn_c03.tga",
     },
-    [143] = {
-        step = 143,
+    [144] = {
+        step = 144,
+        title = [[30-45 Stranglethorn Vale — Circuit 8]],
+        objectives = [[01) Pick up these 7 quests around Nimboya (32.2, 27.7): "Hunt for Yenniku", "Headhunting", "Bloody B]],
+        text = [[
+01) Pick up these 7 quests around Nimboya (32.2, 27.7): "Hunt for Yenniku", "Headhunting", "Bloody Bone Necklaces", "The Vile Reef", "Bloodscalp Clan Heads", "Split Bone Necklace", "The Singing Crystals".
+02) Do "Hunt for Yenniku" (32.2, 27.7): Bring 9 Bloodscalp Tusks to Nimboya at the Grom'gol Base Camp.
+03) Do "Headhunting" (32.2, 27.7): Bring 20 Shrunken Heads to Nimboya at the Grom'gol Base Camp.
+04) Do "Bloodscalp Clan Heads" (32.2, 27.7): Bring Gan'zulah's Head and Nezzliok's Head to the bubbling cauldron at the Grom'gol Base Camp.
+05) Do "Bloody Bone Necklaces" (32.3, 27.7): Bring 25 Bloody Bone Necklaces to Kin'weelay at the Grom'gol Base Camp.
+06) Do "The Vile Reef" (32.3, 27.7): Bring a Tablet Shard to Kin'weelay at the Grom'gol Base Camp.
+07) Do "Split Bone Necklace" (32.3, 27.7): Bring 25 Split Bone Necklaces to Kin'weelay at the Grom'gol Base camp.
+08) Do "The Singing Crystals" (32.3, 27.7): Bring 3 Pulsing Blue Shards to Kin'weelay at the Grom'gol Base Camp.
+09) Turn in "Hunt for Yenniku" and "Headhunting" to Nimboya (32.2, 27.7).
+10) Turn in "Bloody Bone Necklaces" and "The Vile Reef" and "Split Bone Necklace" and "The Singing Crystals" to Kin'weelay (32.3, 27.7).
+11) Turn in "Bloodscalp Clan Heads" to Bubbling Cauldron.
+        ]],
+        image = "Horde_Stranglethorn_c08.tga",
+    },
+    [145] = {
+        step = 145,
+        title = [[30-45 Stranglethorn Vale — Circuit 12]],
+        objectives = [[01) Accept "The Fate of Yenniku" from Bubbling Cauldron.]],
+        text = [[
+01) Accept "The Fate of Yenniku" from Bubbling Cauldron.
+02) Do "The Fate of Yenniku" (32.3, 27.7): Speak with Kin'weelay.
+03) Turn in "The Fate of Yenniku" to Kin'weelay (32.3, 27.7).
+        ]],
+        image = "",
+    },
+    [146] = {
+        step = 146,
+        title = [[30-46 Stranglethorn Vale — Circuit 9]],
+        objectives = [[01) Pick up these 7 quests around Kin'weelay (32.3, 27.7): "The Mind's Eye", "Saving Yenniku", "Trol]],
+        text = [[
+01) Pick up these 7 quests around Kin'weelay (32.3, 27.7): "The Mind's Eye", "Saving Yenniku", "Trollbane", "The Defense of Grom'gol", "The Defense of Grom'gol", "Mok'thardin's Enchantment", "Mok'thardin's Enchantment".
+02) Do "The Mind's Eye" (32.3, 27.7): Bring the Mind's Eye to Kin'weelay at the Grom'gol Base Camp.
+03) Do "Saving Yenniku" (32.2, 27.7): Bring the Filled Soul Gem to Nimboya.
+04) Do "Mok'thardin's Enchantment" (32.1, 29.2): Far Seer Mok'thardin at the Grom'gol base camp wants 8 Shadowmaw Claws and a Pristine Tigress Fang.
+05) Do "Mok'thardin's Enchantment" (32.1, 29.2): Bring an Aged Gorilla Sinew to Far Seer Mok'thardin in Grom'gol.
+06) Do "The Defense of Grom'gol" (36.7, 31.9): Commander Aggro'gosh of the Grom'gol base camp wants you to kill 10 Ogre Brutes and 5 Ogre Witch...
+07) Do "The Defense of Grom'gol" (37.6, 27.9): Commander Aggro'gosh of the Grom'gol base camp wants you to kill 15 Lashtail Raptors.
+08) Do "Trollbane" (73.8, 34.0): Travel to Hammerfall in the Arathi Highlands and speak with Zengu.
+09) Turn in "The Mind's Eye" to Kin'weelay (32.3, 27.7).
+10) Turn in "Saving Yenniku" to Nimboya (32.2, 27.7).
+11) Turn in "Trollbane" to Zengu (73.8, 34.0).
+12) Turn in "The Defense of Grom'gol" and "The Defense of Grom'gol" to Commander Aggro'gosh (32.2, 28.9).
+13) Turn in "Mok'thardin's Enchantment" and "Mok'thardin's Enchantment" to Far Seer Mok'thardin (32.1, 29.2).
+        ]],
+        image = "Horde_Stranglethorn_c09.tga",
+    },
+    [147] = {
+        step = 147,
+        title = [[30-46 Stranglethorn Vale — Circuit 13]],
+        objectives = [[01) Accept "Speaking with Gan'zulah" from Bubbling Cauldron.]],
+        text = [[
+01) Accept "Speaking with Gan'zulah" from Bubbling Cauldron.
+02) Do "Speaking with Gan'zulah": Kill 8 Skullsplitter Hunters, 6 Skullsplitter Headhunters, and 4 Skullsplitter Berserkers. Bring...
+03) Turn in "Speaking with Gan'zulah" to Bubbling Cauldron.
+        ]],
+        image = "",
+    },
+    [148] = {
+        step = 148,
+        title = [[32-35 Stranglethorn Vale — Circuit 1]],
+        objectives = [[01) Accept "Stranglethorn Fever" from Witch Doctor Unbagwa (35.3, 60.4).]],
+        text = [[
+01) Accept "Stranglethorn Fever" from Witch Doctor Unbagwa (35.3, 60.4).
+02) Do "Stranglethorn Fever" (35.3, 60.4): temp text 02 - log
+03) Turn in "Stranglethorn Fever" to Witch Doctor Unbagwa (35.3, 60.4).
+        ]],
+        image = "Horde_Stranglethorn_c01.tga",
+    },
+    [149] = {
+        step = 149,
+        title = [[33-44 Stranglethorn Vale — Circuit 7]],
+        objectives = [[01) Pick up these 2 quests around Far Seer Mok'thardin (32.1, 29.2): "Mok'thardin's Enchantment", "M]],
+        text = [[
+01) Pick up these 2 quests around Far Seer Mok'thardin (32.1, 29.2): "Mok'thardin's Enchantment", "Mok'thardin's Enchantment".
+02) Do "Mok'thardin's Enchantment" (32.1, 29.2): Bring 10 Jungle Stalker Feathers to Far Seer Mok'thardin at the Grom'gol base camp.
+03) Do "Mok'thardin's Enchantment" (32.1, 29.2): Far Seer Mok'thardin of Grom'gol needs Holy Spring Water. He also wants you to kill 10 Naga...
+04) Turn in "Mok'thardin's Enchantment" and "Mok'thardin's Enchantment" to Far Seer Mok'thardin (32.1, 29.2).
+        ]],
+        image = "Horde_Stranglethorn_c07.tga",
+    },
+    [150] = {
+        step = 150,
+        title = [[35-43 Stranglethorn Vale — Circuit 6]],
+        objectives = [[01) Accept "Cortello's Riddle" from A Soggy Scroll (74.1, 45.8).]],
+        text = [[
+01) Accept "Cortello's Riddle" from A Soggy Scroll (74.1, 45.8).
+02) Do "Cortello's Riddle" (69.3, 81.5): Solve the riddle!
+03) Turn in "Cortello's Riddle" to Musty Scroll (69.3, 81.5).
+        ]],
+        image = "Horde_Stranglethorn_c06.tga",
+    },
+    [151] = {
+        step = 151,
+        title = [[35-43 Stranglethorn Vale — Circuit 14]],
+        objectives = [[01) Accept "Cortello's Riddle" from the quest giver.]],
+        text = [[
+01) Accept "Cortello's Riddle" from the quest giver.
+02) Do "Cortello's Riddle" (74.1, 45.8): Solve the riddle!
+03) Turn in "Cortello's Riddle" to A Soggy Scroll (74.1, 45.8).
+        ]],
+        image = "",
+    },
+    [152] = {
+        step = 152,
         title = [[35-44 Stranglethorn Vale — Circuit 4]],
         objectives = [[01) Pick up these 7 quests around Crank Fizzlebub (27.1, 77.2): "Zanzil's Secret", "Fool's Stout", "]],
         text = [[
@@ -2007,141 +2129,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Stranglethorn_c04.tga",
     },
-    [144] = {
-        step = 144,
-        title = [[35-51 Stranglethorn Vale — Circuit 5]],
-        objectives = [[01) Accept "Cortello's Riddle" from Musty Scroll (69.3, 81.5).]],
-        text = [[
-01) Accept "Cortello's Riddle" from Musty Scroll (69.3, 81.5).
-02) Do "Cortello's Riddle" (69.2, 82.4): Solve the riddle!
-03) Turn in "Cortello's Riddle" to Cortello's Treasure (69.2, 82.4).
-        ]],
-        image = "Horde_Stranglethorn_c05.tga",
-    },
-    [145] = {
-        step = 145,
-        title = [[35-43 Stranglethorn Vale — Circuit 6]],
-        objectives = [[01) Accept "Cortello's Riddle" from A Soggy Scroll (74.1, 45.8).]],
-        text = [[
-01) Accept "Cortello's Riddle" from A Soggy Scroll (74.1, 45.8).
-02) Do "Cortello's Riddle" (69.3, 81.5): Solve the riddle!
-03) Turn in "Cortello's Riddle" to Musty Scroll (69.3, 81.5).
-        ]],
-        image = "Horde_Stranglethorn_c06.tga",
-    },
-    [146] = {
-        step = 146,
-        title = [[33-44 Stranglethorn Vale — Circuit 7]],
-        objectives = [[01) Pick up these 2 quests around Far Seer Mok'thardin (32.1, 29.2): "Mok'thardin's Enchantment", "M]],
-        text = [[
-01) Pick up these 2 quests around Far Seer Mok'thardin (32.1, 29.2): "Mok'thardin's Enchantment", "Mok'thardin's Enchantment".
-02) Do "Mok'thardin's Enchantment" (32.1, 29.2): Bring 10 Jungle Stalker Feathers to Far Seer Mok'thardin at the Grom'gol base camp.
-03) Do "Mok'thardin's Enchantment" (32.1, 29.2): Far Seer Mok'thardin of Grom'gol needs Holy Spring Water. He also wants you to kill 10 Naga...
-04) Turn in "Mok'thardin's Enchantment" and "Mok'thardin's Enchantment" to Far Seer Mok'thardin (32.1, 29.2).
-        ]],
-        image = "Horde_Stranglethorn_c07.tga",
-    },
-    [147] = {
-        step = 147,
-        title = [[30-45 Stranglethorn Vale — Circuit 8]],
-        objectives = [[01) Pick up these 7 quests around Nimboya (32.2, 27.7): "Hunt for Yenniku", "Headhunting", "Bloody B]],
-        text = [[
-01) Pick up these 7 quests around Nimboya (32.2, 27.7): "Hunt for Yenniku", "Headhunting", "Bloody Bone Necklaces", "The Vile Reef", "Bloodscalp Clan Heads", "Split Bone Necklace", "The Singing Crystals".
-02) Do "Hunt for Yenniku" (32.2, 27.7): Bring 9 Bloodscalp Tusks to Nimboya at the Grom'gol Base Camp.
-03) Do "Headhunting" (32.2, 27.7): Bring 20 Shrunken Heads to Nimboya at the Grom'gol Base Camp.
-04) Do "Bloodscalp Clan Heads" (32.2, 27.7): Bring Gan'zulah's Head and Nezzliok's Head to the bubbling cauldron at the Grom'gol Base Camp.
-05) Do "Bloody Bone Necklaces" (32.3, 27.7): Bring 25 Bloody Bone Necklaces to Kin'weelay at the Grom'gol Base Camp.
-06) Do "The Vile Reef" (32.3, 27.7): Bring a Tablet Shard to Kin'weelay at the Grom'gol Base Camp.
-07) Do "Split Bone Necklace" (32.3, 27.7): Bring 25 Split Bone Necklaces to Kin'weelay at the Grom'gol Base camp.
-08) Do "The Singing Crystals" (32.3, 27.7): Bring 3 Pulsing Blue Shards to Kin'weelay at the Grom'gol Base Camp.
-09) Turn in "Hunt for Yenniku" and "Headhunting" to Nimboya (32.2, 27.7).
-10) Turn in "Bloody Bone Necklaces" and "The Vile Reef" and "Split Bone Necklace" and "The Singing Crystals" to Kin'weelay (32.3, 27.7).
-11) Turn in "Bloodscalp Clan Heads" to Bubbling Cauldron.
-        ]],
-        image = "Horde_Stranglethorn_c08.tga",
-    },
-    [148] = {
-        step = 148,
-        title = [[30-46 Stranglethorn Vale — Circuit 9]],
-        objectives = [[01) Pick up these 7 quests around Kin'weelay (32.3, 27.7): "The Mind's Eye", "Saving Yenniku", "Trol]],
-        text = [[
-01) Pick up these 7 quests around Kin'weelay (32.3, 27.7): "The Mind's Eye", "Saving Yenniku", "Trollbane", "The Defense of Grom'gol", "The Defense of Grom'gol", "Mok'thardin's Enchantment", "Mok'thardin's Enchantment".
-02) Do "The Mind's Eye" (32.3, 27.7): Bring the Mind's Eye to Kin'weelay at the Grom'gol Base Camp.
-03) Do "Saving Yenniku" (32.2, 27.7): Bring the Filled Soul Gem to Nimboya.
-04) Do "Mok'thardin's Enchantment" (32.1, 29.2): Far Seer Mok'thardin at the Grom'gol base camp wants 8 Shadowmaw Claws and a Pristine Tigress Fang.
-05) Do "Mok'thardin's Enchantment" (32.1, 29.2): Bring an Aged Gorilla Sinew to Far Seer Mok'thardin in Grom'gol.
-06) Do "The Defense of Grom'gol" (36.7, 31.9): Commander Aggro'gosh of the Grom'gol base camp wants you to kill 10 Ogre Brutes and 5 Ogre Witch...
-07) Do "The Defense of Grom'gol" (37.6, 27.9): Commander Aggro'gosh of the Grom'gol base camp wants you to kill 15 Lashtail Raptors.
-08) Do "Trollbane" (73.8, 34.0): Travel to Hammerfall in the Arathi Highlands and speak with Zengu.
-09) Turn in "The Mind's Eye" to Kin'weelay (32.3, 27.7).
-10) Turn in "Saving Yenniku" to Nimboya (32.2, 27.7).
-11) Turn in "Trollbane" to Zengu (73.8, 34.0).
-12) Turn in "The Defense of Grom'gol" and "The Defense of Grom'gol" to Commander Aggro'gosh (32.2, 28.9).
-13) Turn in "Mok'thardin's Enchantment" and "Mok'thardin's Enchantment" to Far Seer Mok'thardin (32.1, 29.2).
-        ]],
-        image = "Horde_Stranglethorn_c09.tga",
-    },
-    [149] = {
-        step = 149,
-        title = [[30-40 Stranglethorn Vale — Circuit 10]],
-        objectives = [[01) Pick up these 5 quests around Barnil Stonepot (35.7, 10.5): "The Green Hills of Stranglethorn", ]],
-        text = [[
-01) Pick up these 5 quests around Barnil Stonepot (35.7, 10.5): "The Green Hills of Stranglethorn", "Chapter I", "Chapter II", "Chapter III", "Chapter IV".
-02) Do "The Green Hills of Stranglethorn" (35.7, 10.5): Collect the missing pages from The Green Hills of Stranglethorn manuscript. Once all four chapters...
-03) Do "Chapter I" (35.7, 10.5): Bring pages 1, 4, 6, and 8 of Nesingwary's The Green Hills of Stranglethorn to Barnil Stonepot in...
-04) Do "Chapter II" (35.7, 10.5): Bring pages 10, 11, 14 and 16 of Nesingwary's The Green Hills of Stranglethorn to Barnil Stonepot...
-05) Do "Chapter III" (35.7, 10.5): Bring pages 18, 20, 21and 24 of Nesingwary's The Green Hills of Stranglethorn to Barnil Stonepot in...
-06) Do "Chapter IV" (35.7, 10.5): Bring pages 25, 26, and 27 of Nesingwary's The Green Hills of Stranglethorn to Barnil Stonepot in...
-07) Turn in "The Green Hills of Stranglethorn" and "Chapter I" and "Chapter II" and "Chapter III" and "Chapter IV" to Barnil Stonepot (35.7, 10.5).
-        ]],
-        image = "Horde_Stranglethorn_c10.tga",
-    },
-    [150] = {
-        step = 150,
-        title = [[30-40 Stranglethorn Vale — Circuit 11]],
-        objectives = [[01) Accept "Speaking with Nezzliok" from Bubbling Cauldron.]],
-        text = [[
-01) Accept "Speaking with Nezzliok" from Bubbling Cauldron.
-02) Do "Speaking with Nezzliok": Bring a Balia'mah Trophy, a Ziata'jai Trophy and a Zul'Mamwe Trophy to the Bubbling Cauldron at the...
-03) Turn in "Speaking with Nezzliok" to Bubbling Cauldron.
-        ]],
-        image = "",
-    },
-    [151] = {
-        step = 151,
-        title = [[30-45 Stranglethorn Vale — Circuit 12]],
-        objectives = [[01) Accept "The Fate of Yenniku" from Bubbling Cauldron.]],
-        text = [[
-01) Accept "The Fate of Yenniku" from Bubbling Cauldron.
-02) Do "The Fate of Yenniku" (32.3, 27.7): Speak with Kin'weelay.
-03) Turn in "The Fate of Yenniku" to Kin'weelay (32.3, 27.7).
-        ]],
-        image = "",
-    },
-    [152] = {
-        step = 152,
-        title = [[30-46 Stranglethorn Vale — Circuit 13]],
-        objectives = [[01) Accept "Speaking with Gan'zulah" from Bubbling Cauldron.]],
-        text = [[
-01) Accept "Speaking with Gan'zulah" from Bubbling Cauldron.
-02) Do "Speaking with Gan'zulah": Kill 8 Skullsplitter Hunters, 6 Skullsplitter Headhunters, and 4 Skullsplitter Berserkers. Bring...
-03) Turn in "Speaking with Gan'zulah" to Bubbling Cauldron.
-        ]],
-        image = "",
-    },
     [153] = {
         step = 153,
-        title = [[35-43 Stranglethorn Vale — Circuit 14]],
-        objectives = [[01) Accept "Cortello's Riddle" from the quest giver.]],
-        text = [[
-01) Accept "Cortello's Riddle" from the quest giver.
-02) Do "Cortello's Riddle" (74.1, 45.8): Solve the riddle!
-03) Turn in "Cortello's Riddle" to A Soggy Scroll (74.1, 45.8).
-        ]],
-        image = "",
-    },
-    [154] = {
-        step = 154,
         title = [[35-50 Stranglethorn Vale — Circuit 15]],
         objectives = [[01) Accept "The Monogrammed Sash" from the quest giver.]],
         text = [[
@@ -2151,19 +2140,19 @@ SKquests_Horde = {
         ]],
         image = "",
     },
+    [154] = {
+        step = 154,
+        title = [[35-51 Stranglethorn Vale — Circuit 5]],
+        objectives = [[01) Accept "Cortello's Riddle" from Musty Scroll (69.3, 81.5).]],
+        text = [[
+01) Accept "Cortello's Riddle" from Musty Scroll (69.3, 81.5).
+02) Do "Cortello's Riddle" (69.2, 82.4): Solve the riddle!
+03) Turn in "Cortello's Riddle" to Cortello's Treasure (69.2, 82.4).
+        ]],
+        image = "Horde_Stranglethorn_c05.tga",
+    },
     [155] = {
         step = 155,
-        title = [[40-40 Stranglethorn Vale — Circuit 16]],
-        objectives = [[01) Accept "Making Amends" from Bronn Fitzwrench (59.8, 39.7).]],
-        text = [[
-01) Accept "Making Amends" from Bronn Fitzwrench (59.8, 39.7).
-02) Do "Making Amends" (59.8, 39.7).
-03) Turn in "Making Amends" to Bronn Fitzwrench (59.8, 39.7).
-        ]],
-        image = "Horde_Stranglethorn_c16.tga",
-    },
-    [156] = {
-        step = 156,
         title = [[37-41 Stranglethorn Vale — Circuit 17]],
         objectives = [[01) Accept "The Bloodsail Buccaneers" from Bloodsail Correspondence (56.1, 57.7).]],
         text = [[
@@ -2173,8 +2162,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Stranglethorn_c17.tga",
     },
-    [157] = {
-        step = 157,
+    [156] = {
+        step = 156,
         title = [[37-50 Stranglethorn Vale — Circuit 18]],
         objectives = [[01) Pick up these 5 quests around Fleet Master Seahorn (27.2, 77.0): "The Bloodsail Buccaneers", "Th]],
         text = [[
@@ -2190,6 +2179,17 @@ SKquests_Horde = {
 10) Turn in "Whiskey Slim's Lost Grog" to Whiskey Slim (27.1, 77.4).
         ]],
         image = "Horde_Stranglethorn_c18.tga",
+    },
+    [157] = {
+        step = 157,
+        title = [[40-40 Stranglethorn Vale — Circuit 16]],
+        objectives = [[01) Accept "Making Amends" from Bronn Fitzwrench (59.8, 39.7).]],
+        text = [[
+01) Accept "Making Amends" from Bronn Fitzwrench (59.8, 39.7).
+02) Do "Making Amends" (59.8, 39.7).
+03) Turn in "Making Amends" to Bronn Fitzwrench (59.8, 39.7).
+        ]],
+        image = "Horde_Stranglethorn_c16.tga",
     },
     [158] = {
         step = 158,
@@ -2297,6 +2297,63 @@ SKquests_Horde = {
     },
     [166] = {
         step = 166,
+        title = [[40-45 Feralas — Circuit 5]],
+        objectives = [[01) Accept "Find OOX-22/FE!" from the quest giver.]],
+        text = [[
+01) Accept "Find OOX-22/FE!" from the quest giver.
+02) Do "Find OOX-22/FE!" (53.4, 55.7): Take the distress beacon to Oglethorpe's homing robot in a cave near Feral Scar Vale.
+03) Turn in "Find OOX-22/FE!" to Homing Robot OOX-22/FE (53.4, 55.7).
+        ]],
+        image = "",
+    },
+    [167] = {
+        step = 167,
+        title = [[40-45 Feralas — Circuit 6]],
+        objectives = [[01) Accept "Return to Witch Doctor Uzer'i" from Xerash Fireblade.]],
+        text = [[
+01) Accept "Return to Witch Doctor Uzer'i" from Xerash Fireblade.
+02) Do "Return to Witch Doctor Uzer'i" (74.4, 43.4): Deliver Xerash's Herb Pouch to Witch Doctor Uzer'i in Feralas.
+03) Turn in "Return to Witch Doctor Uzer'i" to Witch Doctor Uzer'i (74.4, 43.4).
+        ]],
+        image = "",
+    },
+    [168] = {
+        step = 168,
+        title = [[40-48 Feralas — Circuit 4]],
+        objectives = [[01) Pick up these 2 quests around Pratt McGrubben (30.6, 42.7): "Improved Quality", "In Search of Kn]],
+        text = [[
+01) Pick up these 2 quests around Pratt McGrubben (30.6, 42.7): "Improved Quality", "In Search of Knowledge".
+02) Do "Improved Quality" (30.6, 42.7): Bring 10 Rage Scar Yeti Hides to Pratt McGrubben at Feathermoon Stronghold, Feralas.
+03) Do "In Search of Knowledge" (55.4, 92.2): Talk to Daryn Lightwind in Rut'theran Village.
+04) Turn in "Improved Quality" to Pratt McGrubben (30.6, 42.7).
+05) Turn in "In Search of Knowledge" to Daryn Lightwind (55.4, 92.2).
+        ]],
+        image = "Horde_Feralas_c04.tga",
+    },
+    [169] = {
+        step = 169,
+        title = [[40-48 Feralas — Circuit 7]],
+        objectives = [[01) Accept "Pristine Yeti Hide" from the quest giver.]],
+        text = [[
+01) Accept "Pristine Yeti Hide" from the quest giver.
+02) Do "Pristine Yeti Hide" (30.6, 42.7): Bring the Pristine Yeti Hide to Pratt McGrubben at the Feathermoon Stronghold, Feralas.
+03) Turn in "Pristine Yeti Hide" to Pratt McGrubben (30.6, 42.7).
+        ]],
+        image = "",
+    },
+    [170] = {
+        step = 170,
+        title = [[40-48 Feralas — Circuit 8]],
+        objectives = [[01) Accept "Perfect Yeti Hide" from the quest giver.]],
+        text = [[
+01) Accept "Perfect Yeti Hide" from the quest giver.
+02) Do "Perfect Yeti Hide" (74.4, 42.9): Bring the Perfect Yeti Hide to Jangdor Swiftstrider at Camp Mojache, Feralas.
+03) Turn in "Perfect Yeti Hide" to Jangdor Swiftstrider (74.4, 42.9).
+        ]],
+        image = "",
+    },
+    [171] = {
+        step = 171,
         title = [[40-50 Feralas — Circuit 2]],
         objectives = [[01) Pick up these 7 quests around Witch Doctor Uzer'i (74.4, 43.4): "A Strange Request", "Faerie Dra]],
         text = [[
@@ -2314,8 +2371,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Feralas_c02.tga",
     },
-    [167] = {
-        step = 167,
+    [172] = {
+        step = 172,
         title = [[40-50 Feralas — Circuit 3]],
         objectives = [[01) Pick up these 5 quests around Witch Doctor Uzer'i (74.4, 43.4): "Mountain Giant Muisek", "Natura]],
         text = [[
@@ -2330,65 +2387,32 @@ SKquests_Horde = {
         ]],
         image = "Horde_Feralas_c03.tga",
     },
-    [168] = {
-        step = 168,
-        title = [[40-48 Feralas — Circuit 4]],
-        objectives = [[01) Pick up these 2 quests around Pratt McGrubben (30.6, 42.7): "Improved Quality", "In Search of Kn]],
-        text = [[
-01) Pick up these 2 quests around Pratt McGrubben (30.6, 42.7): "Improved Quality", "In Search of Knowledge".
-02) Do "Improved Quality" (30.6, 42.7): Bring 10 Rage Scar Yeti Hides to Pratt McGrubben at Feathermoon Stronghold, Feralas.
-03) Do "In Search of Knowledge" (55.4, 92.2): Talk to Daryn Lightwind in Rut'theran Village.
-04) Turn in "Improved Quality" to Pratt McGrubben (30.6, 42.7).
-05) Turn in "In Search of Knowledge" to Daryn Lightwind (55.4, 92.2).
-        ]],
-        image = "Horde_Feralas_c04.tga",
-    },
-    [169] = {
-        step = 169,
-        title = [[40-45 Feralas — Circuit 5]],
-        objectives = [[01) Accept "Find OOX-22/FE!" from the quest giver.]],
-        text = [[
-01) Accept "Find OOX-22/FE!" from the quest giver.
-02) Do "Find OOX-22/FE!" (53.4, 55.7): Take the distress beacon to Oglethorpe's homing robot in a cave near Feral Scar Vale.
-03) Turn in "Find OOX-22/FE!" to Homing Robot OOX-22/FE (53.4, 55.7).
-        ]],
-        image = "",
-    },
-    [170] = {
-        step = 170,
-        title = [[40-45 Feralas — Circuit 6]],
-        objectives = [[01) Accept "Return to Witch Doctor Uzer'i" from Xerash Fireblade.]],
-        text = [[
-01) Accept "Return to Witch Doctor Uzer'i" from Xerash Fireblade.
-02) Do "Return to Witch Doctor Uzer'i" (74.4, 43.4): Deliver Xerash's Herb Pouch to Witch Doctor Uzer'i in Feralas.
-03) Turn in "Return to Witch Doctor Uzer'i" to Witch Doctor Uzer'i (74.4, 43.4).
-        ]],
-        image = "",
-    },
-    [171] = {
-        step = 171,
-        title = [[40-48 Feralas — Circuit 7]],
-        objectives = [[01) Accept "Pristine Yeti Hide" from the quest giver.]],
-        text = [[
-01) Accept "Pristine Yeti Hide" from the quest giver.
-02) Do "Pristine Yeti Hide" (30.6, 42.7): Bring the Pristine Yeti Hide to Pratt McGrubben at the Feathermoon Stronghold, Feralas.
-03) Turn in "Pristine Yeti Hide" to Pratt McGrubben (30.6, 42.7).
-        ]],
-        image = "",
-    },
-    [172] = {
-        step = 172,
-        title = [[40-48 Feralas — Circuit 8]],
-        objectives = [[01) Accept "Perfect Yeti Hide" from the quest giver.]],
-        text = [[
-01) Accept "Perfect Yeti Hide" from the quest giver.
-02) Do "Perfect Yeti Hide" (74.4, 42.9): Bring the Perfect Yeti Hide to Jangdor Swiftstrider at Camp Mojache, Feralas.
-03) Turn in "Perfect Yeti Hide" to Jangdor Swiftstrider (74.4, 42.9).
-        ]],
-        image = "",
-    },
     [173] = {
         step = 173,
+        title = [[42-48 Feralas — Circuit 12]],
+        objectives = [[01) Pick up these 2 quests around Daryn Lightwind (55.4, 92.2): "The Borrower", "Return to Troyas".]],
+        text = [[
+01) Pick up these 2 quests around Daryn Lightwind (55.4, 92.2): "The Borrower", "Return to Troyas".
+02) Do "Return to Troyas" (31.8, 45.5): Deliver the book to Troyas Moonbreeze in Feathermoon Stronghold.
+03) Do "The Borrower" (52.4, 26.9): Take the letter to Curgle Cranklehop in Tanaris.
+04) Turn in "The Borrower" to Curgle Cranklehop (52.4, 26.9).
+05) Turn in "Return to Troyas" to Troyas Moonbreeze (31.8, 45.5).
+        ]],
+        image = "Horde_Feralas_c12.tga",
+    },
+    [174] = {
+        step = 174,
+        title = [[42-50 Feralas — Circuit 13]],
+        objectives = [[01) Accept "The Morrow Stone" from Equinex Monolith.]],
+        text = [[
+01) Accept "The Morrow Stone" from Equinex Monolith.
+02) Do "The Morrow Stone" (31.8, 45.5): Return the Sparkling Stone and the Stave of Equinex to Troyas Moonbreeze in Feathermoon Stronghold.
+03) Turn in "The Morrow Stone" to Troyas Moonbreeze (31.8, 45.5).
+        ]],
+        image = "",
+    },
+    [175] = {
+        step = 175,
         title = [[45-55 Feralas — Circuit 9]],
         objectives = [[01) Pick up these 4 quests around Zorbin Fandazzle (44.8, 43.4): "Zapped Giants", "Fuel for the Zapp]],
         text = [[
@@ -2401,8 +2425,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Feralas_c09.tga",
     },
-    [174] = {
-        step = 174,
+    [176] = {
+        step = 176,
         title = [[47-52 Feralas — Circuit 10]],
         objectives = [[01) Accept "The Videre Elixir" from Gregan Brewspewer (45.1, 25.6).]],
         text = [[
@@ -2412,8 +2436,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Feralas_c10.tga",
     },
-    [175] = {
-        step = 175,
+    [177] = {
+        step = 177,
         title = [[47-52 Feralas — Circuit 11]],
         objectives = [[01) Accept "The Strength of Corruption" from Talo Thornhoof (76.2, 43.8).]],
         text = [[
@@ -2423,30 +2447,6 @@ SKquests_Horde = {
 04) TIP: Bank any [Corrupted Soul Shard] you loot here (~35% drop) — needed for "Salve via Hunting" (lvl ~48, Felwood).
         ]],
         image = "Horde_Feralas_c11.tga",
-    },
-    [176] = {
-        step = 176,
-        title = [[42-48 Feralas — Circuit 12]],
-        objectives = [[01) Pick up these 2 quests around Daryn Lightwind (55.4, 92.2): "The Borrower", "Return to Troyas".]],
-        text = [[
-01) Pick up these 2 quests around Daryn Lightwind (55.4, 92.2): "The Borrower", "Return to Troyas".
-02) Do "Return to Troyas" (31.8, 45.5): Deliver the book to Troyas Moonbreeze in Feathermoon Stronghold.
-03) Do "The Borrower" (52.4, 26.9): Take the letter to Curgle Cranklehop in Tanaris.
-04) Turn in "The Borrower" to Curgle Cranklehop (52.4, 26.9).
-05) Turn in "Return to Troyas" to Troyas Moonbreeze (31.8, 45.5).
-        ]],
-        image = "Horde_Feralas_c12.tga",
-    },
-    [177] = {
-        step = 177,
-        title = [[42-50 Feralas — Circuit 13]],
-        objectives = [[01) Accept "The Morrow Stone" from Equinex Monolith.]],
-        text = [[
-01) Accept "The Morrow Stone" from Equinex Monolith.
-02) Do "The Morrow Stone" (31.8, 45.5): Return the Sparkling Stone and the Stave of Equinex to Troyas Moonbreeze in Feathermoon Stronghold.
-03) Turn in "The Morrow Stone" to Troyas Moonbreeze (31.8, 45.5).
-        ]],
-        image = "",
     },
     [178] = {
         step = 178,
@@ -2461,17 +2461,28 @@ SKquests_Horde = {
     },
     [179] = {
         step = 179,
-        title = [[43-48 The Hinterlands — Circuit 1]],
-        objectives = [[01) Accept "Rescue OOX-09/HL!" from Homing Robot OOX-09/HL (49.4, 37.7).]],
+        title = [[42-47 The Hinterlands — Circuit 3]],
+        objectives = [[01) Accept "Oran's Gratitude" from Oran Snakewrithe (73.1, 32.8).]],
         text = [[
-01) Accept "Rescue OOX-09/HL!" from Homing Robot OOX-09/HL (49.4, 37.7).
-02) Do "Rescue OOX-09/HL!" (28.4, 76.4): Escort OOX-09/HL to safety, then report to Oglethorpe Obnoticus in Booty Bay.
-03) Turn in "Rescue OOX-09/HL!" to Oglethorpe Obnoticus (28.4, 76.4).
+01) Accept "Oran's Gratitude" from Oran Snakewrithe (73.1, 32.8).
+02) Do "Oran's Gratitude" (73.1, 32.8).
+03) KEEP "Oran's Gratitude" in your log — turn it in later in Undercity (grouped trip).
         ]],
-        image = "Horde_Hinterlands_c01.tga",
+        image = "Horde_Hinterlands_c03.tga",
     },
     [180] = {
         step = 180,
+        title = [[42-47 The Hinterlands — Circuit 7]],
+        objectives = [[01) Accept "Rin'ji's Secret" from Rin'ji's Secret.]],
+        text = [[
+01) Accept "Rin'ji's Secret" from Rin'ji's Secret.
+02) Do "Rin'ji's Secret" (73.1, 32.8): Oran Snakewrithe, a well known scholar on matters concerning the Witherbark trolls, may be able to...
+03) KEEP "Rin'ji's Secret" in your log — turn it in later in Undercity (grouped trip).
+        ]],
+        image = "",
+    },
+    [181] = {
+        step = 181,
         title = [[42-48 The Hinterlands — Circuit 2]],
         objectives = [[01) Pick up these 2 quests around Rin'ji (30.7, 46.9): "Rin'ji is Trapped!", "A Sticky Situation".]],
         text = [[
@@ -2483,52 +2494,27 @@ SKquests_Horde = {
         ]],
         image = "Horde_Hinterlands_c02.tga",
     },
-    [181] = {
-        step = 181,
-        title = [[42-47 The Hinterlands — Circuit 3]],
-        objectives = [[01) Accept "Oran's Gratitude" from Oran Snakewrithe (73.1, 32.8).]],
-        text = [[
-01) Accept "Oran's Gratitude" from Oran Snakewrithe (73.1, 32.8).
-02) Do "Oran's Gratitude" (73.1, 32.8).
-03) KEEP "Oran's Gratitude" in your log — turn it in later in Undercity (grouped trip).
-        ]],
-        image = "Horde_Hinterlands_c03.tga",
-    },
     [182] = {
         step = 182,
-        title = [[46-51 The Hinterlands — Circuit 4]],
-        objectives = [[01) Pick up these 2 quests around Elder Torntusk (83.5, 16.6): "Recover the Key!", "Return to Primal]],
+        title = [[43-48 The Hinterlands — Circuit 1]],
+        objectives = [[01) Accept "Rescue OOX-09/HL!" from Homing Robot OOX-09/HL (49.4, 37.7).]],
         text = [[
-01) Pick up these 2 quests around Elder Torntusk (83.5, 16.6): "Recover the Key!", "Return to Primal Torntusk".
-02) Do "Recover the Key!" (83.5, 16.6): Elder Torntusk at Jintha'alor wants you to kill Hitah'ya the Keeper to get the Shackle Key to his...
-03) Do "Return to Primal Torntusk" (78.2, 81.2): Elder Torntusk at Jintha'alor wants you to return to Primal Torntusk at Revantusk Village with news...
-04) Turn in "Recover the Key!" to Elder Torntusk (83.5, 16.6).
-05) Turn in "Return to Primal Torntusk" to Primal Torntusk (78.2, 81.2).
+01) Accept "Rescue OOX-09/HL!" from Homing Robot OOX-09/HL (49.4, 37.7).
+02) Do "Rescue OOX-09/HL!" (28.4, 76.4): Escort OOX-09/HL to safety, then report to Oglethorpe Obnoticus in Booty Bay.
+03) Turn in "Rescue OOX-09/HL!" to Oglethorpe Obnoticus (28.4, 76.4).
         ]],
-        image = "Horde_Hinterlands_c04.tga",
+        image = "Horde_Hinterlands_c01.tga",
     },
     [183] = {
         step = 183,
-        title = [[44-51 The Hinterlands — Circuit 5]],
-        objectives = [[01) Pick up these 7 quests around Mystic Yayo'jin (78.8, 78.2): "Cannibalistic Cousins", "Lard Lost ]],
+        title = [[43-48 The Hinterlands — Circuit 8]],
+        objectives = [[01) Accept "Find OOX-09/HL!" from the quest giver.]],
         text = [[
-01) Pick up these 7 quests around Mystic Yayo'jin (78.8, 78.2): "Cannibalistic Cousins", "Lard Lost His Lunch", "Snapjaws, Mon!", "The Final Message to the Wildhammer", "Separation Anxiety", "Dark Vessels", "Kidnapped Elder Torntusk!".
-02) Do "The Final Message to the Wildhammer" (79.4, 79.1): Otho Moji'ko at Revantusk Village in the Hinterlands wants you to travel to Aerie Peak in the...
-03) Do "Separation Anxiety" (79.2, 79.5): Huntsman Markhor at Revantusk Village in the Hinterlands wants you to recover his twin brother's...
-04) Do "Dark Vessels" (78.2, 81.2): Primal Torntusk at Revantusk Village in the Hinterlands wants you to recover 5 Vessels of Tainted...
-05) Do "Lard Lost His Lunch" (78.1, 81.4): Lard at Revantusk Village in the Hinterlands wants you to find Lard's Lunch. Return to him when...
-06) Do "Snapjaws, Mon!" (77.4, 86.5): Katoom the Angler at Revantusk Village in the Hinterlands wants you to kill 10 Saltwater Snapjaw...
-07) Do "Cannibalistic Cousins" (47.9, 69.4): Mystic Yayo'jin at Revantusk Village in the Hinterlands wants you to kill 6 Vilebranch Scalpers and...
-08) Do "Kidnapped Elder Torntusk!" (83.5, 16.6): Primal Torntusk at Revantusk Village in the Hinterlands wants you to rescue her mate, Elder...
-09) Turn in "Cannibalistic Cousins" to Mystic Yayo'jin (78.8, 78.2).
-10) Turn in "Lard Lost His Lunch" to Lard (78.1, 81.4).
-11) Turn in "Snapjaws, Mon!" to Katoom the Angler (80.3, 81.5).
-12) Turn in "The Final Message to the Wildhammer" to Otho Moji'ko (79.4, 79.1).
-13) Turn in "Separation Anxiety" to Huntsman Markhor (79.2, 79.5).
-14) Turn in "Dark Vessels" to Primal Torntusk (78.2, 81.2).
-15) Turn in "Kidnapped Elder Torntusk!" to Elder Torntusk (83.5, 16.6).
+01) Accept "Find OOX-09/HL!" from the quest giver.
+02) Do "Find OOX-09/HL!" (49.4, 37.7): Take the distress beacon to Oglethorpe's homing robot at the head of the river in the Hinterlands,...
+03) Turn in "Find OOX-09/HL!" to Homing Robot OOX-09/HL (49.4, 37.7).
         ]],
-        image = "Horde_Hinterlands_c05.tga",
+        image = "",
     },
     [184] = {
         step = 184,
@@ -2552,28 +2538,29 @@ SKquests_Horde = {
     },
     [185] = {
         step = 185,
-        title = [[42-47 The Hinterlands — Circuit 7]],
-        objectives = [[01) Accept "Rin'ji's Secret" from Rin'ji's Secret.]],
+        title = [[44-51 The Hinterlands — Circuit 5]],
+        objectives = [[01) Pick up these 7 quests around Mystic Yayo'jin (78.8, 78.2): "Cannibalistic Cousins", "Lard Lost ]],
         text = [[
-01) Accept "Rin'ji's Secret" from Rin'ji's Secret.
-02) Do "Rin'ji's Secret" (73.1, 32.8): Oran Snakewrithe, a well known scholar on matters concerning the Witherbark trolls, may be able to...
-03) KEEP "Rin'ji's Secret" in your log — turn it in later in Undercity (grouped trip).
+01) Pick up these 7 quests around Mystic Yayo'jin (78.8, 78.2): "Cannibalistic Cousins", "Lard Lost His Lunch", "Snapjaws, Mon!", "The Final Message to the Wildhammer", "Separation Anxiety", "Dark Vessels", "Kidnapped Elder Torntusk!".
+02) Do "The Final Message to the Wildhammer" (79.4, 79.1): Otho Moji'ko at Revantusk Village in the Hinterlands wants you to travel to Aerie Peak in the...
+03) Do "Separation Anxiety" (79.2, 79.5): Huntsman Markhor at Revantusk Village in the Hinterlands wants you to recover his twin brother's...
+04) Do "Dark Vessels" (78.2, 81.2): Primal Torntusk at Revantusk Village in the Hinterlands wants you to recover 5 Vessels of Tainted...
+05) Do "Lard Lost His Lunch" (78.1, 81.4): Lard at Revantusk Village in the Hinterlands wants you to find Lard's Lunch. Return to him when...
+06) Do "Snapjaws, Mon!" (77.4, 86.5): Katoom the Angler at Revantusk Village in the Hinterlands wants you to kill 10 Saltwater Snapjaw...
+07) Do "Cannibalistic Cousins" (47.9, 69.4): Mystic Yayo'jin at Revantusk Village in the Hinterlands wants you to kill 6 Vilebranch Scalpers and...
+08) Do "Kidnapped Elder Torntusk!" (83.5, 16.6): Primal Torntusk at Revantusk Village in the Hinterlands wants you to rescue her mate, Elder...
+09) Turn in "Cannibalistic Cousins" to Mystic Yayo'jin (78.8, 78.2).
+10) Turn in "Lard Lost His Lunch" to Lard (78.1, 81.4).
+11) Turn in "Snapjaws, Mon!" to Katoom the Angler (80.3, 81.5).
+12) Turn in "The Final Message to the Wildhammer" to Otho Moji'ko (79.4, 79.1).
+13) Turn in "Separation Anxiety" to Huntsman Markhor (79.2, 79.5).
+14) Turn in "Dark Vessels" to Primal Torntusk (78.2, 81.2).
+15) Turn in "Kidnapped Elder Torntusk!" to Elder Torntusk (83.5, 16.6).
         ]],
-        image = "",
+        image = "Horde_Hinterlands_c05.tga",
     },
     [186] = {
         step = 186,
-        title = [[43-48 The Hinterlands — Circuit 8]],
-        objectives = [[01) Accept "Find OOX-09/HL!" from the quest giver.]],
-        text = [[
-01) Accept "Find OOX-09/HL!" from the quest giver.
-02) Do "Find OOX-09/HL!" (49.4, 37.7): Take the distress beacon to Oglethorpe's homing robot at the head of the river in the Hinterlands,...
-03) Turn in "Find OOX-09/HL!" to Homing Robot OOX-09/HL (49.4, 37.7).
-        ]],
-        image = "",
-    },
-    [187] = {
-        step = 187,
         title = [[44-51 The Hinterlands — Circuit 9]],
         objectives = [[01) Accept "Wanted: Vile Priestess Hexx and Her Minions" from Call to Arms!.]],
         text = [[
@@ -2584,8 +2571,8 @@ SKquests_Horde = {
         ]],
         image = "",
     },
-    [188] = {
-        step = 188,
+    [187] = {
+        step = 187,
         title = [[44-51 The Hinterlands — Circuit 10]],
         objectives = [[01) Accept "Job Opening: Guard Captain of Revantusk Village" from Call to Arms!.]],
         text = [[
@@ -2594,6 +2581,19 @@ SKquests_Horde = {
 03) Turn in "Job Opening: Guard Captain of Revantusk Village" to Primal Torntusk (78.2, 81.2).
         ]],
         image = "",
+    },
+    [188] = {
+        step = 188,
+        title = [[46-51 The Hinterlands — Circuit 4]],
+        objectives = [[01) Pick up these 2 quests around Elder Torntusk (83.5, 16.6): "Recover the Key!", "Return to Primal]],
+        text = [[
+01) Pick up these 2 quests around Elder Torntusk (83.5, 16.6): "Recover the Key!", "Return to Primal Torntusk".
+02) Do "Recover the Key!" (83.5, 16.6): Elder Torntusk at Jintha'alor wants you to kill Hitah'ya the Keeper to get the Shackle Key to his...
+03) Do "Return to Primal Torntusk" (78.2, 81.2): Elder Torntusk at Jintha'alor wants you to return to Primal Torntusk at Revantusk Village with news...
+04) Turn in "Recover the Key!" to Elder Torntusk (83.5, 16.6).
+05) Turn in "Return to Primal Torntusk" to Primal Torntusk (78.2, 81.2).
+        ]],
+        image = "Horde_Hinterlands_c04.tga",
     },
     [189] = {
         step = 189,
@@ -2609,26 +2609,30 @@ SKquests_Horde = {
     },
     [190] = {
         step = 190,
-        title = [[40-60 Tanaris — Circuit 1]],
-        objectives = [[01) Pick up these 7 quests around Rumsen Fizzlebrack (50.4, 26.2): "War at Sea", "Wastewander Justic]],
+        title = [[40-45 Tanaris — Circuit 4]],
+        objectives = [[01) Accept "Ship Schedules" from the quest giver.]],
         text = [[
-01) Pick up these 7 quests around Rumsen Fizzlebrack (50.4, 26.2): "War at Sea", "Wastewander Justice", "More Wastewander Justice", "Water Pouch Bounty", "Water Pouch Bounty", "An Extraordinary Egg", "A Fine Egg".
-02) Do "War at Sea" (50.4, 26.2).
-03) Do "An Extraordinary Egg" (52.4, 26.9).
-04) Do "A Fine Egg" (52.4, 26.9).
-05) Do "Water Pouch Bounty" (52.5, 28.4): Bring 5 Wastewander Water Pouches to Spigot Operator Luglunket in Gadgetzan.
-06) Do "Water Pouch Bounty" (52.5, 28.4).
-07) Do "Wastewander Justice" (63.6, 34.1): Take down 10 Wastewander Bandits and Thieves east of Gadgetzan, then report back to Chief Engineer...
-08) Do "More Wastewander Justice" (63.8, 40.6): Take down 10 Wastewander Shadow Mages, 8 Wastewander Rogues, and 6 Wastewander Assassins for Chief...
-09) Turn in "War at Sea" to Rumsen Fizzlebrack (50.4, 26.2).
-10) Turn in "Wastewander Justice" and "More Wastewander Justice" to Chief Engineer Bilgewhizzle (52.5, 28.5).
-11) Turn in "Water Pouch Bounty" and "Water Pouch Bounty" to Spigot Operator Luglunket (52.5, 28.4).
-12) Turn in "An Extraordinary Egg" and "A Fine Egg" to Curgle Cranklehop (52.4, 26.9).
+01) Accept "Ship Schedules" from the quest giver.
+02) Do "Ship Schedules" (67.1, 23.9): Report the Ship Schedules to an authority in Steamwheedle Port.
+03) Turn in "Ship Schedules" to Security Chief Bilgewhizzle (67.1, 23.9).
         ]],
-        image = "Horde_Tanaris_c01.tga",
+        image = "",
     },
     [191] = {
         step = 191,
+        title = [[40-50 Tanaris — Circuit 3]],
+        objectives = [[01) Pick up these 2 quests around "Sea Wolf" MacKinley (27.8, 77.1): "Stoley's Debt", "Tooga's Quest]],
+        text = [[
+01) Pick up these 2 quests around "Sea Wolf" MacKinley (27.8, 77.1): "Stoley's Debt", "Tooga's Quest".
+02) Do "Tooga's Quest" (66.6, 25.7): Show Tooga the way back to his wife, Torta.
+03) Do "Stoley's Debt" (67.1, 24.0): Speak with Stoley in Steamwheedle Port.
+04) Turn in "Stoley's Debt" to Stoley (67.1, 24.0).
+05) Turn in "Tooga's Quest" to Torta (66.6, 25.7).
+        ]],
+        image = "Horde_Tanaris_c03.tga",
+    },
+    [192] = {
+        step = 192,
         title = [[40-58 Tanaris — Circuit 2]],
         objectives = [[01) Pick up these 6 quests around Yeh'kinya (67.0, 22.4): "Screecher Spirits", "Stoley's Shipment", ]],
         text = [[
@@ -2648,69 +2652,50 @@ SKquests_Horde = {
         ]],
         image = "Horde_Tanaris_c02.tga",
     },
-    [192] = {
-        step = 192,
-        title = [[40-50 Tanaris — Circuit 3]],
-        objectives = [[01) Pick up these 2 quests around "Sea Wolf" MacKinley (27.8, 77.1): "Stoley's Debt", "Tooga's Quest]],
-        text = [[
-01) Pick up these 2 quests around "Sea Wolf" MacKinley (27.8, 77.1): "Stoley's Debt", "Tooga's Quest".
-02) Do "Tooga's Quest" (66.6, 25.7): Show Tooga the way back to his wife, Torta.
-03) Do "Stoley's Debt" (67.1, 24.0): Speak with Stoley in Steamwheedle Port.
-04) Turn in "Stoley's Debt" to Stoley (67.1, 24.0).
-05) Turn in "Tooga's Quest" to Torta (66.6, 25.7).
-        ]],
-        image = "Horde_Tanaris_c03.tga",
-    },
     [193] = {
         step = 193,
-        title = [[40-45 Tanaris — Circuit 4]],
-        objectives = [[01) Accept "Ship Schedules" from the quest giver.]],
+        title = [[40-60 Tanaris — Circuit 1]],
+        objectives = [[01) Pick up these 7 quests around Rumsen Fizzlebrack (50.4, 26.2): "War at Sea", "Wastewander Justic]],
         text = [[
-01) Accept "Ship Schedules" from the quest giver.
-02) Do "Ship Schedules" (67.1, 23.9): Report the Ship Schedules to an authority in Steamwheedle Port.
-03) Turn in "Ship Schedules" to Security Chief Bilgewhizzle (67.1, 23.9).
+01) Pick up these 7 quests around Rumsen Fizzlebrack (50.4, 26.2): "War at Sea", "Wastewander Justice", "More Wastewander Justice", "Water Pouch Bounty", "Water Pouch Bounty", "An Extraordinary Egg", "A Fine Egg".
+02) Do "War at Sea" (50.4, 26.2).
+03) Do "An Extraordinary Egg" (52.4, 26.9).
+04) Do "A Fine Egg" (52.4, 26.9).
+05) Do "Water Pouch Bounty" (52.5, 28.4): Bring 5 Wastewander Water Pouches to Spigot Operator Luglunket in Gadgetzan.
+06) Do "Water Pouch Bounty" (52.5, 28.4).
+07) Do "Wastewander Justice" (63.6, 34.1): Take down 10 Wastewander Bandits and Thieves east of Gadgetzan, then report back to Chief Engineer...
+08) Do "More Wastewander Justice" (63.8, 40.6): Take down 10 Wastewander Shadow Mages, 8 Wastewander Rogues, and 6 Wastewander Assassins for Chief...
+09) Turn in "War at Sea" to Rumsen Fizzlebrack (50.4, 26.2).
+10) Turn in "Wastewander Justice" and "More Wastewander Justice" to Chief Engineer Bilgewhizzle (52.5, 28.5).
+11) Turn in "Water Pouch Bounty" and "Water Pouch Bounty" to Spigot Operator Luglunket (52.5, 28.4).
+12) Turn in "An Extraordinary Egg" and "A Fine Egg" to Curgle Cranklehop (52.4, 26.9).
         ]],
-        image = "",
+        image = "Horde_Tanaris_c01.tga",
     },
     [194] = {
         step = 194,
-        title = [[43-48 Tanaris — Circuit 5]],
-        objectives = [[01) Accept "Rescue OOX-17/TN!" from Homing Robot OOX-17/TN (60.2, 64.7).]],
+        title = [[42-47 Tanaris — Circuit 9]],
+        objectives = [[01) Accept "The Super Egg-O-Matic" from Egg-O-Matic.]],
         text = [[
-01) Accept "Rescue OOX-17/TN!" from Homing Robot OOX-17/TN (60.2, 64.7).
-02) Do "Rescue OOX-17/TN!" (28.4, 76.4): Escort OOX-17/TN to safety, then report to Oglethorpe Obnoticus in Booty Bay.
-03) Turn in "Rescue OOX-17/TN!" to Oglethorpe Obnoticus (28.4, 76.4).
+01) Accept "The Super Egg-O-Matic" from Egg-O-Matic.
+02) Do "The Super Egg-O-Matic".
+03) Turn in "The Super Egg-O-Matic" to Egg-O-Matic.
         ]],
-        image = "Horde_Tanaris_c05.tga",
+        image = "",
     },
     [195] = {
         step = 195,
-        title = [[43-51 Tanaris — Circuit 6]],
-        objectives = [[01) Pick up these 2 quests around Marvon Rivetseeker (52.7, 45.9): "Gahz'ridian", "The Stone Circle"]],
+        title = [[42-47 Tanaris — Circuit 10]],
+        objectives = [[01) Accept "The Super Egg-O-Matic" from Egg-O-Matic.]],
         text = [[
-01) Pick up these 2 quests around Marvon Rivetseeker (52.7, 45.9): "Gahz'ridian", "The Stone Circle".
-02) Do "Gahz'ridian" (52.7, 45.9): Marvon Rivetseeker in Tanaris wants you to collect 30 Gahz'ridian Ornaments.
-03) Do "The Stone Circle" (52.7, 45.9): Retrieve the Stone Circle from Marvon Rivetseeker's workshop in Ratchet.
-04) Turn in "Gahz'ridian" and "The Stone Circle" to Marvon Rivetseeker (52.7, 45.9).
+01) Accept "The Super Egg-O-Matic" from Egg-O-Matic.
+02) Do "The Super Egg-O-Matic".
+03) Turn in "The Super Egg-O-Matic" to Egg-O-Matic.
         ]],
-        image = "Horde_Tanaris_c06.tga",
+        image = "",
     },
     [196] = {
         step = 196,
-        title = [[44-54 Tanaris — Circuit 7]],
-        objectives = [[01) Pick up these 3 quests around Andi Lynn (52.8, 27.4): "The Dunemaul Compound", "Thistleshrub Val]],
-        text = [[
-01) Pick up these 3 quests around Andi Lynn (52.8, 27.4): "The Dunemaul Compound", "Thistleshrub Valley", "Super Sticky".
-02) Do "Super Sticky" (51.6, 26.8): Collect 12 samples of Super Sticky Tar for Tran'rek in Gadgetzan.
-03) Do "The Dunemaul Compound" (40.9, 69.1): Andi Lynn in Gadgetzan wants you to destroy the Dunemaul Compound by killing 10 Dunemaul Brutes, 10...
-04) Do "Thistleshrub Valley" (28.8, 68.8): Tran'rek in Gadgetzan wants you to kill 8 Gnarled Thistleshrubs and 8 Thistleshrub Rootshapers.
-05) Turn in "The Dunemaul Compound" to Andi Lynn (52.8, 27.4).
-06) Turn in "Thistleshrub Valley" and "Super Sticky" to Tran'rek (51.6, 26.8).
-        ]],
-        image = "Horde_Tanaris_c07.tga",
-    },
-    [197] = {
-        step = 197,
         title = [[42-60 Tanaris — Circuit 8]],
         objectives = [[01) Pick up these 7 quests around Curgle Cranklehop (52.4, 26.9): "An Ordinary Egg", "A Bad Egg", "T]],
         text = [[
@@ -2728,30 +2713,19 @@ SKquests_Horde = {
         ]],
         image = "Horde_Tanaris_c08.tga",
     },
+    [197] = {
+        step = 197,
+        title = [[43-48 Tanaris — Circuit 5]],
+        objectives = [[01) Accept "Rescue OOX-17/TN!" from Homing Robot OOX-17/TN (60.2, 64.7).]],
+        text = [[
+01) Accept "Rescue OOX-17/TN!" from Homing Robot OOX-17/TN (60.2, 64.7).
+02) Do "Rescue OOX-17/TN!" (28.4, 76.4): Escort OOX-17/TN to safety, then report to Oglethorpe Obnoticus in Booty Bay.
+03) Turn in "Rescue OOX-17/TN!" to Oglethorpe Obnoticus (28.4, 76.4).
+        ]],
+        image = "Horde_Tanaris_c05.tga",
+    },
     [198] = {
         step = 198,
-        title = [[42-47 Tanaris — Circuit 9]],
-        objectives = [[01) Accept "The Super Egg-O-Matic" from Egg-O-Matic.]],
-        text = [[
-01) Accept "The Super Egg-O-Matic" from Egg-O-Matic.
-02) Do "The Super Egg-O-Matic".
-03) Turn in "The Super Egg-O-Matic" to Egg-O-Matic.
-        ]],
-        image = "",
-    },
-    [199] = {
-        step = 199,
-        title = [[42-47 Tanaris — Circuit 10]],
-        objectives = [[01) Accept "The Super Egg-O-Matic" from Egg-O-Matic.]],
-        text = [[
-01) Accept "The Super Egg-O-Matic" from Egg-O-Matic.
-02) Do "The Super Egg-O-Matic".
-03) Turn in "The Super Egg-O-Matic" to Egg-O-Matic.
-        ]],
-        image = "",
-    },
-    [200] = {
-        step = 200,
         title = [[43-48 Tanaris — Circuit 11]],
         objectives = [[01) Accept "Find OOX-17/TN!" from the quest giver.]],
         text = [[
@@ -2760,6 +2734,32 @@ SKquests_Horde = {
 03) Turn in "Find OOX-17/TN!" to Homing Robot OOX-17/TN (60.2, 64.7).
         ]],
         image = "",
+    },
+    [199] = {
+        step = 199,
+        title = [[43-51 Tanaris — Circuit 6]],
+        objectives = [[01) Pick up these 2 quests around Marvon Rivetseeker (52.7, 45.9): "Gahz'ridian", "The Stone Circle"]],
+        text = [[
+01) Pick up these 2 quests around Marvon Rivetseeker (52.7, 45.9): "Gahz'ridian", "The Stone Circle".
+02) Do "Gahz'ridian" (52.7, 45.9): Marvon Rivetseeker in Tanaris wants you to collect 30 Gahz'ridian Ornaments.
+03) Do "The Stone Circle" (52.7, 45.9): Retrieve the Stone Circle from Marvon Rivetseeker's workshop in Ratchet.
+04) Turn in "Gahz'ridian" and "The Stone Circle" to Marvon Rivetseeker (52.7, 45.9).
+        ]],
+        image = "Horde_Tanaris_c06.tga",
+    },
+    [200] = {
+        step = 200,
+        title = [[44-54 Tanaris — Circuit 7]],
+        objectives = [[01) Pick up these 3 quests around Andi Lynn (52.8, 27.4): "The Dunemaul Compound", "Thistleshrub Val]],
+        text = [[
+01) Pick up these 3 quests around Andi Lynn (52.8, 27.4): "The Dunemaul Compound", "Thistleshrub Valley", "Super Sticky".
+02) Do "Super Sticky" (51.6, 26.8): Collect 12 samples of Super Sticky Tar for Tran'rek in Gadgetzan.
+03) Do "The Dunemaul Compound" (40.9, 69.1): Andi Lynn in Gadgetzan wants you to destroy the Dunemaul Compound by killing 10 Dunemaul Brutes, 10...
+04) Do "Thistleshrub Valley" (28.8, 68.8): Tran'rek in Gadgetzan wants you to kill 8 Gnarled Thistleshrubs and 8 Thistleshrub Rootshapers.
+05) Turn in "The Dunemaul Compound" to Andi Lynn (52.8, 27.4).
+06) Turn in "Thistleshrub Valley" and "Super Sticky" to Tran'rek (51.6, 26.8).
+        ]],
+        image = "Horde_Tanaris_c07.tga",
     },
     [201] = {
         step = 201,
@@ -2774,6 +2774,84 @@ SKquests_Horde = {
     },
     [202] = {
         step = 202,
+        title = [[43-45 Searing Gorge — Circuit 3]],
+        objectives = [[01) Accept "Caught!" from Wooden Outhouse.]],
+        text = [[
+01) Accept "Caught!" from Wooden Outhouse.
+02) Do "Caught!": Kill 8 Dark Iron Geologists and bring 15 pieces of Silk Cloth to the person locked in the outhouse...
+03) Turn in "Caught!" to Wooden Outhouse.
+        ]],
+        image = "",
+    },
+    [203] = {
+        step = 203,
+        title = [[43-46 Searing Gorge — Circuit 4]],
+        objectives = [[01) Accept "Ledger from Tanaris" from Wooden Outhouse.]],
+        text = [[
+01) Accept "Ledger from Tanaris" from Wooden Outhouse.
+02) Do "Ledger from Tanaris" (51.5, 28.8): Take the copy of Goodsteel's Ledger and then find the items listed in it before seeking Krinkle...
+03) Turn in "Ledger from Tanaris" to Krinkle Goodsteel (51.5, 28.8).
+        ]],
+        image = "",
+    },
+    [204] = {
+        step = 204,
+        title = [[43-47 Searing Gorge — Circuit 5]],
+        objectives = [[01) Accept "The Key to Freedom" from the quest giver.]],
+        text = [[
+01) Accept "The Key to Freedom" from the quest giver.
+02) Do "The Key to Freedom": Search Searing Gorge and find a use for the Grimesilt Outhouse Key you have found.
+03) Turn in "The Key to Freedom" to Wooden Outhouse.
+        ]],
+        image = "",
+    },
+    [205] = {
+        step = 205,
+        title = [[45-48 Searing Gorge — Circuit 6]],
+        objectives = [[01) Accept "STOLEN: Smithing Tuyere and Lookout's Spyglass" from Wanted/Missing/Lost & Found.]],
+        text = [[
+01) Accept "STOLEN: Smithing Tuyere and Lookout's Spyglass" from Wanted/Missing/Lost & Found.
+02) Do "STOLEN: Smithing Tuyere and Lookout's Spyglass" (39.0, 27.5): Find and return the Smithing Tuyere and Lookout's Spyglass to Taskmaster Scrange in the Searing...
+03) Turn in "STOLEN: Smithing Tuyere and Lookout's Spyglass" to Taskmaster Scrange (39.0, 27.5).
+        ]],
+        image = "",
+    },
+    [206] = {
+        step = 206,
+        title = [[45-48 Searing Gorge — Circuit 7]],
+        objectives = [[01) Accept "JOB OPPORTUNITY: Culling the Competition" from Wanted/Missing/Lost & Found.]],
+        text = [[
+01) Accept "JOB OPPORTUNITY: Culling the Competition" from Wanted/Missing/Lost & Found.
+02) Do "JOB OPPORTUNITY: Culling the Competition" (35.7, 58.2): Slay 15 Dark Iron Taskmasters and 15 Dark Iron Slavers. Return to Taskmaster Scrange in the Searing...
+03) Turn in "JOB OPPORTUNITY: Culling the Competition" to Taskmaster Scrange (39.0, 27.5).
+04) TIP: Bank any [Dark Iron Scraps] you loot here (~18% drop) — needed for "Binding the Dreadnaught" (lvl ~55, Eastern Plaguelands).
+        ]],
+        image = "",
+    },
+    [207] = {
+        step = 207,
+        title = [[45-50 Searing Gorge — Circuit 8]],
+        objectives = [[01) Accept "WANTED: Overseer Maltorius" from Wanted/Missing/Lost & Found.]],
+        text = [[
+01) Accept "WANTED: Overseer Maltorius" from Wanted/Missing/Lost & Found.
+02) Do "WANTED: Overseer Maltorius" (37.7, 26.6): Deep within the Slag Pit of the Cauldron, in the Searing Gorge, you will find the traitorous Dark...
+03) Turn in "WANTED: Overseer Maltorius" to Lookout Captain Lolo Longstriker (37.7, 26.6).
+        ]],
+        image = "",
+    },
+    [208] = {
+        step = 208,
+        title = [[45-50 Searing Gorge — Circuit 9]],
+        objectives = [[01) Accept "Look at the Size of It!" from the quest giver.]],
+        text = [[
+01) Accept "Look at the Size of It!" from the quest giver.
+02) Do "Look at the Size of It!" (38.4, 27.7): Take Chambermaid Pillaclencher's Pillow to Evonice Sootsmoker in the Searing Gorge.
+03) Turn in "Look at the Size of It!" to Evonice Sootsmoker (38.4, 27.7).
+        ]],
+        image = "",
+    },
+    [209] = {
+        step = 209,
         title = [[45-60 Searing Gorge — Circuit 1]],
         objectives = [[01) Pick up these 2 quests around Master Smith Burninate (38.8, 28.5): "Restoring Fiery Flux Supplie]],
         text = [[
@@ -2784,8 +2862,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_SearingGorge_c01.tga",
     },
-    [203] = {
-        step = 203,
+    [210] = {
+        step = 210,
         title = [[45-60 Searing Gorge — Circuit 2]],
         objectives = [[01) Pick up these 7 quests around Hansel Heavyhands (38.6, 27.8): "Curse These Fat Fingers", "Fiery ]],
         text = [[
@@ -2803,100 +2881,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_SearingGorge_c02.tga",
     },
-    [204] = {
-        step = 204,
-        title = [[43-45 Searing Gorge — Circuit 3]],
-        objectives = [[01) Accept "Caught!" from Wooden Outhouse.]],
-        text = [[
-01) Accept "Caught!" from Wooden Outhouse.
-02) Do "Caught!": Kill 8 Dark Iron Geologists and bring 15 pieces of Silk Cloth to the person locked in the outhouse...
-03) Turn in "Caught!" to Wooden Outhouse.
-        ]],
-        image = "",
-    },
-    [205] = {
-        step = 205,
-        title = [[43-46 Searing Gorge — Circuit 4]],
-        objectives = [[01) Accept "Ledger from Tanaris" from Wooden Outhouse.]],
-        text = [[
-01) Accept "Ledger from Tanaris" from Wooden Outhouse.
-02) Do "Ledger from Tanaris" (51.5, 28.8): Take the copy of Goodsteel's Ledger and then find the items listed in it before seeking Krinkle...
-03) Turn in "Ledger from Tanaris" to Krinkle Goodsteel (51.5, 28.8).
-        ]],
-        image = "",
-    },
-    [206] = {
-        step = 206,
-        title = [[43-47 Searing Gorge — Circuit 5]],
-        objectives = [[01) Accept "The Key to Freedom" from the quest giver.]],
-        text = [[
-01) Accept "The Key to Freedom" from the quest giver.
-02) Do "The Key to Freedom": Search Searing Gorge and find a use for the Grimesilt Outhouse Key you have found.
-03) Turn in "The Key to Freedom" to Wooden Outhouse.
-        ]],
-        image = "",
-    },
-    [207] = {
-        step = 207,
-        title = [[45-48 Searing Gorge — Circuit 6]],
-        objectives = [[01) Accept "STOLEN: Smithing Tuyere and Lookout's Spyglass" from Wanted/Missing/Lost & Found.]],
-        text = [[
-01) Accept "STOLEN: Smithing Tuyere and Lookout's Spyglass" from Wanted/Missing/Lost & Found.
-02) Do "STOLEN: Smithing Tuyere and Lookout's Spyglass" (39.0, 27.5): Find and return the Smithing Tuyere and Lookout's Spyglass to Taskmaster Scrange in the Searing...
-03) Turn in "STOLEN: Smithing Tuyere and Lookout's Spyglass" to Taskmaster Scrange (39.0, 27.5).
-        ]],
-        image = "",
-    },
-    [208] = {
-        step = 208,
-        title = [[45-48 Searing Gorge — Circuit 7]],
-        objectives = [[01) Accept "JOB OPPORTUNITY: Culling the Competition" from Wanted/Missing/Lost & Found.]],
-        text = [[
-01) Accept "JOB OPPORTUNITY: Culling the Competition" from Wanted/Missing/Lost & Found.
-02) Do "JOB OPPORTUNITY: Culling the Competition" (35.7, 58.2): Slay 15 Dark Iron Taskmasters and 15 Dark Iron Slavers. Return to Taskmaster Scrange in the Searing...
-03) Turn in "JOB OPPORTUNITY: Culling the Competition" to Taskmaster Scrange (39.0, 27.5).
-04) TIP: Bank any [Dark Iron Scraps] you loot here (~18% drop) — needed for "Binding the Dreadnaught" (lvl ~55, Eastern Plaguelands).
-        ]],
-        image = "",
-    },
-    [209] = {
-        step = 209,
-        title = [[45-50 Searing Gorge — Circuit 8]],
-        objectives = [[01) Accept "WANTED: Overseer Maltorius" from Wanted/Missing/Lost & Found.]],
-        text = [[
-01) Accept "WANTED: Overseer Maltorius" from Wanted/Missing/Lost & Found.
-02) Do "WANTED: Overseer Maltorius" (37.7, 26.6): Deep within the Slag Pit of the Cauldron, in the Searing Gorge, you will find the traitorous Dark...
-03) Turn in "WANTED: Overseer Maltorius" to Lookout Captain Lolo Longstriker (37.7, 26.6).
-        ]],
-        image = "",
-    },
-    [210] = {
-        step = 210,
-        title = [[45-50 Searing Gorge — Circuit 9]],
-        objectives = [[01) Accept "Look at the Size of It!" from the quest giver.]],
-        text = [[
-01) Accept "Look at the Size of It!" from the quest giver.
-02) Do "Look at the Size of It!" (38.4, 27.7): Take Chambermaid Pillaclencher's Pillow to Evonice Sootsmoker in the Searing Gorge.
-03) Turn in "Look at the Size of It!" to Evonice Sootsmoker (38.4, 27.7).
-        ]],
-        image = "",
-    },
     [211] = {
         step = 211,
-        title = [[45-55 Blasted Lands — Circuit 1]],
-        objectives = [[01) Pick up these 4 quests around Kum'isha the Collector (52.0, 35.6): "To Serve Kum'isha", "Kum'ish]],
-        text = [[
-01) Pick up these 4 quests around Kum'isha the Collector (52.0, 35.6): "To Serve Kum'isha", "Kum'isha's Endeavors", "Everything Counts In Large Amounts", "One Draenei's Junk...".
-02) Do "To Serve Kum'isha" (52.0, 35.6): In your journeys throughout the Blasted Lands, should you ever come across a Flawless Draenethyst...
-03) Do "Kum'isha's Endeavors" (52.0, 35.6): Find and return a Flawless Draenethyst Sphere to Kum'isha the Collector.
-04) Do "Everything Counts In Large Amounts" (52.0, 35.6): Bring Kum'isha Imperfect Draenethyst Fragments and be rewarded for each one you turn in.
-05) Do "One Draenei's Junk..." (52.0, 35.6): Bring Kum'isha Imperfect Draenethyst Fragments. Any form of monster in the Blasted Lands could be...
-06) Turn in "To Serve Kum'isha" and "Kum'isha's Endeavors" and "Everything Counts In Large Amounts" and "One Draenei's Junk..." to Kum'isha the Collector (52.0, 35.6).
-        ]],
-        image = "",
-    },
-    [212] = {
-        step = 212,
         title = [[45-50 Blasted Lands — Circuit 2]],
         objectives = [[01) Pick up these 3 quests around Bloodmage Lynnore (50.6, 14.3): "Infallible Mind", "Vulture's Vigo]],
         text = [[
@@ -2908,8 +2894,8 @@ SKquests_Horde = {
         ]],
         image = "",
     },
-    [213] = {
-        step = 213,
+    [212] = {
+        step = 212,
         title = [[45-50 Blasted Lands — Circuit 3]],
         objectives = [[01) Pick up these 7 quests around Bloodmage Drazial (50.6, 14.2): "Snickerfang Jowls", "Rage of Ages]],
         text = [[
@@ -2926,8 +2912,33 @@ SKquests_Horde = {
         ]],
         image = "",
     },
+    [213] = {
+        step = 213,
+        title = [[45-55 Blasted Lands — Circuit 1]],
+        objectives = [[01) Pick up these 4 quests around Kum'isha the Collector (52.0, 35.6): "To Serve Kum'isha", "Kum'ish]],
+        text = [[
+01) Pick up these 4 quests around Kum'isha the Collector (52.0, 35.6): "To Serve Kum'isha", "Kum'isha's Endeavors", "Everything Counts In Large Amounts", "One Draenei's Junk...".
+02) Do "To Serve Kum'isha" (52.0, 35.6): In your journeys throughout the Blasted Lands, should you ever come across a Flawless Draenethyst...
+03) Do "Kum'isha's Endeavors" (52.0, 35.6): Find and return a Flawless Draenethyst Sphere to Kum'isha the Collector.
+04) Do "Everything Counts In Large Amounts" (52.0, 35.6): Bring Kum'isha Imperfect Draenethyst Fragments and be rewarded for each one you turn in.
+05) Do "One Draenei's Junk..." (52.0, 35.6): Bring Kum'isha Imperfect Draenethyst Fragments. Any form of monster in the Blasted Lands could be...
+06) Turn in "To Serve Kum'isha" and "Kum'isha's Endeavors" and "Everything Counts In Large Amounts" and "One Draenei's Junk..." to Kum'isha the Collector (52.0, 35.6).
+        ]],
+        image = "",
+    },
     [214] = {
         step = 214,
+        title = [[45-57 Blasted Lands — Circuit 6]],
+        objectives = [[01) Accept "Heroes of Old" from Corporal Thund Splithoof.]],
+        text = [[
+01) Accept "Heroes of Old" from Corporal Thund Splithoof.
+02) Do "Heroes of Old": Open the chest and claim your reward.
+03) Turn in "Heroes of Old" to Corporal Thund Splithoof.
+        ]],
+        image = "",
+    },
+    [215] = {
+        step = 215,
         title = [[45-60 Blasted Lands — Circuit 4]],
         objectives = [[01) Pick up these 7 quests around Fallen Hero of the Horde (34.3, 66.1): "The Disgraced One", "Fall ]],
         text = [[
@@ -2948,8 +2959,8 @@ SKquests_Horde = {
         ]],
         image = "",
     },
-    [215] = {
-        step = 215,
+    [216] = {
+        step = 216,
         title = [[45-60 Blasted Lands — Circuit 5]],
         objectives = [[01) Pick up these 2 quests around Fallen Hero of the Horde (34.3, 66.1): "Uniting the Shattered Amul]],
         text = [[
@@ -2957,17 +2968,6 @@ SKquests_Horde = {
 02) Do "Uniting the Shattered Amulet" (34.3, 66.1): Slay Grol the Destroyer, Lady Sevine, and Archmage Allistarj. From their corpses take the Amulet of...
 03) Do "You Are Rakh'likh, Demon" (34.3, 66.1): Destroy Razelikh the Defiler and return the Severed Horn of the Defiler to the Fallen Hero of the...
 04) Turn in "Uniting the Shattered Amulet" and "You Are Rakh'likh, Demon" to Fallen Hero of the Horde (34.3, 66.1).
-        ]],
-        image = "",
-    },
-    [216] = {
-        step = 216,
-        title = [[45-57 Blasted Lands — Circuit 6]],
-        objectives = [[01) Accept "Heroes of Old" from Corporal Thund Splithoof.]],
-        text = [[
-01) Accept "Heroes of Old" from Corporal Thund Splithoof.
-02) Do "Heroes of Old": Open the chest and claim your reward.
-03) Turn in "Heroes of Old" to Corporal Thund Splithoof.
         ]],
         image = "",
     },
@@ -2984,28 +2984,17 @@ SKquests_Horde = {
     },
     [218] = {
         step = 218,
-        title = [[50-55 Un'Goro Crater — Circuit 1]],
-        objectives = [[01) Accept "A Little Help From My Friends" from Ringo (51.9, 49.8).]],
+        title = [[48-50 Un'Goro Crater — Circuit 8]],
+        objectives = [[01) Accept "Williden's Journal" from the quest giver.]],
         text = [[
-01) Accept "A Little Help From My Friends" from Ringo (51.9, 49.8).
-02) Do "A Little Help From My Friends" (43.6, 8.5): Lead Ringo to Spraggle Frock at Marshal's Refuge. If Ringo faints, use Spraggle's Canteen to revive...
-03) Turn in "A Little Help From My Friends" to Spraggle Frock (43.6, 8.5).
+01) Accept "Williden's Journal" from the quest giver.
+02) Do "Williden's Journal" (43.9, 7.1): Return the journal to Williden Marshal somewhere in Un'Goro Crater.
+03) Turn in "Williden's Journal" to Williden Marshal (43.9, 7.1).
         ]],
-        image = "Horde_UnGoro_c01.tga",
+        image = "",
     },
     [219] = {
         step = 219,
-        title = [[49-55 Un'Goro Crater — Circuit 2]],
-        objectives = [[01) Accept "Volcanic Activity" from Liv Rizzlefix (62.4, 38.7).]],
-        text = [[
-01) Accept "Volcanic Activity" from Liv Rizzlefix (62.4, 38.7).
-02) Do "Volcanic Activity" (62.4, 38.7): Collect 9 samples of Un'Goro Ash from the fire elementals around the volcano in Un'Goro Crater, and...
-03) Turn in "Volcanic Activity" to Liv Rizzlefix (62.4, 38.7).
-        ]],
-        image = "Horde_UnGoro_c02.tga",
-    },
-    [220] = {
-        step = 220,
         title = [[48-53 Un'Goro Crater — Circuit 3]],
         objectives = [[01) Pick up these 2 quests around A-Me 01 (67.7, 16.8): "Chasing A-Me 01", "Chasing A-Me 01".]],
         text = [[
@@ -3017,8 +3006,120 @@ SKquests_Horde = {
         ]],
         image = "Horde_UnGoro_c03.tga",
     },
+    [220] = {
+        step = 220,
+        title = [[48-53 Un'Goro Crater — Circuit 7]],
+        objectives = [[01) Pick up these 3 quests around Mor'vek (71.6, 73.9): "Toxic Tolerance", "Venomhide Eggs", "They G]],
+        text = [[
+01) Pick up these 3 quests around Mor'vek (71.6, 73.9): "Toxic Tolerance", "Venomhide Eggs", "They Grow Up So Fast".
+02) Do "Toxic Tolerance" (71.6, 73.9): Mor'vek in Un'goro Crater claims that if you were poisoned by Venomhide Ravasaur blood 20 times,...
+03) Do "Venomhide Eggs" (71.6, 73.9): Bring 4 Venomhide Ravasaur Eggs to Mor'vek in the southeast part of the Marshlands.
+04) Do "They Grow Up So Fast" (71.6, 73.9): Return 20 Venomhide Baby Teeth, the Venomhide Hatchling, 20 Runecloth, 20 Rugged Leather, and 80...
+05) Turn in "Toxic Tolerance" and "Venomhide Eggs" and "They Grow Up So Fast" to Mor'vek (71.6, 73.9).
+        ]],
+        image = "Horde_UnGoro_c07.tga",
+    },
     [221] = {
         step = 221,
+        title = [[48-53 Un'Goro Crater — Circuit 9]],
+        objectives = [[01) Accept "Hungry, Hungry Hatchling" from Venomhide Hatchling.]],
+        text = [[
+01) Accept "Hungry, Hungry Hatchling" from Venomhide Hatchling.
+02) Do "Hungry, Hungry Hatchling": Your Venomhide Hatchling wants you to feed it 15 pieces of Fresh Dinosaur Meat.
+03) Turn in "Hungry, Hungry Hatchling" to Venomhide Hatchling.
+        ]],
+        image = "",
+    },
+    [222] = {
+        step = 222,
+        title = [[48-53 Un'Goro Crater — Circuit 10]],
+        objectives = [[01) Accept "Gorishi Grub" from Venomhide Hatchling.]],
+        text = [[
+01) Accept "Gorishi Grub" from Venomhide Hatchling.
+02) Do "Gorishi Grub": Your Venomhide Hatchling wants you to feed it 10 Silithid Meat.
+03) Turn in "Gorishi Grub" to Venomhide Hatchling.
+        ]],
+        image = "",
+    },
+    [223] = {
+        step = 223,
+        title = [[48-53 Un'Goro Crater — Circuit 11]],
+        objectives = [[01) Accept "Poached, Scrambled, Or Raw?" from Venomhide Hatchling.]],
+        text = [[
+01) Accept "Poached, Scrambled, Or Raw?" from Venomhide Hatchling.
+02) Do "Poached, Scrambled, Or Raw?": Your Venomhide Hatchling wants you to feed it 12 Silithid Eggs.
+03) Turn in "Poached, Scrambled, Or Raw?" to Venomhide Hatchling.
+        ]],
+        image = "",
+    },
+    [224] = {
+        step = 224,
+        title = [[48-53 Un'Goro Crater — Circuit 12]],
+        objectives = [[01) Accept "Searing Roc Feathers" from Venomhide Hatchling.]],
+        text = [[
+01) Accept "Searing Roc Feathers" from Venomhide Hatchling.
+02) Do "Searing Roc Feathers": Your Venomhide Hatchling wants you to get 5 pieces of Searing Roc Plumage.
+03) Turn in "Searing Roc Feathers" to Venomhide Hatchling.
+        ]],
+        image = "",
+    },
+    [225] = {
+        step = 225,
+        title = [[48-53 Un'Goro Crater — Circuit 13]],
+        objectives = [[01) Accept "Gearing Up To Ride" from the quest giver.]],
+        text = [[
+01) Accept "Gearing Up To Ride" from the quest giver.
+02) Do "Gearing Up To Ride": Bring 20 Rugged Leather, 20 Runecloth, and 80 gold to Mor'vek in the southeast part of the...
+03) Turn in "Gearing Up To Ride" to the quest giver.
+        ]],
+        image = "",
+    },
+    [226] = {
+        step = 226,
+        title = [[48-53 Un'Goro Crater — Circuit 14]],
+        objectives = [[01) Accept "Searing Roc Feathers" from Venomhide Hatchling.]],
+        text = [[
+01) Accept "Searing Roc Feathers" from Venomhide Hatchling.
+02) Do "Searing Roc Feathers": Your Venomhide Hatchling wants you to get 5 pieces of Searing Roc Plumage.
+03) Turn in "Searing Roc Feathers" to Venomhide Hatchling.
+        ]],
+        image = "",
+    },
+    [227] = {
+        step = 227,
+        title = [[48-53 Un'Goro Crater — Circuit 15]],
+        objectives = [[01) Accept "Hungry, Hungry Hatchling" from Venomhide Hatchling.]],
+        text = [[
+01) Accept "Hungry, Hungry Hatchling" from Venomhide Hatchling.
+02) Do "Hungry, Hungry Hatchling": Your Venomhide Hatchling wants you to feed it 15 pieces of Fresh Dinosaur Meat.
+03) Turn in "Hungry, Hungry Hatchling" to Venomhide Hatchling.
+        ]],
+        image = "",
+    },
+    [228] = {
+        step = 228,
+        title = [[48-53 Un'Goro Crater — Circuit 16]],
+        objectives = [[01) Accept "Poached, Scrambled, Or Raw?" from Venomhide Hatchling.]],
+        text = [[
+01) Accept "Poached, Scrambled, Or Raw?" from Venomhide Hatchling.
+02) Do "Poached, Scrambled, Or Raw?": Your Venomhide Hatchling wants you to feed it 12 Silithid Eggs.
+03) Turn in "Poached, Scrambled, Or Raw?" to Venomhide Hatchling.
+        ]],
+        image = "",
+    },
+    [229] = {
+        step = 229,
+        title = [[48-53 Un'Goro Crater — Circuit 17]],
+        objectives = [[01) Accept "Gorishi Grub" from Venomhide Hatchling.]],
+        text = [[
+01) Accept "Gorishi Grub" from Venomhide Hatchling.
+02) Do "Gorishi Grub": Your Venomhide Hatchling wants you to feed it 10 Silithid Meat.
+03) Turn in "Gorishi Grub" to Venomhide Hatchling.
+        ]],
+        image = "",
+    },
+    [230] = {
+        step = 230,
         title = [[48-55 Un'Goro Crater — Circuit 4]],
         objectives = [[01) Pick up these 6 quests around Hol'anyee Marshal (43.9, 7.2): "Alien Ecology", "Expedition Salvat]],
         text = [[
@@ -3038,8 +3139,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_UnGoro_c04.tga",
     },
-    [222] = {
-        step = 222,
+    [231] = {
+        step = 231,
         title = [[48-56 Un'Goro Crater — Circuit 5]],
         objectives = [[01) Pick up these 4 quests around Torwa Pathfinder (27.5, 42.7): "The Fare of Lar'korwi", "The Scent]],
         text = [[
@@ -3052,8 +3153,30 @@ SKquests_Horde = {
         ]],
         image = "Horde_UnGoro_c05.tga",
     },
-    [223] = {
-        step = 223,
+    [232] = {
+        step = 232,
+        title = [[49-55 Un'Goro Crater — Circuit 2]],
+        objectives = [[01) Accept "Volcanic Activity" from Liv Rizzlefix (62.4, 38.7).]],
+        text = [[
+01) Accept "Volcanic Activity" from Liv Rizzlefix (62.4, 38.7).
+02) Do "Volcanic Activity" (62.4, 38.7): Collect 9 samples of Un'Goro Ash from the fire elementals around the volcano in Un'Goro Crater, and...
+03) Turn in "Volcanic Activity" to Liv Rizzlefix (62.4, 38.7).
+        ]],
+        image = "Horde_UnGoro_c02.tga",
+    },
+    [233] = {
+        step = 233,
+        title = [[50-55 Un'Goro Crater — Circuit 1]],
+        objectives = [[01) Accept "A Little Help From My Friends" from Ringo (51.9, 49.8).]],
+        text = [[
+01) Accept "A Little Help From My Friends" from Ringo (51.9, 49.8).
+02) Do "A Little Help From My Friends" (43.6, 8.5): Lead Ringo to Spraggle Frock at Marshal's Refuge. If Ringo faints, use Spraggle's Canteen to revive...
+03) Turn in "A Little Help From My Friends" to Spraggle Frock (43.6, 8.5).
+        ]],
+        image = "Horde_UnGoro_c01.tga",
+    },
+    [234] = {
+        step = 234,
         title = [[51-55 Un'Goro Crater — Circuit 6]],
         objectives = [[01) Pick up these 2 quests around Krakle (30.9, 50.4): "Finding the Source", "The New Springs".]],
         text = [[
@@ -3065,160 +3188,19 @@ SKquests_Horde = {
         ]],
         image = "Horde_UnGoro_c06.tga",
     },
-    [224] = {
-        step = 224,
-        title = [[48-53 Un'Goro Crater — Circuit 7]],
-        objectives = [[01) Pick up these 3 quests around Mor'vek (71.6, 73.9): "Toxic Tolerance", "Venomhide Eggs", "They G]],
-        text = [[
-01) Pick up these 3 quests around Mor'vek (71.6, 73.9): "Toxic Tolerance", "Venomhide Eggs", "They Grow Up So Fast".
-02) Do "Toxic Tolerance" (71.6, 73.9): Mor'vek in Un'goro Crater claims that if you were poisoned by Venomhide Ravasaur blood 20 times,...
-03) Do "Venomhide Eggs" (71.6, 73.9): Bring 4 Venomhide Ravasaur Eggs to Mor'vek in the southeast part of the Marshlands.
-04) Do "They Grow Up So Fast" (71.6, 73.9): Return 20 Venomhide Baby Teeth, the Venomhide Hatchling, 20 Runecloth, 20 Rugged Leather, and 80...
-05) Turn in "Toxic Tolerance" and "Venomhide Eggs" and "They Grow Up So Fast" to Mor'vek (71.6, 73.9).
-        ]],
-        image = "Horde_UnGoro_c07.tga",
-    },
-    [225] = {
-        step = 225,
-        title = [[48-50 Un'Goro Crater — Circuit 8]],
-        objectives = [[01) Accept "Williden's Journal" from the quest giver.]],
-        text = [[
-01) Accept "Williden's Journal" from the quest giver.
-02) Do "Williden's Journal" (43.9, 7.1): Return the journal to Williden Marshal somewhere in Un'Goro Crater.
-03) Turn in "Williden's Journal" to Williden Marshal (43.9, 7.1).
-        ]],
-        image = "",
-    },
-    [226] = {
-        step = 226,
-        title = [[48-53 Un'Goro Crater — Circuit 9]],
-        objectives = [[01) Accept "Hungry, Hungry Hatchling" from Venomhide Hatchling.]],
-        text = [[
-01) Accept "Hungry, Hungry Hatchling" from Venomhide Hatchling.
-02) Do "Hungry, Hungry Hatchling": Your Venomhide Hatchling wants you to feed it 15 pieces of Fresh Dinosaur Meat.
-03) Turn in "Hungry, Hungry Hatchling" to Venomhide Hatchling.
-        ]],
-        image = "",
-    },
-    [227] = {
-        step = 227,
-        title = [[48-53 Un'Goro Crater — Circuit 10]],
-        objectives = [[01) Accept "Gorishi Grub" from Venomhide Hatchling.]],
-        text = [[
-01) Accept "Gorishi Grub" from Venomhide Hatchling.
-02) Do "Gorishi Grub": Your Venomhide Hatchling wants you to feed it 10 Silithid Meat.
-03) Turn in "Gorishi Grub" to Venomhide Hatchling.
-        ]],
-        image = "",
-    },
-    [228] = {
-        step = 228,
-        title = [[48-53 Un'Goro Crater — Circuit 11]],
-        objectives = [[01) Accept "Poached, Scrambled, Or Raw?" from Venomhide Hatchling.]],
-        text = [[
-01) Accept "Poached, Scrambled, Or Raw?" from Venomhide Hatchling.
-02) Do "Poached, Scrambled, Or Raw?": Your Venomhide Hatchling wants you to feed it 12 Silithid Eggs.
-03) Turn in "Poached, Scrambled, Or Raw?" to Venomhide Hatchling.
-        ]],
-        image = "",
-    },
-    [229] = {
-        step = 229,
-        title = [[48-53 Un'Goro Crater — Circuit 12]],
-        objectives = [[01) Accept "Searing Roc Feathers" from Venomhide Hatchling.]],
-        text = [[
-01) Accept "Searing Roc Feathers" from Venomhide Hatchling.
-02) Do "Searing Roc Feathers": Your Venomhide Hatchling wants you to get 5 pieces of Searing Roc Plumage.
-03) Turn in "Searing Roc Feathers" to Venomhide Hatchling.
-        ]],
-        image = "",
-    },
-    [230] = {
-        step = 230,
-        title = [[48-53 Un'Goro Crater — Circuit 13]],
-        objectives = [[01) Accept "Gearing Up To Ride" from the quest giver.]],
-        text = [[
-01) Accept "Gearing Up To Ride" from the quest giver.
-02) Do "Gearing Up To Ride": Bring 20 Rugged Leather, 20 Runecloth, and 80 gold to Mor'vek in the southeast part of the...
-03) Turn in "Gearing Up To Ride" to the quest giver.
-        ]],
-        image = "",
-    },
-    [231] = {
-        step = 231,
-        title = [[48-53 Un'Goro Crater — Circuit 14]],
-        objectives = [[01) Accept "Searing Roc Feathers" from Venomhide Hatchling.]],
-        text = [[
-01) Accept "Searing Roc Feathers" from Venomhide Hatchling.
-02) Do "Searing Roc Feathers": Your Venomhide Hatchling wants you to get 5 pieces of Searing Roc Plumage.
-03) Turn in "Searing Roc Feathers" to Venomhide Hatchling.
-        ]],
-        image = "",
-    },
-    [232] = {
-        step = 232,
-        title = [[48-53 Un'Goro Crater — Circuit 15]],
-        objectives = [[01) Accept "Hungry, Hungry Hatchling" from Venomhide Hatchling.]],
-        text = [[
-01) Accept "Hungry, Hungry Hatchling" from Venomhide Hatchling.
-02) Do "Hungry, Hungry Hatchling": Your Venomhide Hatchling wants you to feed it 15 pieces of Fresh Dinosaur Meat.
-03) Turn in "Hungry, Hungry Hatchling" to Venomhide Hatchling.
-        ]],
-        image = "",
-    },
-    [233] = {
-        step = 233,
-        title = [[48-53 Un'Goro Crater — Circuit 16]],
-        objectives = [[01) Accept "Poached, Scrambled, Or Raw?" from Venomhide Hatchling.]],
-        text = [[
-01) Accept "Poached, Scrambled, Or Raw?" from Venomhide Hatchling.
-02) Do "Poached, Scrambled, Or Raw?": Your Venomhide Hatchling wants you to feed it 12 Silithid Eggs.
-03) Turn in "Poached, Scrambled, Or Raw?" to Venomhide Hatchling.
-        ]],
-        image = "",
-    },
-    [234] = {
-        step = 234,
-        title = [[48-53 Un'Goro Crater — Circuit 17]],
-        objectives = [[01) Accept "Gorishi Grub" from Venomhide Hatchling.]],
-        text = [[
-01) Accept "Gorishi Grub" from Venomhide Hatchling.
-02) Do "Gorishi Grub": Your Venomhide Hatchling wants you to feed it 10 Silithid Meat.
-03) Turn in "Gorishi Grub" to Venomhide Hatchling.
-        ]],
-        image = "",
-    },
     [235] = {
         step = 235,
-        title = [[49-57 Felwood — Circuit 1]],
-        objectives = [[01) Pick up these 2 quests around Captured Arko'narin (36.2, 55.5): "Rescue From Jaedenar", "The Rem]],
+        title = [[48-54 Felwood — Circuit 6]],
+        objectives = [[01) Accept "Cleansed Water Returns to Felwood" from Islen Waterseer (65.8, 43.8).]],
         text = [[
-01) Pick up these 2 quests around Captured Arko'narin (36.2, 55.5): "Rescue From Jaedenar", "The Remains of Trey Lightforge".
-02) Do "Rescue From Jaedenar" (51.3, 82.0): Escort Arko'narin to where Lightforge and her equipment are being held, and then protect her as you...
-03) Do "The Remains of Trey Lightforge" (51.3, 82.0): Return the Remains of Trey Lightforge to Jessir Moonbow in Felwood.
-04) Turn in "Rescue From Jaedenar" and "The Remains of Trey Lightforge" to Jessir Moonbow (51.3, 82.0).
+01) Accept "Cleansed Water Returns to Felwood" from Islen Waterseer (65.8, 43.8).
+02) Do "Cleansed Water Returns to Felwood" (51.2, 82.1): Take the Purified Moon Well Water to Greta Mosshoof in Felwood.
+03) Turn in "Cleansed Water Returns to Felwood" to Greta Mosshoof (51.2, 82.1).
         ]],
-        image = "Horde_Felwood_c01.tga",
+        image = "Horde_Felwood_c06.tga",
     },
     [236] = {
         step = 236,
-        title = [[49-59 Felwood — Circuit 2]],
-        objectives = [[01) Pick up these 5 quests around Winna Hazzard (49.9, 73.4): "Well of Corruption", "Corrupted Saber]],
-        text = [[
-01) Pick up these 5 quests around Winna Hazzard (49.9, 73.4): "Well of Corruption", "Corrupted Sabers", "Wild Guardians", "Wild Guardians", "Wild Guardians".
-02) Do "Well of Corruption" (49.9, 73.4): Collect a sample of corrupted water from the Jadefire Satyrs' moonwell and bring it to Winna...
-03) Do "Corrupted Sabers" (49.9, 73.4): Take Winna's kitten to the corrupted moonwell, release it, then bring it back to Winna. Once you...
-04) Do "Wild Guardians" (50.3, 73.8): Trull Failbane in Felwood wants you to hunt 13 Moontouched Owlbeasts.
-05) Do "Wild Guardians" (50.3, 73.8): Trull Failbane in Felwood wants you to hunt 10 Berserk Owlbeasts in Winterspring.
-06) Do "Wild Guardians" (69.3, 23.1): Trull Failbane in Felwood wants you to kill 15 Raging Owlbeasts and 15 Ragged Owlbeasts.
-07) Turn in "Well of Corruption" and "Corrupted Sabers" to Winna Hazzard (49.9, 73.4).
-08) Turn in "Wild Guardians" and "Wild Guardians" and "Wild Guardians" to Trull Failbane (50.3, 73.8).
-09) TIP: Bank any [Wildkin E'ko] you loot here (~15% drop) — needed for "Wildkin E'ko" (lvl ~55, Winterspring).
-        ]],
-        image = "Horde_Felwood_c02.tga",
-    },
-    [237] = {
-        step = 237,
         title = [[48-55 Felwood — Circuit 3]],
         objectives = [[01) Pick up these 7 quests around Greta Mosshoof (51.2, 82.1): "Forces of Jaedenar", "Collection of ]],
         text = [[
@@ -3238,8 +3220,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Felwood_c03.tga",
     },
-    [238] = {
-        step = 238,
+    [237] = {
+        step = 237,
         title = [[48-55 Felwood — Circuit 4]],
         objectives = [[01) Pick up these 5 quests around Maybess Riverbreeze (46.7, 83.1): "Salve via Hunting", "Salve via ]],
         text = [[
@@ -3253,8 +3235,327 @@ SKquests_Horde = {
         ]],
         image = "Horde_Felwood_c04.tga",
     },
+    [238] = {
+        step = 238,
+        title = [[48-55 Felwood — Circuit 8]],
+        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
+        text = [[
+01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
+02) Do "Corrupted Windblossom".
+03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
+        ]],
+        image = "",
+    },
     [239] = {
         step = 239,
+        title = [[48-55 Felwood — Circuit 9]],
+        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
+        text = [[
+01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
+02) Do "Corrupted Windblossom".
+03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
+        ]],
+        image = "",
+    },
+    [240] = {
+        step = 240,
+        title = [[48-55 Felwood — Circuit 10]],
+        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
+        text = [[
+01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
+02) Do "Corrupted Windblossom".
+03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
+        ]],
+        image = "",
+    },
+    [241] = {
+        step = 241,
+        title = [[48-55 Felwood — Circuit 11]],
+        objectives = [[01) Accept "Corrupted Songflower" from Corrupted Songflower.]],
+        text = [[
+01) Accept "Corrupted Songflower" from Corrupted Songflower.
+02) Do "Corrupted Songflower".
+03) Turn in "Corrupted Songflower" to Corrupted Songflower.
+        ]],
+        image = "",
+    },
+    [242] = {
+        step = 242,
+        title = [[48-55 Felwood — Circuit 12]],
+        objectives = [[01) Accept "Corrupted Songflower" from Corrupted Songflower.]],
+        text = [[
+01) Accept "Corrupted Songflower" from Corrupted Songflower.
+02) Do "Corrupted Songflower".
+03) Turn in "Corrupted Songflower" to Corrupted Songflower.
+        ]],
+        image = "",
+    },
+    [243] = {
+        step = 243,
+        title = [[48-55 Felwood — Circuit 13]],
+        objectives = [[01) Accept "Corrupted Songflower" from Corrupted Songflower.]],
+        text = [[
+01) Accept "Corrupted Songflower" from Corrupted Songflower.
+02) Do "Corrupted Songflower".
+03) Turn in "Corrupted Songflower" to Corrupted Songflower.
+        ]],
+        image = "",
+    },
+    [244] = {
+        step = 244,
+        title = [[48-55 Felwood — Circuit 14]],
+        objectives = [[01) Accept "Corrupted Songflower" from Corrupted Songflower.]],
+        text = [[
+01) Accept "Corrupted Songflower" from Corrupted Songflower.
+02) Do "Corrupted Songflower".
+03) Turn in "Corrupted Songflower" to Corrupted Songflower.
+        ]],
+        image = "",
+    },
+    [245] = {
+        step = 245,
+        title = [[48-55 Felwood — Circuit 15]],
+        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
+        text = [[
+01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
+02) Do "Corrupted Windblossom".
+03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
+        ]],
+        image = "",
+    },
+    [246] = {
+        step = 246,
+        title = [[48-55 Felwood — Circuit 16]],
+        objectives = [[01) Accept "Corrupted Songflower" from Corrupted Songflower.]],
+        text = [[
+01) Accept "Corrupted Songflower" from Corrupted Songflower.
+02) Do "Corrupted Songflower".
+03) Turn in "Corrupted Songflower" to Corrupted Songflower.
+        ]],
+        image = "",
+    },
+    [247] = {
+        step = 247,
+        title = [[48-55 Felwood — Circuit 17]],
+        objectives = [[01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.]],
+        text = [[
+01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.
+02) Do "Corrupted Whipper Root".
+03) Turn in "Corrupted Whipper Root" to Corrupted Whipper Root.
+        ]],
+        image = "",
+    },
+    [248] = {
+        step = 248,
+        title = [[48-55 Felwood — Circuit 18]],
+        objectives = [[01) Accept "Corrupted Songflower" from Corrupted Songflower.]],
+        text = [[
+01) Accept "Corrupted Songflower" from Corrupted Songflower.
+02) Do "Corrupted Songflower".
+03) Turn in "Corrupted Songflower" to Corrupted Songflower.
+        ]],
+        image = "",
+    },
+    [249] = {
+        step = 249,
+        title = [[48-55 Felwood — Circuit 19]],
+        objectives = [[01) Accept "Corrupted Night Dragon" from Corrupted Night Dragon.]],
+        text = [[
+01) Accept "Corrupted Night Dragon" from Corrupted Night Dragon.
+02) Do "Corrupted Night Dragon".
+03) Turn in "Corrupted Night Dragon" to Corrupted Night Dragon.
+        ]],
+        image = "",
+    },
+    [250] = {
+        step = 250,
+        title = [[48-55 Felwood — Circuit 20]],
+        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
+        text = [[
+01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
+02) Do "Corrupted Windblossom".
+03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
+        ]],
+        image = "",
+    },
+    [251] = {
+        step = 251,
+        title = [[48-55 Felwood — Circuit 21]],
+        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
+        text = [[
+01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
+02) Do "Corrupted Windblossom".
+03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
+        ]],
+        image = "",
+    },
+    [252] = {
+        step = 252,
+        title = [[48-55 Felwood — Circuit 22]],
+        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
+        text = [[
+01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
+02) Do "Corrupted Windblossom".
+03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
+        ]],
+        image = "",
+    },
+    [253] = {
+        step = 253,
+        title = [[48-55 Felwood — Circuit 23]],
+        objectives = [[01) Accept "Corrupted Songflower" from Corrupted Songflower.]],
+        text = [[
+01) Accept "Corrupted Songflower" from Corrupted Songflower.
+02) Do "Corrupted Songflower".
+03) Turn in "Corrupted Songflower" to Corrupted Songflower.
+        ]],
+        image = "",
+    },
+    [254] = {
+        step = 254,
+        title = [[48-55 Felwood — Circuit 24]],
+        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
+        text = [[
+01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
+02) Do "Corrupted Windblossom".
+03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
+        ]],
+        image = "",
+    },
+    [255] = {
+        step = 255,
+        title = [[48-55 Felwood — Circuit 25]],
+        objectives = [[01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.]],
+        text = [[
+01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.
+02) Do "Corrupted Whipper Root".
+03) Turn in "Corrupted Whipper Root" to Corrupted Whipper Root.
+        ]],
+        image = "",
+    },
+    [256] = {
+        step = 256,
+        title = [[48-55 Felwood — Circuit 26]],
+        objectives = [[01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.]],
+        text = [[
+01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.
+02) Do "Corrupted Whipper Root".
+03) Turn in "Corrupted Whipper Root" to Corrupted Whipper Root.
+        ]],
+        image = "",
+    },
+    [257] = {
+        step = 257,
+        title = [[48-55 Felwood — Circuit 27]],
+        objectives = [[01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.]],
+        text = [[
+01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.
+02) Do "Corrupted Whipper Root".
+03) Turn in "Corrupted Whipper Root" to Corrupted Whipper Root.
+        ]],
+        image = "",
+    },
+    [258] = {
+        step = 258,
+        title = [[48-55 Felwood — Circuit 28]],
+        objectives = [[01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.]],
+        text = [[
+01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.
+02) Do "Corrupted Whipper Root".
+03) Turn in "Corrupted Whipper Root" to Corrupted Whipper Root.
+        ]],
+        image = "",
+    },
+    [259] = {
+        step = 259,
+        title = [[48-55 Felwood — Circuit 29]],
+        objectives = [[01) Accept "Corrupted Night Dragon" from Corrupted Night Dragon.]],
+        text = [[
+01) Accept "Corrupted Night Dragon" from Corrupted Night Dragon.
+02) Do "Corrupted Night Dragon".
+03) Turn in "Corrupted Night Dragon" to Corrupted Night Dragon.
+        ]],
+        image = "",
+    },
+    [260] = {
+        step = 260,
+        title = [[48-55 Felwood — Circuit 30]],
+        objectives = [[01) Accept "Corrupted Night Dragon" from Corrupted Night Dragon.]],
+        text = [[
+01) Accept "Corrupted Night Dragon" from Corrupted Night Dragon.
+02) Do "Corrupted Night Dragon".
+03) Turn in "Corrupted Night Dragon" to Corrupted Night Dragon.
+        ]],
+        image = "",
+    },
+    [261] = {
+        step = 261,
+        title = [[48-55 Felwood — Circuit 31]],
+        objectives = [[01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.]],
+        text = [[
+01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.
+02) Do "Corrupted Whipper Root".
+03) Turn in "Corrupted Whipper Root" to Corrupted Whipper Root.
+        ]],
+        image = "",
+    },
+    [262] = {
+        step = 262,
+        title = [[48-55 Felwood — Circuit 32]],
+        objectives = [[01) Accept "Corrupted Night Dragon" from Corrupted Night Dragon.]],
+        text = [[
+01) Accept "Corrupted Night Dragon" from Corrupted Night Dragon.
+02) Do "Corrupted Night Dragon".
+03) Turn in "Corrupted Night Dragon" to Corrupted Night Dragon.
+        ]],
+        image = "",
+    },
+    [263] = {
+        step = 263,
+        title = [[48-55 Felwood — Circuit 33]],
+        objectives = [[01) Accept "Corrupted Songflower" from Corrupted Songflower.]],
+        text = [[
+01) Accept "Corrupted Songflower" from Corrupted Songflower.
+02) Do "Corrupted Songflower".
+03) Turn in "Corrupted Songflower" to Corrupted Songflower.
+        ]],
+        image = "",
+    },
+    [264] = {
+        step = 264,
+        title = [[48-55 Felwood — Circuit 34]],
+        objectives = [[01) Accept "Corrupted Songflower" from Corrupted Songflower.]],
+        text = [[
+01) Accept "Corrupted Songflower" from Corrupted Songflower.
+02) Do "Corrupted Songflower".
+03) Turn in "Corrupted Songflower" to Corrupted Songflower.
+        ]],
+        image = "",
+    },
+    [265] = {
+        step = 265,
+        title = [[48-55 Felwood — Circuit 35]],
+        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
+        text = [[
+01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
+02) Do "Corrupted Windblossom".
+03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
+        ]],
+        image = "",
+    },
+    [266] = {
+        step = 266,
+        title = [[48-55 Felwood — Circuit 36]],
+        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
+        text = [[
+01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
+02) Do "Corrupted Windblossom".
+03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
+        ]],
+        image = "",
+    },
+    [267] = {
+        step = 267,
         title = [[48-58 Felwood — Circuit 5]],
         objectives = [[01) Pick up these 6 quests around Arathandris Silversky (54.1, 86.8): "Salve via Gathering", "Salve ]],
         text = [[
@@ -3271,349 +3572,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Felwood_c05.tga",
     },
-    [240] = {
-        step = 240,
-        title = [[48-54 Felwood — Circuit 6]],
-        objectives = [[01) Accept "Cleansed Water Returns to Felwood" from Islen Waterseer (65.8, 43.8).]],
-        text = [[
-01) Accept "Cleansed Water Returns to Felwood" from Islen Waterseer (65.8, 43.8).
-02) Do "Cleansed Water Returns to Felwood" (51.2, 82.1): Take the Purified Moon Well Water to Greta Mosshoof in Felwood.
-03) Turn in "Cleansed Water Returns to Felwood" to Greta Mosshoof (51.2, 82.1).
-        ]],
-        image = "Horde_Felwood_c06.tga",
-    },
-    [241] = {
-        step = 241,
-        title = [[50-56 Felwood — Circuit 7]],
-        objectives = [[01) Accept "Beads for Salfa" from Salfa (68.3, 6.1).]],
-        text = [[
-01) Accept "Beads for Salfa" from Salfa (68.3, 6.1).
-02) Do "Beads for Salfa" (68.3, 6.1).
-03) Turn in "Beads for Salfa" to Salfa (68.3, 6.1).
-        ]],
-        image = "Horde_Felwood_c07.tga",
-    },
-    [242] = {
-        step = 242,
-        title = [[48-55 Felwood — Circuit 8]],
-        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
-        text = [[
-01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
-02) Do "Corrupted Windblossom".
-03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
-        ]],
-        image = "",
-    },
-    [243] = {
-        step = 243,
-        title = [[48-55 Felwood — Circuit 9]],
-        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
-        text = [[
-01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
-02) Do "Corrupted Windblossom".
-03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
-        ]],
-        image = "",
-    },
-    [244] = {
-        step = 244,
-        title = [[48-55 Felwood — Circuit 10]],
-        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
-        text = [[
-01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
-02) Do "Corrupted Windblossom".
-03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
-        ]],
-        image = "",
-    },
-    [245] = {
-        step = 245,
-        title = [[48-55 Felwood — Circuit 11]],
-        objectives = [[01) Accept "Corrupted Songflower" from Corrupted Songflower.]],
-        text = [[
-01) Accept "Corrupted Songflower" from Corrupted Songflower.
-02) Do "Corrupted Songflower".
-03) Turn in "Corrupted Songflower" to Corrupted Songflower.
-        ]],
-        image = "",
-    },
-    [246] = {
-        step = 246,
-        title = [[48-55 Felwood — Circuit 12]],
-        objectives = [[01) Accept "Corrupted Songflower" from Corrupted Songflower.]],
-        text = [[
-01) Accept "Corrupted Songflower" from Corrupted Songflower.
-02) Do "Corrupted Songflower".
-03) Turn in "Corrupted Songflower" to Corrupted Songflower.
-        ]],
-        image = "",
-    },
-    [247] = {
-        step = 247,
-        title = [[48-55 Felwood — Circuit 13]],
-        objectives = [[01) Accept "Corrupted Songflower" from Corrupted Songflower.]],
-        text = [[
-01) Accept "Corrupted Songflower" from Corrupted Songflower.
-02) Do "Corrupted Songflower".
-03) Turn in "Corrupted Songflower" to Corrupted Songflower.
-        ]],
-        image = "",
-    },
-    [248] = {
-        step = 248,
-        title = [[48-55 Felwood — Circuit 14]],
-        objectives = [[01) Accept "Corrupted Songflower" from Corrupted Songflower.]],
-        text = [[
-01) Accept "Corrupted Songflower" from Corrupted Songflower.
-02) Do "Corrupted Songflower".
-03) Turn in "Corrupted Songflower" to Corrupted Songflower.
-        ]],
-        image = "",
-    },
-    [249] = {
-        step = 249,
-        title = [[48-55 Felwood — Circuit 15]],
-        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
-        text = [[
-01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
-02) Do "Corrupted Windblossom".
-03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
-        ]],
-        image = "",
-    },
-    [250] = {
-        step = 250,
-        title = [[48-55 Felwood — Circuit 16]],
-        objectives = [[01) Accept "Corrupted Songflower" from Corrupted Songflower.]],
-        text = [[
-01) Accept "Corrupted Songflower" from Corrupted Songflower.
-02) Do "Corrupted Songflower".
-03) Turn in "Corrupted Songflower" to Corrupted Songflower.
-        ]],
-        image = "",
-    },
-    [251] = {
-        step = 251,
-        title = [[48-55 Felwood — Circuit 17]],
-        objectives = [[01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.]],
-        text = [[
-01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.
-02) Do "Corrupted Whipper Root".
-03) Turn in "Corrupted Whipper Root" to Corrupted Whipper Root.
-        ]],
-        image = "",
-    },
-    [252] = {
-        step = 252,
-        title = [[48-55 Felwood — Circuit 18]],
-        objectives = [[01) Accept "Corrupted Songflower" from Corrupted Songflower.]],
-        text = [[
-01) Accept "Corrupted Songflower" from Corrupted Songflower.
-02) Do "Corrupted Songflower".
-03) Turn in "Corrupted Songflower" to Corrupted Songflower.
-        ]],
-        image = "",
-    },
-    [253] = {
-        step = 253,
-        title = [[48-55 Felwood — Circuit 19]],
-        objectives = [[01) Accept "Corrupted Night Dragon" from Corrupted Night Dragon.]],
-        text = [[
-01) Accept "Corrupted Night Dragon" from Corrupted Night Dragon.
-02) Do "Corrupted Night Dragon".
-03) Turn in "Corrupted Night Dragon" to Corrupted Night Dragon.
-        ]],
-        image = "",
-    },
-    [254] = {
-        step = 254,
-        title = [[48-55 Felwood — Circuit 20]],
-        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
-        text = [[
-01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
-02) Do "Corrupted Windblossom".
-03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
-        ]],
-        image = "",
-    },
-    [255] = {
-        step = 255,
-        title = [[48-55 Felwood — Circuit 21]],
-        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
-        text = [[
-01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
-02) Do "Corrupted Windblossom".
-03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
-        ]],
-        image = "",
-    },
-    [256] = {
-        step = 256,
-        title = [[48-55 Felwood — Circuit 22]],
-        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
-        text = [[
-01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
-02) Do "Corrupted Windblossom".
-03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
-        ]],
-        image = "",
-    },
-    [257] = {
-        step = 257,
-        title = [[48-55 Felwood — Circuit 23]],
-        objectives = [[01) Accept "Corrupted Songflower" from Corrupted Songflower.]],
-        text = [[
-01) Accept "Corrupted Songflower" from Corrupted Songflower.
-02) Do "Corrupted Songflower".
-03) Turn in "Corrupted Songflower" to Corrupted Songflower.
-        ]],
-        image = "",
-    },
-    [258] = {
-        step = 258,
-        title = [[48-55 Felwood — Circuit 24]],
-        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
-        text = [[
-01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
-02) Do "Corrupted Windblossom".
-03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
-        ]],
-        image = "",
-    },
-    [259] = {
-        step = 259,
-        title = [[48-55 Felwood — Circuit 25]],
-        objectives = [[01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.]],
-        text = [[
-01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.
-02) Do "Corrupted Whipper Root".
-03) Turn in "Corrupted Whipper Root" to Corrupted Whipper Root.
-        ]],
-        image = "",
-    },
-    [260] = {
-        step = 260,
-        title = [[48-55 Felwood — Circuit 26]],
-        objectives = [[01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.]],
-        text = [[
-01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.
-02) Do "Corrupted Whipper Root".
-03) Turn in "Corrupted Whipper Root" to Corrupted Whipper Root.
-        ]],
-        image = "",
-    },
-    [261] = {
-        step = 261,
-        title = [[48-55 Felwood — Circuit 27]],
-        objectives = [[01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.]],
-        text = [[
-01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.
-02) Do "Corrupted Whipper Root".
-03) Turn in "Corrupted Whipper Root" to Corrupted Whipper Root.
-        ]],
-        image = "",
-    },
-    [262] = {
-        step = 262,
-        title = [[48-55 Felwood — Circuit 28]],
-        objectives = [[01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.]],
-        text = [[
-01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.
-02) Do "Corrupted Whipper Root".
-03) Turn in "Corrupted Whipper Root" to Corrupted Whipper Root.
-        ]],
-        image = "",
-    },
-    [263] = {
-        step = 263,
-        title = [[48-55 Felwood — Circuit 29]],
-        objectives = [[01) Accept "Corrupted Night Dragon" from Corrupted Night Dragon.]],
-        text = [[
-01) Accept "Corrupted Night Dragon" from Corrupted Night Dragon.
-02) Do "Corrupted Night Dragon".
-03) Turn in "Corrupted Night Dragon" to Corrupted Night Dragon.
-        ]],
-        image = "",
-    },
-    [264] = {
-        step = 264,
-        title = [[48-55 Felwood — Circuit 30]],
-        objectives = [[01) Accept "Corrupted Night Dragon" from Corrupted Night Dragon.]],
-        text = [[
-01) Accept "Corrupted Night Dragon" from Corrupted Night Dragon.
-02) Do "Corrupted Night Dragon".
-03) Turn in "Corrupted Night Dragon" to Corrupted Night Dragon.
-        ]],
-        image = "",
-    },
-    [265] = {
-        step = 265,
-        title = [[48-55 Felwood — Circuit 31]],
-        objectives = [[01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.]],
-        text = [[
-01) Accept "Corrupted Whipper Root" from Corrupted Whipper Root.
-02) Do "Corrupted Whipper Root".
-03) Turn in "Corrupted Whipper Root" to Corrupted Whipper Root.
-        ]],
-        image = "",
-    },
-    [266] = {
-        step = 266,
-        title = [[48-55 Felwood — Circuit 32]],
-        objectives = [[01) Accept "Corrupted Night Dragon" from Corrupted Night Dragon.]],
-        text = [[
-01) Accept "Corrupted Night Dragon" from Corrupted Night Dragon.
-02) Do "Corrupted Night Dragon".
-03) Turn in "Corrupted Night Dragon" to Corrupted Night Dragon.
-        ]],
-        image = "",
-    },
-    [267] = {
-        step = 267,
-        title = [[48-55 Felwood — Circuit 33]],
-        objectives = [[01) Accept "Corrupted Songflower" from Corrupted Songflower.]],
-        text = [[
-01) Accept "Corrupted Songflower" from Corrupted Songflower.
-02) Do "Corrupted Songflower".
-03) Turn in "Corrupted Songflower" to Corrupted Songflower.
-        ]],
-        image = "",
-    },
     [268] = {
         step = 268,
-        title = [[48-55 Felwood — Circuit 34]],
-        objectives = [[01) Accept "Corrupted Songflower" from Corrupted Songflower.]],
-        text = [[
-01) Accept "Corrupted Songflower" from Corrupted Songflower.
-02) Do "Corrupted Songflower".
-03) Turn in "Corrupted Songflower" to Corrupted Songflower.
-        ]],
-        image = "",
-    },
-    [269] = {
-        step = 269,
-        title = [[48-55 Felwood — Circuit 35]],
-        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
-        text = [[
-01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
-02) Do "Corrupted Windblossom".
-03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
-        ]],
-        image = "",
-    },
-    [270] = {
-        step = 270,
-        title = [[48-55 Felwood — Circuit 36]],
-        objectives = [[01) Accept "Corrupted Windblossom" from Corrupted Windblossom.]],
-        text = [[
-01) Accept "Corrupted Windblossom" from Corrupted Windblossom.
-02) Do "Corrupted Windblossom".
-03) Turn in "Corrupted Windblossom" to Corrupted Windblossom.
-        ]],
-        image = "",
-    },
-    [271] = {
-        step = 271,
         title = [[49-55 Felwood — Circuit 37]],
         objectives = [[01) Accept "A Strange Red Key" from the quest giver.]],
         text = [[
@@ -3622,6 +3582,46 @@ SKquests_Horde = {
 03) Turn in "A Strange Red Key" to Captured Arko'narin (36.2, 55.5).
         ]],
         image = "",
+    },
+    [269] = {
+        step = 269,
+        title = [[49-57 Felwood — Circuit 1]],
+        objectives = [[01) Pick up these 2 quests around Captured Arko'narin (36.2, 55.5): "Rescue From Jaedenar", "The Rem]],
+        text = [[
+01) Pick up these 2 quests around Captured Arko'narin (36.2, 55.5): "Rescue From Jaedenar", "The Remains of Trey Lightforge".
+02) Do "Rescue From Jaedenar" (51.3, 82.0): Escort Arko'narin to where Lightforge and her equipment are being held, and then protect her as you...
+03) Do "The Remains of Trey Lightforge" (51.3, 82.0): Return the Remains of Trey Lightforge to Jessir Moonbow in Felwood.
+04) Turn in "Rescue From Jaedenar" and "The Remains of Trey Lightforge" to Jessir Moonbow (51.3, 82.0).
+        ]],
+        image = "Horde_Felwood_c01.tga",
+    },
+    [270] = {
+        step = 270,
+        title = [[49-59 Felwood — Circuit 2]],
+        objectives = [[01) Pick up these 5 quests around Winna Hazzard (49.9, 73.4): "Well of Corruption", "Corrupted Saber]],
+        text = [[
+01) Pick up these 5 quests around Winna Hazzard (49.9, 73.4): "Well of Corruption", "Corrupted Sabers", "Wild Guardians", "Wild Guardians", "Wild Guardians".
+02) Do "Well of Corruption" (49.9, 73.4): Collect a sample of corrupted water from the Jadefire Satyrs' moonwell and bring it to Winna...
+03) Do "Corrupted Sabers" (49.9, 73.4): Take Winna's kitten to the corrupted moonwell, release it, then bring it back to Winna. Once you...
+04) Do "Wild Guardians" (50.3, 73.8): Trull Failbane in Felwood wants you to hunt 13 Moontouched Owlbeasts.
+05) Do "Wild Guardians" (50.3, 73.8): Trull Failbane in Felwood wants you to hunt 10 Berserk Owlbeasts in Winterspring.
+06) Do "Wild Guardians" (69.3, 23.1): Trull Failbane in Felwood wants you to kill 15 Raging Owlbeasts and 15 Ragged Owlbeasts.
+07) Turn in "Well of Corruption" and "Corrupted Sabers" to Winna Hazzard (49.9, 73.4).
+08) Turn in "Wild Guardians" and "Wild Guardians" and "Wild Guardians" to Trull Failbane (50.3, 73.8).
+09) TIP: Bank any [Wildkin E'ko] you loot here (~15% drop) — needed for "Wildkin E'ko" (lvl ~55, Winterspring).
+        ]],
+        image = "Horde_Felwood_c02.tga",
+    },
+    [271] = {
+        step = 271,
+        title = [[50-56 Felwood — Circuit 7]],
+        objectives = [[01) Accept "Beads for Salfa" from Salfa (68.3, 6.1).]],
+        text = [[
+01) Accept "Beads for Salfa" from Salfa (68.3, 6.1).
+02) Do "Beads for Salfa" (68.3, 6.1).
+03) Turn in "Beads for Salfa" to Salfa (68.3, 6.1).
+        ]],
+        image = "Horde_Felwood_c07.tga",
     },
     [272] = {
         step = 272,
@@ -3704,6 +3704,39 @@ SKquests_Horde = {
     },
     [278] = {
         step = 278,
+        title = [[52-55 Western Plaguelands — Circuit 7]],
+        objectives = [[01) Accept "Mrs. Dalson's Diary" from Mrs. Dalson's Diary.]],
+        text = [[
+01) Accept "Mrs. Dalson's Diary" from Mrs. Dalson's Diary.
+02) Do "Mrs. Dalson's Diary".
+03) Turn in "Mrs. Dalson's Diary" to Mrs. Dalson's Diary.
+        ]],
+        image = "",
+    },
+    [279] = {
+        step = 279,
+        title = [[52-55 Western Plaguelands — Circuit 8]],
+        objectives = [[01) Accept "Locked Away" from Outhouse.]],
+        text = [[
+01) Accept "Locked Away" from Outhouse.
+02) Do "Locked Away".
+03) Turn in "Locked Away" to Outhouse.
+        ]],
+        image = "",
+    },
+    [280] = {
+        step = 280,
+        title = [[52-55 Western Plaguelands — Circuit 9]],
+        objectives = [[01) Accept "Locked Away" from Locked Cabinet.]],
+        text = [[
+01) Accept "Locked Away" from Locked Cabinet.
+02) Do "Locked Away".
+03) Turn in "Locked Away" to Locked Cabinet.
+        ]],
+        image = "",
+    },
+    [281] = {
+        step = 281,
         title = [[52-60 Western Plaguelands — Circuit 2]],
         objectives = [[01) Accept "Scarlet Subterfuge" from Myranda the Hag (50.8, 77.8).]],
         text = [[
@@ -3713,23 +3746,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_WesternPlaguelands_c02.tga",
     },
-    [279] = {
-        step = 279,
-        title = [[53-60 Western Plaguelands — Circuit 3]],
-        objectives = [[01) Pick up these 4 quests around Chromie (39.5, 66.8): "A Matter of Time", "Counting Out Time", "Co]],
-        text = [[
-01) Pick up these 4 quests around Chromie (39.5, 66.8): "A Matter of Time", "Counting Out Time", "Counting Out Time", "Catalogue of the Wayward".
-02) Do "A Matter of Time" (39.5, 66.8): Use the Temporal Displacer near one of Andorhal's silos and uncover Temporal Parasites. Slay 10...
-03) Do "Counting Out Time" (39.5, 66.8): Locate 5 Andorhal Watches, found in lockboxes amongst the rubble of the city. Return with them to...
-04) Do "Counting Out Time" (39.5, 66.8): Locate 5 Andorhal Watches amongst the rubble of the city, and return with them to Chromie in the...
-05) Do "Catalogue of the Wayward" (39.4, 66.8): Read from the Catalogue of the Wayward.
-06) Turn in "A Matter of Time" and "Counting Out Time" and "Counting Out Time" to Chromie (39.5, 66.8).
-07) Turn in "Catalogue of the Wayward" to Catalogue of the Wayward.
-        ]],
-        image = "Horde_WesternPlaguelands_c03.tga",
-    },
-    [280] = {
-        step = 280,
+    [282] = {
+        step = 282,
         title = [[52-60 Western Plaguelands — Circuit 4]],
         objectives = [[01) Pick up these 7 quests around Alexi Barov (26.4, 58.8): "The Last Barov", "Scholomance", "Skelet]],
         text = [[
@@ -3748,8 +3766,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_WesternPlaguelands_c04.tga",
     },
-    [281] = {
-        step = 281,
+    [283] = {
+        step = 283,
         title = [[52-60 Western Plaguelands — Circuit 5]],
         objectives = [[01) Accept "In Dreams" from Highlord Taelan Fordring (42.0, 14.8).]],
         text = [[
@@ -3759,8 +3777,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_WesternPlaguelands_c05.tga",
     },
-    [282] = {
-        step = 282,
+    [284] = {
+        step = 284,
         title = [[52-60 Western Plaguelands — Circuit 6]],
         objectives = [[01) Accept "Find Myranda" from Tirion Fordring (67.3, 24.2).]],
         text = [[
@@ -3770,76 +3788,23 @@ SKquests_Horde = {
         ]],
         image = "Horde_WesternPlaguelands_c06.tga",
     },
-    [283] = {
-        step = 283,
-        title = [[52-55 Western Plaguelands — Circuit 7]],
-        objectives = [[01) Accept "Mrs. Dalson's Diary" from Mrs. Dalson's Diary.]],
-        text = [[
-01) Accept "Mrs. Dalson's Diary" from Mrs. Dalson's Diary.
-02) Do "Mrs. Dalson's Diary".
-03) Turn in "Mrs. Dalson's Diary" to Mrs. Dalson's Diary.
-        ]],
-        image = "",
-    },
-    [284] = {
-        step = 284,
-        title = [[52-55 Western Plaguelands — Circuit 8]],
-        objectives = [[01) Accept "Locked Away" from Outhouse.]],
-        text = [[
-01) Accept "Locked Away" from Outhouse.
-02) Do "Locked Away".
-03) Turn in "Locked Away" to Outhouse.
-        ]],
-        image = "",
-    },
     [285] = {
         step = 285,
-        title = [[52-55 Western Plaguelands — Circuit 9]],
-        objectives = [[01) Accept "Locked Away" from Locked Cabinet.]],
+        title = [[53-60 Western Plaguelands — Circuit 3]],
+        objectives = [[01) Pick up these 4 quests around Chromie (39.5, 66.8): "A Matter of Time", "Counting Out Time", "Co]],
         text = [[
-01) Accept "Locked Away" from Locked Cabinet.
-02) Do "Locked Away".
-03) Turn in "Locked Away" to Locked Cabinet.
+01) Pick up these 4 quests around Chromie (39.5, 66.8): "A Matter of Time", "Counting Out Time", "Counting Out Time", "Catalogue of the Wayward".
+02) Do "A Matter of Time" (39.5, 66.8): Use the Temporal Displacer near one of Andorhal's silos and uncover Temporal Parasites. Slay 10...
+03) Do "Counting Out Time" (39.5, 66.8): Locate 5 Andorhal Watches, found in lockboxes amongst the rubble of the city. Return with them to...
+04) Do "Counting Out Time" (39.5, 66.8): Locate 5 Andorhal Watches amongst the rubble of the city, and return with them to Chromie in the...
+05) Do "Catalogue of the Wayward" (39.4, 66.8): Read from the Catalogue of the Wayward.
+06) Turn in "A Matter of Time" and "Counting Out Time" and "Counting Out Time" to Chromie (39.5, 66.8).
+07) Turn in "Catalogue of the Wayward" to Catalogue of the Wayward.
         ]],
-        image = "",
+        image = "Horde_WesternPlaguelands_c03.tga",
     },
     [286] = {
         step = 286,
-        title = [[57-60 Western Plaguelands — Circuit 10]],
-        objectives = [[01) Accept "Wrath of the Blue Flight" from Haleh (54.5, 51.2).]],
-        text = [[
-01) Accept "Wrath of the Blue Flight" from Haleh (54.5, 51.2).
-02) Do "Wrath of the Blue Flight" (39.4, 66.8): Speak with Jeziba in the Plaguelands. He resides in Andorhal.
-03) Turn in "Wrath of the Blue Flight" to Jeziba (39.4, 66.8).
-        ]],
-        image = "Horde_WesternPlaguelands_c10.tga",
-    },
-    [287] = {
-        step = 287,
-        title = [[57-60 Western Plaguelands — Circuit 11]],
-        objectives = [[01) Accept "Soulbound Keepsake" from Leonid Barthalomew the Revered (80.6, 58.8).]],
-        text = [[
-01) Accept "Soulbound Keepsake" from Leonid Barthalomew the Revered (80.6, 58.8).
-02) Do "Soulbound Keepsake" (70.5, 74.0): Return to Magistrate Marduke in Caer Darrow. Show him the Soulbound Keepsake.
-03) Turn in "Soulbound Keepsake" to Magistrate Marduke (70.5, 74.0).
-        ]],
-        image = "Horde_WesternPlaguelands_c11.tga",
-    },
-    [288] = {
-        step = 288,
-        title = [[57-60 Western Plaguelands — Circuit 12]],
-        objectives = [[01) Pick up these 2 quests around Magistrate Marduke (70.5, 74.0): "The Human, Ras Frostwhisper", "T]],
-        text = [[
-01) Pick up these 2 quests around Magistrate Marduke (70.5, 74.0): "The Human, Ras Frostwhisper", "The Dying, Ras Frostwhisper".
-02) Do "The Human, Ras Frostwhisper" (70.5, 74.0): Travel to the Arathi Highlands, to the ruins of Stromgarde. Search Stromgarde for a Keepsake of...
-03) Do "The Dying, Ras Frostwhisper" (80.6, 58.8): Travel to Light's Hope in Eastern Plaguelands and seek out Leonid Barthalomew the Revered. Show him...
-04) Turn in "The Human, Ras Frostwhisper" to Magistrate Marduke (70.5, 74.0).
-05) Turn in "The Dying, Ras Frostwhisper" to Leonid Barthalomew the Revered (80.6, 58.8).
-        ]],
-        image = "Horde_WesternPlaguelands_c12.tga",
-    },
-    [289] = {
-        step = 289,
         title = [[55-60 Western Plaguelands — Circuit 13]],
         objectives = [[01) Pick up these 7 quests around Commander Ashlam Valorfist (42.7, 84.0): "Scholomance", "Skeletal ]],
         text = [[
@@ -3857,8 +3822,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_WesternPlaguelands_c13.tga",
     },
-    [290] = {
-        step = 290,
+    [287] = {
+        step = 287,
         title = [[55-60 Western Plaguelands — Circuit 14]],
         objectives = [[01) Accept "Araj's Scarab" from Apothecary Dithers (26.7, 56.3).]],
         text = [[
@@ -3867,6 +3832,41 @@ SKquests_Horde = {
 03) Turn in "Araj's Scarab" to Apothecary Dithers (26.7, 56.3).
         ]],
         image = "Horde_WesternPlaguelands_c14.tga",
+    },
+    [288] = {
+        step = 288,
+        title = [[57-60 Western Plaguelands — Circuit 10]],
+        objectives = [[01) Accept "Wrath of the Blue Flight" from Haleh (54.5, 51.2).]],
+        text = [[
+01) Accept "Wrath of the Blue Flight" from Haleh (54.5, 51.2).
+02) Do "Wrath of the Blue Flight" (39.4, 66.8): Speak with Jeziba in the Plaguelands. He resides in Andorhal.
+03) Turn in "Wrath of the Blue Flight" to Jeziba (39.4, 66.8).
+        ]],
+        image = "Horde_WesternPlaguelands_c10.tga",
+    },
+    [289] = {
+        step = 289,
+        title = [[57-60 Western Plaguelands — Circuit 11]],
+        objectives = [[01) Accept "Soulbound Keepsake" from Leonid Barthalomew the Revered (80.6, 58.8).]],
+        text = [[
+01) Accept "Soulbound Keepsake" from Leonid Barthalomew the Revered (80.6, 58.8).
+02) Do "Soulbound Keepsake" (70.5, 74.0): Return to Magistrate Marduke in Caer Darrow. Show him the Soulbound Keepsake.
+03) Turn in "Soulbound Keepsake" to Magistrate Marduke (70.5, 74.0).
+        ]],
+        image = "Horde_WesternPlaguelands_c11.tga",
+    },
+    [290] = {
+        step = 290,
+        title = [[57-60 Western Plaguelands — Circuit 12]],
+        objectives = [[01) Pick up these 2 quests around Magistrate Marduke (70.5, 74.0): "The Human, Ras Frostwhisper", "T]],
+        text = [[
+01) Pick up these 2 quests around Magistrate Marduke (70.5, 74.0): "The Human, Ras Frostwhisper", "The Dying, Ras Frostwhisper".
+02) Do "The Human, Ras Frostwhisper" (70.5, 74.0): Travel to the Arathi Highlands, to the ruins of Stromgarde. Search Stromgarde for a Keepsake of...
+03) Do "The Dying, Ras Frostwhisper" (80.6, 58.8): Travel to Light's Hope in Eastern Plaguelands and seek out Leonid Barthalomew the Revered. Show him...
+04) Turn in "The Human, Ras Frostwhisper" to Magistrate Marduke (70.5, 74.0).
+05) Turn in "The Dying, Ras Frostwhisper" to Leonid Barthalomew the Revered (80.6, 58.8).
+        ]],
+        image = "Horde_WesternPlaguelands_c12.tga",
     },
     [291] = {
         step = 291,
@@ -4007,37 +4007,54 @@ SKquests_Horde = {
     },
     [302] = {
         step = 302,
-        title = [[58-60 Eastern Plaguelands — Circuit 1]],
-        objectives = [[01) Accept "In Search of Anthion" from Mokvar (34.9, 38.3).]],
+        title = [[54-60 Eastern Plaguelands — Circuit 5]],
+        objectives = [[01) Pick up these 7 quests around Smokey LaRue (80.6, 58.0): "That's Asking A Lot", "When Smokey Sin]],
         text = [[
-01) Accept "In Search of Anthion" from Mokvar (34.9, 38.3).
-02) Do "In Search of Anthion" (30.9, 17.1): Use the Extra-Dimensional Ghost Revealer at the entrance to Stratholme and speak with the ghost of...
-03) Turn in "In Search of Anthion" to Anthion Harmon (30.9, 17.1).
+01) Pick up these 7 quests around Smokey LaRue (80.6, 58.0): "That's Asking A Lot", "When Smokey Sings, I Get Violent", "Lord Maxwell Tyrosus", "The Argent Hold", "The Restless Souls", "Mantles of the Dawn", "Chromatic Mantle of the Dawn".
+02) Do "That's Asking A Lot" (80.6, 58.0): Smokey LaRue wants you to get 2 Thorium Bars, 1 Golden Rod, 8 Hi-Explosive Bombs, and 8 Unstable...
+03) Do "When Smokey Sings, I Get Violent" (80.6, 58.0): Travel to Plaguewood, northwest of Light's Hope. Destroy 8 Scourge Structures by using Smokey's...
+04) Do "Lord Maxwell Tyrosus" (81.7, 58.0): Speak with Lord Maxwell Tyrosus. He is inside the church.
+05) Do "The Argent Hold" (81.7, 58.0): Open the Argent Hold and claim your reward.
+06) Do "Mantles of the Dawn" (81.6, 60.0): Bring 10 Argent Dawn Valor Tokens to Quartermaster Breechlock at Light's Hope Chapel, Eastern...
+07) Do "Chromatic Mantle of the Dawn" (81.6, 60.0): Bring 25 Argent Dawn Valor Tokens to Quartermaster Breechlock at Light's Hope Chapel, Eastern...
+08) Do "The Restless Souls" (14.4, 33.7): Find Egan. You only know that he was last seen around Stratholme.
+09) Turn in "That's Asking A Lot" and "When Smokey Sings, I Get Violent" to Smokey LaRue (80.6, 58.0).
+10) Turn in "Lord Maxwell Tyrosus" to Lord Maxwell Tyrosus (81.7, 58.0).
+11) Turn in "The Argent Hold" to The Argent Hold.
+12) Turn in "The Restless Souls" to Egan (14.4, 33.7).
+13) Turn in "Mantles of the Dawn" and "Chromatic Mantle of the Dawn" to Quartermaster Miranda Breechlock (81.6, 60.0).
         ]],
-        image = "Horde_EasternPlaguelands_c01.tga",
+        image = "Horde_EasternPlaguelands_c05.tga",
     },
     [303] = {
         step = 303,
-        title = [[58-60 Eastern Plaguelands — Circuit 2]],
-        objectives = [[01) Accept "Anthion's Strange Request" from Anthion Harmon (30.9, 17.1).]],
+        title = [[54-60 Eastern Plaguelands — Circuit 11]],
+        objectives = [[01) Pick up these 7 quests around Nathanos Blightcaller (26.5, 74.7): "To Kill With Purpose", "Un-Li]],
         text = [[
-01) Accept "Anthion's Strange Request" from Anthion Harmon (30.9, 17.1).
-02) Do "Anthion's Strange Request" (30.9, 17.1): Bring 3 Dark Iron Bars, 20 Enchanted Leather, 3 Mooncloth and 4 Cured Rugged Hides to Anthion...
-03) Turn in "Anthion's Strange Request" to Anthion Harmon (30.9, 17.1).
+01) Pick up these 7 quests around Nathanos Blightcaller (26.5, 74.7): "To Kill With Purpose", "Un-Life's Little Annoyances", "The Ranger Lord's Behest", "Duskwing, Oh How I Hate Thee...", "The Corpulent One", "The Call to Command", "Nathanos' Ruse".
+02) Do "To Kill With Purpose" (26.5, 74.7): Travel to Corin's Crossing to the east and slaughter the Scourge that inhabit the town. Collect 7...
+03) Do "The Ranger Lord's Behest" (26.5, 74.7): Travel to the northern borders of the Eastern Plaguelands and recover the Quel'Thalas Registry. The...
+04) Do "Duskwing, Oh How I Hate Thee..." (26.5, 74.7): Find Duskwing and slay him. From the corpse, recover a Patch of Duskwing's Fur and return it to...
+05) Do "The Call to Command" (26.5, 74.7): Travel to the Undercity and speak with Bragor Bloodfist.
+06) Do "Un-Life's Little Annoyances" (70.0, 61.8): Slay 20 Noxious Plaguebats and 10 Monstrous Plaguebats. Return to Nathanos Blightcaller when you...
+07) Do "Nathanos' Ruse" (85.4, 83.2): Travel to Tyr's Hand, southeast of the Marris Stead. Once there, take a bite of the Rotten Apple....
+08) Do "The Corpulent One" (54.8, 31.8): Find Borelgore in the northern wastes of Eastern Plaguelands and destroy him. Return to Nathanos...
+09) Turn in "To Kill With Purpose" and "Un-Life's Little Annoyances" and "The Ranger Lord's Behest" and "Duskwing, Oh How I Hate Thee..." and "The Corpulent One" to Nathanos Blightcaller (26.5, 74.7).
+10) Turn in "The Call to Command" to Bragor Bloodfist.
+11) Turn in "Nathanos' Ruse" to Crusader Lord Valdelmar (85.4, 83.2).
         ]],
-        image = "Horde_EasternPlaguelands_c02.tga",
+        image = "Horde_EasternPlaguelands_c11.tga",
     },
     [304] = {
         step = 304,
-        title = [[56-60 Eastern Plaguelands — Circuit 3]],
-        objectives = [[01) Pick up these 2 quests around Lady Sylvanas Windrunner (74.6, 13.4): "The Crimson Courier", "The]],
+        title = [[54-60 Eastern Plaguelands — Circuit 13]],
+        objectives = [[01) Accept "Hameya's Plea" from Torn Scroll.]],
         text = [[
-01) Pick up these 2 quests around Lady Sylvanas Windrunner (74.6, 13.4): "The Crimson Courier", "The Crimson Courier".
-02) Do "The Crimson Courier" (26.5, 74.7): Return to Eastern Plaguelands and track down the Crimson Courier. Kill the Courier and recover the...
-03) Do "The Crimson Courier" (26.5, 74.7): Return to Eastern Plaguelands and track down the Crimson Courier. Kill the Courier and recover the...
-04) Turn in "The Crimson Courier" and "The Crimson Courier" to Nathanos Blightcaller (26.5, 74.7).
+01) Accept "Hameya's Plea" from Torn Scroll.
+02) Do "Hameya's Plea": Kill Infiltrator Hameya. Use his key on the Mound of Dirt behind the Undercroft.
+03) Turn in "Hameya's Plea" to Mound of Dirt.
         ]],
-        image = "Horde_EasternPlaguelands_c03.tga",
+        image = "",
     },
     [305] = {
         step = 305,
@@ -4059,27 +4076,6 @@ SKquests_Horde = {
     },
     [306] = {
         step = 306,
-        title = [[54-60 Eastern Plaguelands — Circuit 5]],
-        objectives = [[01) Pick up these 7 quests around Smokey LaRue (80.6, 58.0): "That's Asking A Lot", "When Smokey Sin]],
-        text = [[
-01) Pick up these 7 quests around Smokey LaRue (80.6, 58.0): "That's Asking A Lot", "When Smokey Sings, I Get Violent", "Lord Maxwell Tyrosus", "The Argent Hold", "The Restless Souls", "Mantles of the Dawn", "Chromatic Mantle of the Dawn".
-02) Do "That's Asking A Lot" (80.6, 58.0): Smokey LaRue wants you to get 2 Thorium Bars, 1 Golden Rod, 8 Hi-Explosive Bombs, and 8 Unstable...
-03) Do "When Smokey Sings, I Get Violent" (80.6, 58.0): Travel to Plaguewood, northwest of Light's Hope. Destroy 8 Scourge Structures by using Smokey's...
-04) Do "Lord Maxwell Tyrosus" (81.7, 58.0): Speak with Lord Maxwell Tyrosus. He is inside the church.
-05) Do "The Argent Hold" (81.7, 58.0): Open the Argent Hold and claim your reward.
-06) Do "Mantles of the Dawn" (81.6, 60.0): Bring 10 Argent Dawn Valor Tokens to Quartermaster Breechlock at Light's Hope Chapel, Eastern...
-07) Do "Chromatic Mantle of the Dawn" (81.6, 60.0): Bring 25 Argent Dawn Valor Tokens to Quartermaster Breechlock at Light's Hope Chapel, Eastern...
-08) Do "The Restless Souls" (14.4, 33.7): Find Egan. You only know that he was last seen around Stratholme.
-09) Turn in "That's Asking A Lot" and "When Smokey Sings, I Get Violent" to Smokey LaRue (80.6, 58.0).
-10) Turn in "Lord Maxwell Tyrosus" to Lord Maxwell Tyrosus (81.7, 58.0).
-11) Turn in "The Argent Hold" to The Argent Hold.
-12) Turn in "The Restless Souls" to Egan (14.4, 33.7).
-13) Turn in "Mantles of the Dawn" and "Chromatic Mantle of the Dawn" to Quartermaster Miranda Breechlock (81.6, 60.0).
-        ]],
-        image = "Horde_EasternPlaguelands_c05.tga",
-    },
-    [307] = {
-        step = 307,
         title = [[55-60 Eastern Plaguelands — Circuit 6]],
         objectives = [[01) Pick up these 7 quests around Huntsman Leopold (81.5, 58.6): "Cryptstalker Armor Doesn't Make It]],
         text = [[
@@ -4098,14 +4094,14 @@ SKquests_Horde = {
         ]],
         image = "Horde_EasternPlaguelands_c06.tga",
     },
-    [308] = {
-        step = 308,
+    [307] = {
+        step = 307,
         title = [[55-60 Eastern Plaguelands — Circuit 7]],
         objectives = [[01) Pick up these 7 quests around Korfax, Champion of the Light (81.8, 58.1): "Dark Iron Scraps", "S]],
         text = [[
-01) Pick up these 7 quests around Korfax, Champion of the Light (81.8, 58.1): "Dark Iron Scraps", "Savage Flora", "Savage Fronds", "They Call Me "The Rooster"", "Craftsman's Writ", "Writ of Safe Passage", "Superior Armaments of Battle - Friend of the Dawn".
+01) Pick up these 7 quests around Korfax, Champion of the Light (81.8, 58.1): "Dark Iron Scraps", "Savage Flora", "Savage Fronds", "They Call Me The Rooster", "Craftsman's Writ", "Writ of Safe Passage", "Superior Armaments of Battle - Friend of the Dawn".
 02) Do "Dark Iron Scraps" (81.8, 58.1).
-03) Do "They Call Me "The Rooster"" (81.1, 57.5): Dispatch Commander Metz at Light's Hope Chapel in the Eastern Plaguelands wants an Argent Dawn...
+03) Do "They Call Me The Rooster" (81.1, 57.5): Dispatch Commander Metz at Light's Hope Chapel in the Eastern Plaguelands wants an Argent Dawn...
 04) Do "Craftsman's Writ" (81.1, 57.5).
 05) Do "Writ of Safe Passage" (81.1, 57.5): Deliver the signed Writ of Safe Passage to Dispatch Commander Metz at Light's Hope Chapel in the...
 06) Do "Savage Flora" (81.2, 59.0): Rayne at Light's Hope Chapel in the Eastern Plaguelands wants 30 Savage Fronds.
@@ -4113,13 +4109,13 @@ SKquests_Horde = {
 08) Do "Superior Armaments of Battle - Friend of the Dawn" (81.6, 60.0): For 30 Insignias of the Dawn and 30 Insignias of the Crusade you may choose an item from the Argent...
 09) Turn in "Dark Iron Scraps" to Korfax, Champion of the Light (81.8, 58.1).
 10) Turn in "Savage Flora" and "Savage Fronds" to Rayne (81.2, 59.0).
-11) Turn in "They Call Me "The Rooster"" and "Craftsman's Writ" and "Writ of Safe Passage" to Dispatch Commander Metz (81.1, 57.5).
+11) Turn in "They Call Me The Rooster" and "Craftsman's Writ" and "Writ of Safe Passage" to Dispatch Commander Metz (81.1, 57.5).
 12) Turn in "Superior Armaments of Battle - Friend of the Dawn" to Quartermaster Miranda Breechlock (81.6, 60.0).
         ]],
         image = "Horde_EasternPlaguelands_c07.tga",
     },
-    [309] = {
-        step = 309,
+    [308] = {
+        step = 308,
         title = [[55-60 Eastern Plaguelands — Circuit 8]],
         objectives = [[01) Pick up these 7 quests around Quartermaster Miranda Breechlock (81.6, 60.0): "Epic Armaments of ]],
         text = [[
@@ -4135,19 +4131,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_EasternPlaguelands_c08.tga",
     },
-    [310] = {
-        step = 310,
-        title = [[56-60 Eastern Plaguelands — Circuit 9]],
-        objectives = [[01) Accept "Return to Nathanos" from Crusader Lord Valdelmar (85.4, 83.2).]],
-        text = [[
-01) Accept "Return to Nathanos" from Crusader Lord Valdelmar (85.4, 83.2).
-02) Do "Return to Nathanos" (26.5, 74.7): Return to Nathanos Blightcaller with the new information.
-03) Turn in "Return to Nathanos" to Nathanos Blightcaller (26.5, 74.7).
-        ]],
-        image = "Horde_EasternPlaguelands_c09.tga",
-    },
-    [311] = {
-        step = 311,
+    [309] = {
+        step = 309,
         title = [[55-60 Eastern Plaguelands — Circuit 10]],
         objectives = [[01) Accept "The Battle of Darrowshire" from Chromie (39.5, 66.8).]],
         text = [[
@@ -4157,27 +4142,295 @@ SKquests_Horde = {
         ]],
         image = "Horde_EasternPlaguelands_c10.tga",
     },
+    [310] = {
+        step = 310,
+        title = [[55-60 Eastern Plaguelands — Circuit 14]],
+        objectives = [[01) Accept "Craftsman's Writ - Dense Weightstone" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Dense Weightstone" from the quest giver.
+02) Do "Craftsman's Writ - Dense Weightstone" (80.4, 58.0): Deliver 120 Dense Weightstones and the Craftsman's Writ - Dense Weightstone - to Packmaster...
+03) Turn in "Craftsman's Writ - Dense Weightstone" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [311] = {
+        step = 311,
+        title = [[55-60 Eastern Plaguelands — Circuit 15]],
+        objectives = [[01) Accept "Craftsman's Writ - Imperial Plate Chest" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Imperial Plate Chest" from the quest giver.
+02) Do "Craftsman's Writ - Imperial Plate Chest" (80.4, 58.0): Deliver 3 Imperial Plate Chests and the Craftsman's Writ - Imperial Plate Chest - to Packmaster...
+03) Turn in "Craftsman's Writ - Imperial Plate Chest" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
     [312] = {
         step = 312,
-        title = [[54-60 Eastern Plaguelands — Circuit 11]],
-        objectives = [[01) Pick up these 7 quests around Nathanos Blightcaller (26.5, 74.7): "To Kill With Purpose", "Un-Li]],
+        title = [[55-60 Eastern Plaguelands — Circuit 16]],
+        objectives = [[01) Accept "Craftsman's Writ - Volcanic Hammer" from the quest giver.]],
         text = [[
-01) Pick up these 7 quests around Nathanos Blightcaller (26.5, 74.7): "To Kill With Purpose", "Un-Life's Little Annoyances", "The Ranger Lord's Behest", "Duskwing, Oh How I Hate Thee...", "The Corpulent One", "The Call to Command", "Nathanos' Ruse".
-02) Do "To Kill With Purpose" (26.5, 74.7): Travel to Corin's Crossing to the east and slaughter the Scourge that inhabit the town. Collect 7...
-03) Do "The Ranger Lord's Behest" (26.5, 74.7): Travel to the northern borders of the Eastern Plaguelands and recover the Quel'Thalas Registry. The...
-04) Do "Duskwing, Oh How I Hate Thee..." (26.5, 74.7): Find Duskwing and slay him. From the corpse, recover a Patch of Duskwing's Fur and return it to...
-05) Do "The Call to Command" (26.5, 74.7): Travel to the Undercity and speak with Bragor Bloodfist.
-06) Do "Un-Life's Little Annoyances" (70.0, 61.8): Slay 20 Noxious Plaguebats and 10 Monstrous Plaguebats. Return to Nathanos Blightcaller when you...
-07) Do "Nathanos' Ruse" (85.4, 83.2): Travel to Tyr's Hand, southeast of the Marris Stead. Once there, take a bite of the Rotten Apple....
-08) Do "The Corpulent One" (54.8, 31.8): Find Borelgore in the northern wastes of Eastern Plaguelands and destroy him. Return to Nathanos...
-09) Turn in "To Kill With Purpose" and "Un-Life's Little Annoyances" and "The Ranger Lord's Behest" and "Duskwing, Oh How I Hate Thee..." and "The Corpulent One" to Nathanos Blightcaller (26.5, 74.7).
-10) Turn in "The Call to Command" to Bragor Bloodfist.
-11) Turn in "Nathanos' Ruse" to Crusader Lord Valdelmar (85.4, 83.2).
+01) Accept "Craftsman's Writ - Volcanic Hammer" from the quest giver.
+02) Do "Craftsman's Writ - Volcanic Hammer" (80.4, 58.0): Deliver 3 Volcanic Hammers and the Craftsman's Writ - Volcanic Hammer - to Packmaster Stonebruiser...
+03) Turn in "Craftsman's Writ - Volcanic Hammer" to Packmaster Stonebruiser (80.4, 58.0).
         ]],
-        image = "Horde_EasternPlaguelands_c11.tga",
+        image = "",
     },
     [313] = {
         step = 313,
+        title = [[55-60 Eastern Plaguelands — Circuit 17]],
+        objectives = [[01) Accept "Craftsman's Writ - Huge Thorium Battleaxe" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Huge Thorium Battleaxe" from the quest giver.
+02) Do "Craftsman's Writ - Huge Thorium Battleaxe" (80.4, 58.0): Deliver 3 Huge Thorium Battleaxes and the Craftsman's Writ - Huge Thorium Battleaxe - to Packmaster...
+03) Turn in "Craftsman's Writ - Huge Thorium Battleaxe" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [314] = {
+        step = 314,
+        title = [[55-60 Eastern Plaguelands — Circuit 18]],
+        objectives = [[01) Accept "Craftsman's Writ - Radiant Circlet" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Radiant Circlet" from the quest giver.
+02) Do "Craftsman's Writ - Radiant Circlet" (80.4, 58.0): Deliver 3 Radiant Circlets and the Craftsman's Writ - Radiant Circlet - to Packmaster Stonebruiser...
+03) Turn in "Craftsman's Writ - Radiant Circlet" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [315] = {
+        step = 315,
+        title = [[55-60 Eastern Plaguelands — Circuit 19]],
+        objectives = [[01) Accept "Craftsman's Writ - Wicked Leather Headband" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Wicked Leather Headband" from the quest giver.
+02) Do "Craftsman's Writ - Wicked Leather Headband" (80.4, 58.0): Deliver 10 Wicked Leather Headbands and the Craftsman's Writ - Wicked Leather Headband - to...
+03) Turn in "Craftsman's Writ - Wicked Leather Headband" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [316] = {
+        step = 316,
+        title = [[55-60 Eastern Plaguelands — Circuit 20]],
+        objectives = [[01) Accept "Craftsman's Writ - Rugged Armor Kit" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Rugged Armor Kit" from the quest giver.
+02) Do "Craftsman's Writ - Rugged Armor Kit" (80.4, 58.0): Deliver 25 Rugged Armor Kits and the Craftsman's Writ - Rugged Armor Kit - to Packmaster...
+03) Turn in "Craftsman's Writ - Rugged Armor Kit" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [317] = {
+        step = 317,
+        title = [[55-60 Eastern Plaguelands — Circuit 21]],
+        objectives = [[01) Accept "Craftsman's Writ - Wicked Leather Belt" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Wicked Leather Belt" from the quest giver.
+02) Do "Craftsman's Writ - Wicked Leather Belt" (80.4, 58.0): Deliver 9 Wicked Leather Belts and the Craftsman's Writ - Wicked Leather Belt - to Packmaster...
+03) Turn in "Craftsman's Writ - Wicked Leather Belt" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [318] = {
+        step = 318,
+        title = [[55-60 Eastern Plaguelands — Circuit 22]],
+        objectives = [[01) Accept "Craftsman's Writ - Runic Leather Pants" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Runic Leather Pants" from the quest giver.
+02) Do "Craftsman's Writ - Runic Leather Pants" (80.4, 58.0): Deliver 4 Runic Leather Pants and the Craftsman's Writ - Runic Leather Pants - to Packmaster...
+03) Turn in "Craftsman's Writ - Runic Leather Pants" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [319] = {
+        step = 319,
+        title = [[55-60 Eastern Plaguelands — Circuit 23]],
+        objectives = [[01) Accept "Craftsman's Writ - Brightcloth Pants" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Brightcloth Pants" from the quest giver.
+02) Do "Craftsman's Writ - Brightcloth Pants" (80.4, 58.0): Deliver 6 Brightcloth Pants and the Craftsman's Writ - Brightcloth Pants - to Packmaster...
+03) Turn in "Craftsman's Writ - Brightcloth Pants" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [320] = {
+        step = 320,
+        title = [[55-60 Eastern Plaguelands — Circuit 24]],
+        objectives = [[01) Accept "Craftsman's Writ - Runecloth Boots" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Runecloth Boots" from the quest giver.
+02) Do "Craftsman's Writ - Runecloth Boots" (80.4, 58.0): Deliver 8 Runecloth Boots and the Craftsman's Writ - Runecloth Boots - to Packmaster Stonebruiser...
+03) Turn in "Craftsman's Writ - Runecloth Boots" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [321] = {
+        step = 321,
+        title = [[55-60 Eastern Plaguelands — Circuit 25]],
+        objectives = [[01) Accept "Craftsman's Writ - Runecloth Bag" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Runecloth Bag" from the quest giver.
+02) Do "Craftsman's Writ - Runecloth Bag" (80.4, 58.0): Deliver 8 Runecloth Bags and the Craftsman's Writ - Runecloth Bag - to Packmaster Stonebruiser at...
+03) Turn in "Craftsman's Writ - Runecloth Bag" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [322] = {
+        step = 322,
+        title = [[55-60 Eastern Plaguelands — Circuit 26]],
+        objectives = [[01) Accept "Craftsman's Writ - Runecloth Robe" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Runecloth Robe" from the quest giver.
+02) Do "Craftsman's Writ - Runecloth Robe" (80.4, 58.0): Deliver 8 Runecloth Robes and the Craftsman's Writ - Runecloth Robe - to Packmaster Stonebruiser at...
+03) Turn in "Craftsman's Writ - Runecloth Robe" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [323] = {
+        step = 323,
+        title = [[55-60 Eastern Plaguelands — Circuit 27]],
+        objectives = [[01) Accept "Craftsman's Writ - Goblin Sapper Charge" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Goblin Sapper Charge" from the quest giver.
+02) Do "Craftsman's Writ - Goblin Sapper Charge" (80.4, 58.0): Deliver 20 Goblin Sapper Charges and the Craftsman's Writ - Goblin Sapper Charge - to Packmaster...
+03) Turn in "Craftsman's Writ - Goblin Sapper Charge" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [324] = {
+        step = 324,
+        title = [[55-60 Eastern Plaguelands — Circuit 28]],
+        objectives = [[01) Accept "Craftsman's Writ - Thorium Grenade" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Thorium Grenade" from the quest giver.
+02) Do "Craftsman's Writ - Thorium Grenade" (80.4, 58.0): Deliver 20 Thorium Grenades and the Craftsman's Writ - Thorium Grenade - to Packmaster Stonebruiser...
+03) Turn in "Craftsman's Writ - Thorium Grenade" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [325] = {
+        step = 325,
+        title = [[55-60 Eastern Plaguelands — Circuit 29]],
+        objectives = [[01) Accept "Craftsman's Writ - Gnomish Battle Chicken" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Gnomish Battle Chicken" from the quest giver.
+02) Do "Craftsman's Writ - Gnomish Battle Chicken" (80.4, 58.0): Deliver 4 Gnomish Battle Chickens and the Craftsman's Writ - Gnomish Battle Chicken - to Packmaster...
+03) Turn in "Craftsman's Writ - Gnomish Battle Chicken" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [326] = {
+        step = 326,
+        title = [[55-60 Eastern Plaguelands — Circuit 30]],
+        objectives = [[01) Accept "Craftsman's Writ - Thorium Tube" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Thorium Tube" from the quest giver.
+02) Do "Craftsman's Writ - Thorium Tube" (80.4, 58.0): Deliver 14 Thorium Tubes and the Craftsman's Writ - Thorium Tube - to Packmaster Stonebruiser at...
+03) Turn in "Craftsman's Writ - Thorium Tube" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [327] = {
+        step = 327,
+        title = [[55-60 Eastern Plaguelands — Circuit 31]],
+        objectives = [[01) Accept "Craftsman's Writ - Major Mana Potion" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Major Mana Potion" from the quest giver.
+02) Do "Craftsman's Writ - Major Mana Potion" (80.4, 58.0): Deliver 10 Major Mana Potions and the Craftsman's Writ - Major Mana Potion - to Packmaster...
+03) Turn in "Craftsman's Writ - Major Mana Potion" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [328] = {
+        step = 328,
+        title = [[55-60 Eastern Plaguelands — Circuit 32]],
+        objectives = [[01) Accept "Craftsman's Writ - Greater Arcane Protection Potion" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Greater Arcane Protection Potion" from the quest giver.
+02) Do "Craftsman's Writ - Greater Arcane Protection Potion" (80.4, 58.0): Deliver 15 Greater Arcane Protection Potions and the Craftsman's Writ - Greater Arcane Protection...
+03) Turn in "Craftsman's Writ - Greater Arcane Protection Potion" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [329] = {
+        step = 329,
+        title = [[55-60 Eastern Plaguelands — Circuit 33]],
+        objectives = [[01) Accept "Craftsman's Writ - Major Healing Potion" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Major Healing Potion" from the quest giver.
+02) Do "Craftsman's Writ - Major Healing Potion" (80.4, 58.0): Deliver 20 Major Healing Potions and the Craftsman's Writ - Major Healing Potion - to Packmaster...
+03) Turn in "Craftsman's Writ - Major Healing Potion" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [330] = {
+        step = 330,
+        title = [[55-60 Eastern Plaguelands — Circuit 34]],
+        objectives = [[01) Accept "Craftsman's Writ - Potion of Petrification" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Potion of Petrification" from the quest giver.
+02) Do "Craftsman's Writ - Potion of Petrification" (80.4, 58.0): Deliver 1 Potion of Petrification and the Craftsman's Writ - Potion of Petrification - to...
+03) Turn in "Craftsman's Writ - Potion of Petrification" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [331] = {
+        step = 331,
+        title = [[55-60 Eastern Plaguelands — Circuit 35]],
+        objectives = [[01) Accept "Craftsman's Writ - Stonescale Eel" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Stonescale Eel" from the quest giver.
+02) Do "Craftsman's Writ - Stonescale Eel" (80.4, 58.0): Deliver 40 Stonescale Eel and the Craftsman's Writ - Stonescale Eel - to Packmaster Stonebruiser at...
+03) Turn in "Craftsman's Writ - Stonescale Eel" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [332] = {
+        step = 332,
+        title = [[55-60 Eastern Plaguelands — Circuit 36]],
+        objectives = [[01) Accept "Craftsman's Writ - Plated Armorfish" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Plated Armorfish" from the quest giver.
+02) Do "Craftsman's Writ - Plated Armorfish" (80.4, 58.0): Deliver 30 Plated Armorfish and the Craftsman's Writ - Plated Armorfish - to Packmaster...
+03) Turn in "Craftsman's Writ - Plated Armorfish" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [333] = {
+        step = 333,
+        title = [[55-60 Eastern Plaguelands — Circuit 37]],
+        objectives = [[01) Accept "Craftsman's Writ - Lightning Eel" from the quest giver.]],
+        text = [[
+01) Accept "Craftsman's Writ - Lightning Eel" from the quest giver.
+02) Do "Craftsman's Writ - Lightning Eel" (80.4, 58.0): Deliver 30 Lightning Eel and the Craftsman's Writ - Lightning Eel - to Packmaster Stonebruiser at...
+03) Turn in "Craftsman's Writ - Lightning Eel" to Packmaster Stonebruiser (80.4, 58.0).
+        ]],
+        image = "",
+    },
+    [334] = {
+        step = 334,
+        title = [[56-60 Eastern Plaguelands — Circuit 3]],
+        objectives = [[01) Pick up these 2 quests around Lady Sylvanas Windrunner (74.6, 13.4): "The Crimson Courier", "The]],
+        text = [[
+01) Pick up these 2 quests around Lady Sylvanas Windrunner (74.6, 13.4): "The Crimson Courier", "The Crimson Courier".
+02) Do "The Crimson Courier" (26.5, 74.7): Return to Eastern Plaguelands and track down the Crimson Courier. Kill the Courier and recover the...
+03) Do "The Crimson Courier" (26.5, 74.7): Return to Eastern Plaguelands and track down the Crimson Courier. Kill the Courier and recover the...
+04) Turn in "The Crimson Courier" and "The Crimson Courier" to Nathanos Blightcaller (26.5, 74.7).
+        ]],
+        image = "Horde_EasternPlaguelands_c03.tga",
+    },
+    [335] = {
+        step = 335,
+        title = [[56-60 Eastern Plaguelands — Circuit 9]],
+        objectives = [[01) Accept "Return to Nathanos" from Crusader Lord Valdelmar (85.4, 83.2).]],
+        text = [[
+01) Accept "Return to Nathanos" from Crusader Lord Valdelmar (85.4, 83.2).
+02) Do "Return to Nathanos" (26.5, 74.7): Return to Nathanos Blightcaller with the new information.
+03) Turn in "Return to Nathanos" to Nathanos Blightcaller (26.5, 74.7).
+        ]],
+        image = "Horde_EasternPlaguelands_c09.tga",
+    },
+    [336] = {
+        step = 336,
         title = [[56-60 Eastern Plaguelands — Circuit 12]],
         objectives = [[01) Pick up these 2 quests around Nathanos Blightcaller (26.5, 74.7): "The Scarlet Oracle, Demetria"]],
         text = [[
@@ -4189,283 +4442,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_EasternPlaguelands_c12.tga",
     },
-    [314] = {
-        step = 314,
-        title = [[54-60 Eastern Plaguelands — Circuit 13]],
-        objectives = [[01) Accept "Hameya's Plea" from Torn Scroll.]],
-        text = [[
-01) Accept "Hameya's Plea" from Torn Scroll.
-02) Do "Hameya's Plea": Kill Infiltrator Hameya. Use his key on the Mound of Dirt behind the Undercroft.
-03) Turn in "Hameya's Plea" to Mound of Dirt.
-        ]],
-        image = "",
-    },
-    [315] = {
-        step = 315,
-        title = [[55-60 Eastern Plaguelands — Circuit 14]],
-        objectives = [[01) Accept "Craftsman's Writ - Dense Weightstone" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Dense Weightstone" from the quest giver.
-02) Do "Craftsman's Writ - Dense Weightstone" (80.4, 58.0): Deliver 120 Dense Weightstones and the Craftsman's Writ - Dense Weightstone - to Packmaster...
-03) Turn in "Craftsman's Writ - Dense Weightstone" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [316] = {
-        step = 316,
-        title = [[55-60 Eastern Plaguelands — Circuit 15]],
-        objectives = [[01) Accept "Craftsman's Writ - Imperial Plate Chest" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Imperial Plate Chest" from the quest giver.
-02) Do "Craftsman's Writ - Imperial Plate Chest" (80.4, 58.0): Deliver 3 Imperial Plate Chests and the Craftsman's Writ - Imperial Plate Chest - to Packmaster...
-03) Turn in "Craftsman's Writ - Imperial Plate Chest" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [317] = {
-        step = 317,
-        title = [[55-60 Eastern Plaguelands — Circuit 16]],
-        objectives = [[01) Accept "Craftsman's Writ - Volcanic Hammer" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Volcanic Hammer" from the quest giver.
-02) Do "Craftsman's Writ - Volcanic Hammer" (80.4, 58.0): Deliver 3 Volcanic Hammers and the Craftsman's Writ - Volcanic Hammer - to Packmaster Stonebruiser...
-03) Turn in "Craftsman's Writ - Volcanic Hammer" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [318] = {
-        step = 318,
-        title = [[55-60 Eastern Plaguelands — Circuit 17]],
-        objectives = [[01) Accept "Craftsman's Writ - Huge Thorium Battleaxe" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Huge Thorium Battleaxe" from the quest giver.
-02) Do "Craftsman's Writ - Huge Thorium Battleaxe" (80.4, 58.0): Deliver 3 Huge Thorium Battleaxes and the Craftsman's Writ - Huge Thorium Battleaxe - to Packmaster...
-03) Turn in "Craftsman's Writ - Huge Thorium Battleaxe" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [319] = {
-        step = 319,
-        title = [[55-60 Eastern Plaguelands — Circuit 18]],
-        objectives = [[01) Accept "Craftsman's Writ - Radiant Circlet" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Radiant Circlet" from the quest giver.
-02) Do "Craftsman's Writ - Radiant Circlet" (80.4, 58.0): Deliver 3 Radiant Circlets and the Craftsman's Writ - Radiant Circlet - to Packmaster Stonebruiser...
-03) Turn in "Craftsman's Writ - Radiant Circlet" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [320] = {
-        step = 320,
-        title = [[55-60 Eastern Plaguelands — Circuit 19]],
-        objectives = [[01) Accept "Craftsman's Writ - Wicked Leather Headband" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Wicked Leather Headband" from the quest giver.
-02) Do "Craftsman's Writ - Wicked Leather Headband" (80.4, 58.0): Deliver 10 Wicked Leather Headbands and the Craftsman's Writ - Wicked Leather Headband - to...
-03) Turn in "Craftsman's Writ - Wicked Leather Headband" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [321] = {
-        step = 321,
-        title = [[55-60 Eastern Plaguelands — Circuit 20]],
-        objectives = [[01) Accept "Craftsman's Writ - Rugged Armor Kit" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Rugged Armor Kit" from the quest giver.
-02) Do "Craftsman's Writ - Rugged Armor Kit" (80.4, 58.0): Deliver 25 Rugged Armor Kits and the Craftsman's Writ - Rugged Armor Kit - to Packmaster...
-03) Turn in "Craftsman's Writ - Rugged Armor Kit" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [322] = {
-        step = 322,
-        title = [[55-60 Eastern Plaguelands — Circuit 21]],
-        objectives = [[01) Accept "Craftsman's Writ - Wicked Leather Belt" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Wicked Leather Belt" from the quest giver.
-02) Do "Craftsman's Writ - Wicked Leather Belt" (80.4, 58.0): Deliver 9 Wicked Leather Belts and the Craftsman's Writ - Wicked Leather Belt - to Packmaster...
-03) Turn in "Craftsman's Writ - Wicked Leather Belt" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [323] = {
-        step = 323,
-        title = [[55-60 Eastern Plaguelands — Circuit 22]],
-        objectives = [[01) Accept "Craftsman's Writ - Runic Leather Pants" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Runic Leather Pants" from the quest giver.
-02) Do "Craftsman's Writ - Runic Leather Pants" (80.4, 58.0): Deliver 4 Runic Leather Pants and the Craftsman's Writ - Runic Leather Pants - to Packmaster...
-03) Turn in "Craftsman's Writ - Runic Leather Pants" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [324] = {
-        step = 324,
-        title = [[55-60 Eastern Plaguelands — Circuit 23]],
-        objectives = [[01) Accept "Craftsman's Writ - Brightcloth Pants" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Brightcloth Pants" from the quest giver.
-02) Do "Craftsman's Writ - Brightcloth Pants" (80.4, 58.0): Deliver 6 Brightcloth Pants and the Craftsman's Writ - Brightcloth Pants - to Packmaster...
-03) Turn in "Craftsman's Writ - Brightcloth Pants" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [325] = {
-        step = 325,
-        title = [[55-60 Eastern Plaguelands — Circuit 24]],
-        objectives = [[01) Accept "Craftsman's Writ - Runecloth Boots" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Runecloth Boots" from the quest giver.
-02) Do "Craftsman's Writ - Runecloth Boots" (80.4, 58.0): Deliver 8 Runecloth Boots and the Craftsman's Writ - Runecloth Boots - to Packmaster Stonebruiser...
-03) Turn in "Craftsman's Writ - Runecloth Boots" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [326] = {
-        step = 326,
-        title = [[55-60 Eastern Plaguelands — Circuit 25]],
-        objectives = [[01) Accept "Craftsman's Writ - Runecloth Bag" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Runecloth Bag" from the quest giver.
-02) Do "Craftsman's Writ - Runecloth Bag" (80.4, 58.0): Deliver 8 Runecloth Bags and the Craftsman's Writ - Runecloth Bag - to Packmaster Stonebruiser at...
-03) Turn in "Craftsman's Writ - Runecloth Bag" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [327] = {
-        step = 327,
-        title = [[55-60 Eastern Plaguelands — Circuit 26]],
-        objectives = [[01) Accept "Craftsman's Writ - Runecloth Robe" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Runecloth Robe" from the quest giver.
-02) Do "Craftsman's Writ - Runecloth Robe" (80.4, 58.0): Deliver 8 Runecloth Robes and the Craftsman's Writ - Runecloth Robe - to Packmaster Stonebruiser at...
-03) Turn in "Craftsman's Writ - Runecloth Robe" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [328] = {
-        step = 328,
-        title = [[55-60 Eastern Plaguelands — Circuit 27]],
-        objectives = [[01) Accept "Craftsman's Writ - Goblin Sapper Charge" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Goblin Sapper Charge" from the quest giver.
-02) Do "Craftsman's Writ - Goblin Sapper Charge" (80.4, 58.0): Deliver 20 Goblin Sapper Charges and the Craftsman's Writ - Goblin Sapper Charge - to Packmaster...
-03) Turn in "Craftsman's Writ - Goblin Sapper Charge" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [329] = {
-        step = 329,
-        title = [[55-60 Eastern Plaguelands — Circuit 28]],
-        objectives = [[01) Accept "Craftsman's Writ - Thorium Grenade" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Thorium Grenade" from the quest giver.
-02) Do "Craftsman's Writ - Thorium Grenade" (80.4, 58.0): Deliver 20 Thorium Grenades and the Craftsman's Writ - Thorium Grenade - to Packmaster Stonebruiser...
-03) Turn in "Craftsman's Writ - Thorium Grenade" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [330] = {
-        step = 330,
-        title = [[55-60 Eastern Plaguelands — Circuit 29]],
-        objectives = [[01) Accept "Craftsman's Writ - Gnomish Battle Chicken" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Gnomish Battle Chicken" from the quest giver.
-02) Do "Craftsman's Writ - Gnomish Battle Chicken" (80.4, 58.0): Deliver 4 Gnomish Battle Chickens and the Craftsman's Writ - Gnomish Battle Chicken - to Packmaster...
-03) Turn in "Craftsman's Writ - Gnomish Battle Chicken" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [331] = {
-        step = 331,
-        title = [[55-60 Eastern Plaguelands — Circuit 30]],
-        objectives = [[01) Accept "Craftsman's Writ - Thorium Tube" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Thorium Tube" from the quest giver.
-02) Do "Craftsman's Writ - Thorium Tube" (80.4, 58.0): Deliver 14 Thorium Tubes and the Craftsman's Writ - Thorium Tube - to Packmaster Stonebruiser at...
-03) Turn in "Craftsman's Writ - Thorium Tube" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [332] = {
-        step = 332,
-        title = [[55-60 Eastern Plaguelands — Circuit 31]],
-        objectives = [[01) Accept "Craftsman's Writ - Major Mana Potion" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Major Mana Potion" from the quest giver.
-02) Do "Craftsman's Writ - Major Mana Potion" (80.4, 58.0): Deliver 10 Major Mana Potions and the Craftsman's Writ - Major Mana Potion - to Packmaster...
-03) Turn in "Craftsman's Writ - Major Mana Potion" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [333] = {
-        step = 333,
-        title = [[55-60 Eastern Plaguelands — Circuit 32]],
-        objectives = [[01) Accept "Craftsman's Writ - Greater Arcane Protection Potion" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Greater Arcane Protection Potion" from the quest giver.
-02) Do "Craftsman's Writ - Greater Arcane Protection Potion" (80.4, 58.0): Deliver 15 Greater Arcane Protection Potions and the Craftsman's Writ - Greater Arcane Protection...
-03) Turn in "Craftsman's Writ - Greater Arcane Protection Potion" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [334] = {
-        step = 334,
-        title = [[55-60 Eastern Plaguelands — Circuit 33]],
-        objectives = [[01) Accept "Craftsman's Writ - Major Healing Potion" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Major Healing Potion" from the quest giver.
-02) Do "Craftsman's Writ - Major Healing Potion" (80.4, 58.0): Deliver 20 Major Healing Potions and the Craftsman's Writ - Major Healing Potion - to Packmaster...
-03) Turn in "Craftsman's Writ - Major Healing Potion" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [335] = {
-        step = 335,
-        title = [[55-60 Eastern Plaguelands — Circuit 34]],
-        objectives = [[01) Accept "Craftsman's Writ - Potion of Petrification" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Potion of Petrification" from the quest giver.
-02) Do "Craftsman's Writ - Potion of Petrification" (80.4, 58.0): Deliver 1 Potion of Petrification and the Craftsman's Writ - Potion of Petrification - to...
-03) Turn in "Craftsman's Writ - Potion of Petrification" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [336] = {
-        step = 336,
-        title = [[55-60 Eastern Plaguelands — Circuit 35]],
-        objectives = [[01) Accept "Craftsman's Writ - Stonescale Eel" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Stonescale Eel" from the quest giver.
-02) Do "Craftsman's Writ - Stonescale Eel" (80.4, 58.0): Deliver 40 Stonescale Eel and the Craftsman's Writ - Stonescale Eel - to Packmaster Stonebruiser at...
-03) Turn in "Craftsman's Writ - Stonescale Eel" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
     [337] = {
         step = 337,
-        title = [[55-60 Eastern Plaguelands — Circuit 36]],
-        objectives = [[01) Accept "Craftsman's Writ - Plated Armorfish" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Plated Armorfish" from the quest giver.
-02) Do "Craftsman's Writ - Plated Armorfish" (80.4, 58.0): Deliver 30 Plated Armorfish and the Craftsman's Writ - Plated Armorfish - to Packmaster...
-03) Turn in "Craftsman's Writ - Plated Armorfish" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [338] = {
-        step = 338,
-        title = [[55-60 Eastern Plaguelands — Circuit 37]],
-        objectives = [[01) Accept "Craftsman's Writ - Lightning Eel" from the quest giver.]],
-        text = [[
-01) Accept "Craftsman's Writ - Lightning Eel" from the quest giver.
-02) Do "Craftsman's Writ - Lightning Eel" (80.4, 58.0): Deliver 30 Lightning Eel and the Craftsman's Writ - Lightning Eel - to Packmaster Stonebruiser at...
-03) Turn in "Craftsman's Writ - Lightning Eel" to Packmaster Stonebruiser (80.4, 58.0).
-        ]],
-        image = "",
-    },
-    [339] = {
-        step = 339,
         title = [[57-60 Eastern Plaguelands — Circuit 38]],
         objectives = [[01) Accept "Menethil's Gift" from Menethil's Gift.]],
         text = [[
@@ -4474,6 +4452,28 @@ SKquests_Horde = {
 03) Turn in "Menethil's Gift" to Leonid Barthalomew the Revered (80.6, 58.8).
         ]],
         image = "",
+    },
+    [338] = {
+        step = 338,
+        title = [[58-60 Eastern Plaguelands — Circuit 1]],
+        objectives = [[01) Accept "In Search of Anthion" from Mokvar (34.9, 38.3).]],
+        text = [[
+01) Accept "In Search of Anthion" from Mokvar (34.9, 38.3).
+02) Do "In Search of Anthion" (30.9, 17.1): Use the Extra-Dimensional Ghost Revealer at the entrance to Stratholme and speak with the ghost of...
+03) Turn in "In Search of Anthion" to Anthion Harmon (30.9, 17.1).
+        ]],
+        image = "Horde_EasternPlaguelands_c01.tga",
+    },
+    [339] = {
+        step = 339,
+        title = [[58-60 Eastern Plaguelands — Circuit 2]],
+        objectives = [[01) Accept "Anthion's Strange Request" from Anthion Harmon (30.9, 17.1).]],
+        text = [[
+01) Accept "Anthion's Strange Request" from Anthion Harmon (30.9, 17.1).
+02) Do "Anthion's Strange Request" (30.9, 17.1): Bring 3 Dark Iron Bars, 20 Enchanted Leather, 3 Mooncloth and 4 Cured Rugged Hides to Anthion...
+03) Turn in "Anthion's Strange Request" to Anthion Harmon (30.9, 17.1).
+        ]],
+        image = "Horde_EasternPlaguelands_c02.tga",
     },
     [340] = {
         step = 340,
@@ -4499,43 +4499,6 @@ SKquests_Horde = {
     },
     [342] = {
         step = 342,
-        title = [[58-60 Silithus — Circuit 1]],
-        objectives = [[01) Pick up these 7 quests around Aurel Goldleaf (52.0, 38.2): "A Humble Offering", "What Tomorrow B]],
-        text = [[
-01) Pick up these 7 quests around Aurel Goldleaf (52.0, 38.2): "A Humble Offering", "What Tomorrow Brings", "The Path of the Righteous", "The Hand of the Righteous", "Anachronos", "Twilight Geolords", "Vyral the Vile".
-02) Do "A Humble Offering" (52.0, 38.2): Aurel Goldleaf at Cenarion Hold in Silithus wants you to bring her 1 Abyssal Scepter. You must also...
-03) Do "What Tomorrow Brings" (49.5, 36.4): Venture to the Caverns of Time in Tanaris and find Anachronos, Brood of Nozdormu.
-04) Do "The Path of the Righteous" (49.5, 36.4): Collect 200 Silithid Carapace Fragments and return to Baristolth.
-05) Do "The Hand of the Righteous" (49.5, 36.4): Collect 200 Silithid Carapace Fragments and return to Baristolth.
-06) Do "Vyral the Vile" (48.6, 37.9): Bring Vyral's Signet Ring to Huum Wildmane in Cenarion Hold.
-07) Do "Anachronos" (65.2, 50.0): Seek out Anachronos at the Caverns of Time in Tanaris.
-08) Do "Twilight Geolords" (20.7, 88.4): Kill 10 Twilight Geolords, then return to Huum Wildmane in Cenarion Hold.
-09) Turn in "A Humble Offering" to Aurel Goldleaf (52.0, 38.2).
-10) Turn in "What Tomorrow Brings" and "The Path of the Righteous" and "The Hand of the Righteous" to Baristolth of the Shifting Sands (49.5, 36.4).
-11) Turn in "Anachronos" to Anachronos (65.2, 50.0).
-12) Turn in "Twilight Geolords" and "Vyral the Vile" to Huum Wildmane (48.6, 37.9).
-        ]],
-        image = "Horde_Silithus_c01.tga",
-    },
-    [343] = {
-        step = 343,
-        title = [[58-60 Silithus — Circuit 2]],
-        objectives = [[01) Pick up these 7 quests around Geologist Larksbane (49.7, 37.3): "Armaments of War", "Armaments o]],
-        text = [[
-01) Pick up these 7 quests around Geologist Larksbane (49.7, 37.3): "Armaments of War", "Armaments of War", "Armaments of War", "Armaments of War", "Armaments of War", "Armaments of War", "Armaments of War".
-02) Do "Armaments of War" (49.7, 37.3).
-03) Do "Armaments of War" (49.7, 37.3).
-04) Do "Armaments of War" (49.7, 37.3).
-05) Do "Armaments of War" (49.7, 37.3).
-06) Do "Armaments of War" (49.7, 37.3).
-07) Do "Armaments of War" (49.7, 37.3).
-08) Do "Armaments of War" (49.7, 37.3).
-09) Turn in "Armaments of War" and "Armaments of War" and "Armaments of War" and "Armaments of War" and "Armaments of War" and "Armaments of War" and "Armaments of War" to Geologist Larksbane (49.7, 37.3).
-        ]],
-        image = "Horde_Silithus_c02.tga",
-    },
-    [344] = {
-        step = 344,
         title = [[55-60 Silithus — Circuit 3]],
         objectives = [[01) Pick up these 7 quests around Scout Bloodfist (49.0, 36.7): "Report to General Kirika", "Secret ]],
         text = [[
@@ -4554,8 +4517,8 @@ SKquests_Horde = {
         ]],
         image = "Horde_Silithus_c03.tga",
     },
-    [345] = {
-        step = 345,
+    [343] = {
+        step = 343,
         title = [[55-60 Silithus — Circuit 4]],
         objectives = [[01) Pick up these 2 quests around General Kirika (50.8, 69.5): "Scouring the Desert", "Field Duty Pa]],
         text = [[
@@ -4566,6 +4529,43 @@ SKquests_Horde = {
 05) Turn in "Field Duty Papers" to Krug Skullsplit (52.2, 68.4).
         ]],
         image = "Horde_Silithus_c04.tga",
+    },
+    [344] = {
+        step = 344,
+        title = [[58-60 Silithus — Circuit 1]],
+        objectives = [[01) Pick up these 7 quests around Aurel Goldleaf (52.0, 38.2): "A Humble Offering", "What Tomorrow B]],
+        text = [[
+01) Pick up these 7 quests around Aurel Goldleaf (52.0, 38.2): "A Humble Offering", "What Tomorrow Brings", "The Path of the Righteous", "The Hand of the Righteous", "Anachronos", "Twilight Geolords", "Vyral the Vile".
+02) Do "A Humble Offering" (52.0, 38.2): Aurel Goldleaf at Cenarion Hold in Silithus wants you to bring her 1 Abyssal Scepter. You must also...
+03) Do "What Tomorrow Brings" (49.5, 36.4): Venture to the Caverns of Time in Tanaris and find Anachronos, Brood of Nozdormu.
+04) Do "The Path of the Righteous" (49.5, 36.4): Collect 200 Silithid Carapace Fragments and return to Baristolth.
+05) Do "The Hand of the Righteous" (49.5, 36.4): Collect 200 Silithid Carapace Fragments and return to Baristolth.
+06) Do "Vyral the Vile" (48.6, 37.9): Bring Vyral's Signet Ring to Huum Wildmane in Cenarion Hold.
+07) Do "Anachronos" (65.2, 50.0): Seek out Anachronos at the Caverns of Time in Tanaris.
+08) Do "Twilight Geolords" (20.7, 88.4): Kill 10 Twilight Geolords, then return to Huum Wildmane in Cenarion Hold.
+09) Turn in "A Humble Offering" to Aurel Goldleaf (52.0, 38.2).
+10) Turn in "What Tomorrow Brings" and "The Path of the Righteous" and "The Hand of the Righteous" to Baristolth of the Shifting Sands (49.5, 36.4).
+11) Turn in "Anachronos" to Anachronos (65.2, 50.0).
+12) Turn in "Twilight Geolords" and "Vyral the Vile" to Huum Wildmane (48.6, 37.9).
+        ]],
+        image = "Horde_Silithus_c01.tga",
+    },
+    [345] = {
+        step = 345,
+        title = [[58-60 Silithus — Circuit 2]],
+        objectives = [[01) Pick up these 7 quests around Geologist Larksbane (49.7, 37.3): "Armaments of War", "Armaments o]],
+        text = [[
+01) Pick up these 7 quests around Geologist Larksbane (49.7, 37.3): "Armaments of War", "Armaments of War", "Armaments of War", "Armaments of War", "Armaments of War", "Armaments of War", "Armaments of War".
+02) Do "Armaments of War" (49.7, 37.3).
+03) Do "Armaments of War" (49.7, 37.3).
+04) Do "Armaments of War" (49.7, 37.3).
+05) Do "Armaments of War" (49.7, 37.3).
+06) Do "Armaments of War" (49.7, 37.3).
+07) Do "Armaments of War" (49.7, 37.3).
+08) Do "Armaments of War" (49.7, 37.3).
+09) Turn in "Armaments of War" and "Armaments of War" and "Armaments of War" and "Armaments of War" and "Armaments of War" and "Armaments of War" and "Armaments of War" to Geologist Larksbane (49.7, 37.3).
+        ]],
+        image = "Horde_Silithus_c02.tga",
     },
     [346] = {
         step = 346,
