@@ -2869,11 +2869,11 @@ function addon:CreateModernUI()
         if t == "claro" then return L("THEME_LIGHT") end
         if t == "elvuidark" then return "ElvUI Dark" end
         if t == "minimaldark" then return "Minimal Dark" end
-        if t == "blizzardclassic" then return "Blizzard Classic" end
-        if t == "dragonflight" then return "Dragonflight" end
-        if t == "wrathclassic" then return "Wrath Classic" end
+        if t == "blizzardclassic" then return L("THEME_BLIZZARDCLASSIC") end
+        if t == "dragonflight" then return L("THEME_DRAGONFLIGHT") end
+        if t == "wrathclassic" then return L("THEME_WRATHCLASSIC") end
         if t == "modern" then return L("THEME_MODERN") end
-        if t == "warcraftlogs" then return "Warcraft Logs" end
+        if t == "warcraftlogs" then return L("THEME_WARCRAFTLOGS") end
         if t == "ascensionwow" then return L("THEME_ASCENSION") end
         return t
     end
@@ -2935,11 +2935,11 @@ function addon:CreateModernUI()
                 elseif tKey == "claro" then tName = L("THEME_LIGHT")
                 elseif tKey == "elvuidark" then tName = "ElvUI Dark"
                 elseif tKey == "minimaldark" then tName = "Minimal Dark"
-                elseif tKey == "blizzardclassic" then tName = "Blizzard Classic"
-                elseif tKey == "dragonflight" then tName = "Dragonflight"
-                elseif tKey == "wrathclassic" then tName = "Wrath Classic"
+                elseif tKey == "blizzardclassic" then tName = L("THEME_BLIZZARDCLASSIC")
+                elseif tKey == "dragonflight" then tName = L("THEME_DRAGONFLIGHT")
+                elseif tKey == "wrathclassic" then tName = L("THEME_WRATHCLASSIC")
                 elseif tKey == "modern" then tName = L("THEME_MODERN")
-                elseif tKey == "warcraftlogs" then tName = "Warcraft Logs"
+                elseif tKey == "warcraftlogs" then tName = L("THEME_WARCRAFTLOGS")
                 elseif tKey == "ascensionwow" then tName = L("THEME_ASCENSION")
                 end
                 
@@ -4395,3 +4395,4 @@ SlashCmdList["SKQCALIB"] = function(msg)
     print(string.format("|cff00ff00Calibracion [%d]:|r w=%.2f, h=%.2f, x=%.2f, y=%.2f", mapZone, calib[1], calib[2], calib[3], calib[4]))
     if SKquests.RefreshMap then SKquests:RefreshMap() end
 end
+

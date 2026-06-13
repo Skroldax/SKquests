@@ -47,7 +47,11 @@ SKquests_Localization.enUS = {
     THEME_DARK = "Dark",
     THEME_LIGHT = "Light",
     THEME_MODERN = "Modern",
-    THEME_ASCENSION = "Ascension WoW",
+        THEME_ASCENSION = "Ascension WoW",
+    THEME_BLIZZARDCLASSIC = "Blizzard Classic",
+    THEME_DRAGONFLIGHT = "Dragonflight",
+    THEME_WRATHCLASSIC = "Wrath Classic",
+    THEME_WARCRAFTLOGS = "Warcraft Logs",
     EDIT_THEME = "Edit Theme",
     OPACITY_LBL = "Window opacity:",
     LOCK_WINDOW = "Lock window movement",
@@ -154,7 +158,11 @@ SKquests_Localization.esES = {
     THEME_DARK = "Oscuro",
     THEME_LIGHT = "Claro",
     THEME_MODERN = "Moderno",
-    THEME_ASCENSION = "Ascension WoW",
+        THEME_ASCENSION = "Ascension WoW",
+    THEME_BLIZZARDCLASSIC = "Blizzard Classic",
+    THEME_DRAGONFLIGHT = "Dragonflight",
+    THEME_WRATHCLASSIC = "Wrath Classic",
+    THEME_WARCRAFTLOGS = "Warcraft Logs",
     EDIT_THEME = "Editar Tema",
     OPACITY_LBL = "Opacidad de ventana:",
     LOCK_WINDOW = "Bloquear movimiento de ventana",
@@ -248,3 +256,4 @@ end
 function L(key)
     return SKquests_Localization:Get(key)
 end
+
