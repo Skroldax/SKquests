@@ -23,4 +23,6 @@ SKquests_ProCodes.lua
 SKquests_Tracker.lua
 SKquests_MinimapButton.lua
 SKquests_Rewards.lua
+SKquests_Themes.lua
+SKquests_ThemeEditor.lua
 SKquests_UI.lua
