@@ -1,0 +1,83 @@
+# No Data files
+Database/*/**/*.html
+# No Meta-Data files
+Database/*/*/*Data*.xml
+Database/*/*/*Data*.html
+
+Translations/*_gen.xml
+Translations/*_gen.lua
+Translations/*DataFiles.xml
+Translations/*Lookup.lua
+Translations/_data/*.html
+
+# Some test files i don't want to commit
+*.toc-stupid
+toc-stupid.py
+
+
+.database_generator/Questie-translations
+.database_generator/Questie-data
+
+start.lua
+stop.lua
+
+notes.md
+
+.shit
+.translator
+
+.generate_database/*.json
+
+# Dump output should not be version controlled here.
+.generate_database/_data
+
+.wowhead/*.json
+
+#We don't want the zip file in the repo
+*.zip
+*.7z
+#Don't push temp files...
+*.zip.tmp*
+#Don't push the bash script lock file.
+*.lock
+
+#Used for the "local history" plugin
+.history/
+
+## IntelliJ settings
+.idea/
+
+CHANGELOG.md
+
+#This is used for the atom build package, enables the build to happen on each save.
+.atom-build.yml
+
+#Used by the buildscript in batch
+*.temporary
+
+#Macos stuff
+*.DS_Store
+
+releases/
+*__pycache__/
+
+# Python venv
+venv
+
+#Perfy
+Perfy
+
+#Log files
+*.log
+*.bak
+
+.build
+
+.llm-output
+..wiki-information
+
+# AI related files
+*.ai
+.aider*
+
+WoW-API

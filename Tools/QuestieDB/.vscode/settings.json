@@ -1,0 +1,167 @@
+{
+  "Lua.workspace.ignoreDir": [
+    ".generate_database",
+    ".ai_lua",
+    ".ai_py",
+    ".ai_scripts",
+    ".database_generator/mangos_translation",
+    ".database_generator/Questie-translations",
+    ".database_generator/Questie-data",
+    ".database_generator/_data",
+    ".shit",
+    ".vscode",
+    ".vscode/*.lua",
+    ".vscode/*",
+    ".translator",
+    ".wowhead",
+    "**/.git",
+    "**/.cache",
+    "**/_data/**",
+    ".llm-output",
+    ".build",
+    "Perfy",
+    "**/Questie-translations",
+    "**/Questie-data",
+    "Corrections/Era",
+    "Corrections/Sod",
+    "Corrections/Tbc",
+    "Corrections/Wotlk",
+    "Corrections/Cata",
+    "WoW-API",
+    ".tooling/deprecated_tools",
+  ],
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/.cache": true,
+    "**/__pycache__": true,
+    "**/_data/*.html": true,
+    "**/venv": true,
+    "WoW-API": true,
+    "**/*.jq-temp": true,
+    "*.jq-temp": true,
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/*.code-search": true,
+    "**/.html":true,
+    ".llm-output":true,
+    ".build":true,
+    "Perfy":true,
+    ".database_generator/Questie-translations": true,
+    ".database_generator/Questie-data": true,
+    ".database_generator/mangos_translation/translations": true,
+    ".vscode/*.lua": true,
+    ".vscode/AI_Context/*.ai": true,
+    ".ai_lua": true,
+    ".ai_py": true,
+    "translations.json": true,
+    "**/*.lua-table": true,
+    "**/*.jq-temp": true,
+    "*.jq-temp": true,
+  },
+
+  "[lua]": {
+    "editor.defaultFormatter": "sumneko.lua",
+    "editor.formatOnSave": true,
+  },
+
+  "Lua.workspace.preloadFileSize": 3000,
+  "Lua.workspace.maxPreload": 2000,
+  // Removes trailing whitespaces
+  "files.trimTrailingWhitespace": true,
+
+  // The number of spaces a tab is equal to. This setting is overridden
+  // based on the file contents when `editor.detectIndentation` is true.
+  "editor.tabSize": 2,
+
+  // Insert spaces when pressing Tab. This setting is overriden
+  // based on the file contents when `editor.detectIndentation` is true.
+  "editor.insertSpaces": true,
+
+  // When opening a file, `editor.tabSize` and `editor.insertSpaces`
+  // will be detected based on the file contents. Set to false to keep
+  // the values you've explicitly set, above.
+  "editor.detectIndentation": false,
+
+  // Default end of line
+  "files.eol": "\n",
+
+  "Lua.diagnostics.ignoredFiles": "Opened",
+  "Lua.diagnostics.libraryFiles": "Opened",
+  "search.quickOpen.includeSymbols": false, // Include symbols in quick open
+  "Lua.workspace.useGitIgnore": false,
+
+  "Lua.diagnostics.severity": {},
+  "Lua.diagnostics.enable": true,
+  "Lua.runtime.version": "Lua 5.1",
+  "todohighlight.isEnable": true,
+  "todohighlight.isCaseSensitive": true,
+  "todohighlight.keywordsPattern": "TODO:.*",
+  "todohighlight.defaultStyle": {
+        "color": "orange",
+        "backgroundColor": "#ffffff1f",
+        "overviewRulerColor": "#ffab001f",
+        "cursor": "pointer",
+        "border": "1px solid #eeeeee1f",
+        "borderRadius": "5px",
+        "isWholeLine": true,
+        //other styling properties goes here ...
+    },
+    "todohighlight.include": [
+        "**/*.lua",
+        "**/*.py",
+        "**/*.xml",
+        "**/*.toc",
+    ],
+    "todohighlight.exclude": [
+      "**/node_modules/**",
+      "**/bower_components/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/.vscode/**",
+      "**/.github/**",
+      "**/_output/**",
+      "**/*.min.*",
+      "**/*.map",
+      "**/.next/**",
+      ".build",
+      "venv"
+    ],
+    "todohighlight.maxFilesForSearch": 5120,
+    "todohighlight.toggleURI": false,
+    "Lua.runtime.builtin": {
+      "basic": "enable",
+      "debug": "enable",
+      "io": "enable",
+      "math": "enable",
+      "os": "enable",
+      "package": "enable",
+      "string": "enable",
+      "table": "enable",
+      "utf8": "disable",
+      "builtin": "enable"
+    },
+    "Lua.diagnostics.globals": [],
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+      {
+        "file": ".vscode/.copilot-commit-message-instruction.md"
+      },
+    ],
+    "chat.instructionsFilesLocations": {
+      ".vscode/Instructions": true,
+      ".ai_lua/Instructions": true,
+      ".ai_py/Instructions": true,
+    },
+    "chat.promptFilesLocations": {
+      ".vscode/Prompts": true,
+      ".ai_lua/Prompts": true,
+      ".ai_py/Prompts": true,
+    },
+    "github.copilot.chat.codeGeneration.instructions": [],
+}

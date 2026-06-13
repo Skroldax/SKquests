@@ -1,0 +1,22 @@
+------------------------------------------------------------------------
+r38 | jebus905 | 2010-07-09 20:58:01 +0000 (Fri, 09 Jul 2010) | 2 lines
+Changed paths:
+   A /tags/v3.30b (from /trunk:37)
+
+Cartographer_Minimap_Coords:
+- Should no longer be polluting the global namespace
+------------------------------------------------------------------------
+r37 | jebus905 | 2010-07-09 20:57:37 +0000 (Fri, 09 Jul 2010) | 2 lines
+Changed paths:
+   M /trunk/Cartographer_Minimap_Coords.toc
+
+Cartographer_Minimap_Coords:
+- update version code
+------------------------------------------------------------------------
+r36 | jebus905 | 2010-07-09 20:28:55 +0000 (Fri, 09 Jul 2010) | 2 lines
+Changed paths:
+   M /trunk/Cartographer_Minimap_Coords.lua
+
+Cartographer_Minimap_Coords:
+- Should no longer be polluting the global namespace
+------------------------------------------------------------------------

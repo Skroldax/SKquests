@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Generador de Códigos SKquests Pro</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #2d2d2d;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            color: #33ff99;
+            font-size: 24px;
+            margin-top: 0;
+        }
+        input[type="text"] {
+            width: 90%;
+            padding: 10px;
+            margin: 15px 0;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: #111;
+            color: #fff;
+            font-size: 16px;
+            text-align: center;
+        }
+        button {
+            background-color: #33ff99;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #22dd77;
+        }
+        .result {
+            margin-top: 25px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffaa00;
+            padding: 15px;
+            background-color: #1a1a1a;
+            border-radius: 5px;
+            border: 1px dashed #ffaa00;
+            word-break: break-all;
+            user-select: all;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Generador de Códigos</h1>
+    <p>Introduce el nombre EXACTO del personaje en el juego:</p>
+    <input type="text" id="charName" placeholder="Ej: Arthas" autocomplete="off" onkeypress="if(event.key === 'Enter') generate()">
+    <button onclick="generate()">Generar Código</button>
+    
+    <div id="resultBox" class="result" style="display:none;"></div>
+</div>
+
+<script>
+function generate() {
+    var name = document.getElementById('charName').value.trim();
+    if (!name) {
+        alert("Por favor, introduce un nombre.");
+        return;
+    }
+    
+    name = name.toUpperCase();
+    var salt = "SKQUESTS_ASCENSION_2026";
+    var str = name + salt;
+    var hash1 = 5381;
+    var hash2 = 0;
+    
+    for (var i = 0; i < str.length; i++) {
+        var b = str.charCodeAt(i);
+        hash1 = ((hash1 * 33) + b) % 4294967291;
+        hash2 = ((hash2 * 65599) + b) % 4294967279;
+    }
+    
+    var h1Str = ("0000" + (hash1 % 65536).toString(16).toUpperCase()).slice(-4);
+    var h2Str = ("0000" + (hash2 % 65536).toString(16).toUpperCase()).slice(-4);
+    
+    var code = "SKPRO-" + h1Str + "-" + h2Str;
+    
+    var rb = document.getElementById('resultBox');
+    rb.style.display = 'block';
+    rb.innerText = code;
+}
+</script>
+
+</body>
+</html>

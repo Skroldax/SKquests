@@ -1,0 +1,18 @@
+# Backups y temporales
+*.bak
+*_Backup.lua
+*.zip
+# Assets binarios pesados (sin historial git; respaldados aparte)
+Media/Images Ally/
+Media/Images Horde/
+Media/Interfaz/
+*.png
+*.tga
+*.blp
+*.jpeg
+skquests-repo.bundle
+skquests-repo.bundle*
+
+# Modo Pro: códigos privados, nunca a GitHub
+SKquests_ProCodes.lua
+PRO_CODES.txt
