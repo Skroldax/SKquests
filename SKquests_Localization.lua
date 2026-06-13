@@ -110,6 +110,13 @@ SKquests_Localization.enUS = {
     MEDIUM = "Medium",
     LARGE = "Large",
     NORMAL = "Normal",
+    CHOOSE_LEVELING_GUIDE = "Choose a leveling guide",
+    LEVELS = "Levels",
+    STEPS_LBL = "steps",
+    PRO_GUIDES_LOCKED = "Pro Guides Locked",
+    PRO_UNLOCK_HINT = "Enter your Pro code to unlock the leveling guides.",
+    UNLOCK_PRO = "Unlock Pro",
+    CHAPTER = "Chapter",
 }
 
 -- Spanish translations
@@ -212,6 +219,13 @@ SKquests_Localization.esES = {
     MEDIUM = "Mediano",
     LARGE = "Grande",
     NORMAL = "Normal",
+    CHOOSE_LEVELING_GUIDE = "Elige una guía de leveo",
+    LEVELS = "Niveles",
+    STEPS_LBL = "pasos",
+    PRO_GUIDES_LOCKED = "Guías Pro bloqueadas",
+    PRO_UNLOCK_HINT = "Introduce tu código Pro para desbloquear las guías de leveo.",
+    UNLOCK_PRO = "Desbloquear Pro",
+    CHAPTER = "Capítulo",
 }
 
 function SKquests_Localization:SetLanguage(lang)

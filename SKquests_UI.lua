@@ -1,7 +1,7 @@
 -- File: SKquests_UI.lua
 -- Rediseño completo de la interfaz de SKquests al estilo Web 3 Columnas
 -- Soporta modo oscuro/claro, ventana ajustable y pestañas dinámicas.
--- Versión Alpha 0.11.2
+-- Versión Alpha 0.11.3
 
 local addon = SKquests
 
@@ -1268,17 +1268,17 @@ function addon:CreateModernUI()
     -- ---- CONTROL DE REDIMENSIÓN (CORNER HANDLES) ----
     local resizeHandles = {}
     local corners = {
-        { point = "BOTTOMRIGHT", x = -2, y = 2, size = 16 },
-        { point = "BOTTOMLEFT", x = 2, y = 2, size = 16 },
-        { point = "TOPRIGHT", x = -2, y = -2, size = 16 },
-        { point = "TOPLEFT", x = 2, y = -2, size = 16 },
+        { point = "BOTTOMRIGHT", x = 0, y = 0, size = 24 },
+        { point = "BOTTOMLEFT", x = 0, y = 0, size = 24 },
+        { point = "TOPRIGHT", x = 0, y = 0, size = 24 },
+        { point = "TOPLEFT", x = 0, y = 0, size = 24 },
     }
 
     for _, info in ipairs(corners) do
         local handle = CreateFrame("Button", nil, f)
         handle:SetPoint(info.point, f, info.point, info.x, info.y)
         handle:SetSize(info.size, info.size)
-        handle:SetFrameLevel(f:GetFrameLevel() + 10)
+        handle:SetFrameLevel(f:GetFrameLevel() + 50)
 
         if info.point == "BOTTOMRIGHT" then
             handle:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
@@ -1287,7 +1287,7 @@ function addon:CreateModernUI()
             -- Resaltado sutil en hover
             local tex = handle:CreateTexture(nil, "HIGHLIGHT")
             tex:SetAllPoints()
-            tex:SetTexture(1, 1, 1, 0.15)
+            tex:SetTexture(1, 1, 1, 0.25)
         end
 
         handle:SetScript("OnMouseDown", function(self, button)
@@ -1779,7 +1779,7 @@ function addon:CreateModernUI()
 
     local gcTitle = GuideCardsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     gcTitle:SetPoint("TOPLEFT", 16, -14)
-    gcTitle:SetText("Elige una guía de leveo")
+    RegLoc(gcTitle, "CHOOSE_LEVELING_GUIDE")
     gcTitle:SetTextColor(C.gold[1], C.gold[2], C.gold[3])
     GuideCardsPanel.titleFS = gcTitle
 
@@ -1834,11 +1834,12 @@ function addon:CreateModernUI()
             local meta = GUIDE_META[key] or { label = key, color = {0.8, 0.8, 0.8}, levels = "" }
             local guide = SKquests_Guides[key]
             local steps = (type(guide) == "table") and #guide or 0
-            card.title:SetText(meta.label)
+            local localizedLabel = L(key:upper())
+            card.title:SetText(localizedLabel)
             card.title:SetTextColor(C.white[1], C.white[2], C.white[3])
-            card.fac:SetText(meta.label)
+            card.fac:SetText(localizedLabel)
             card.fac:SetTextColor(meta.color[1], meta.color[2], meta.color[3])
-            card.sub:SetText(("Niveles: %s  -  %d pasos"):format(meta.levels, steps))
+            card.sub:SetText(("%s: %s  -  %d %s"):format(L("LEVELS"), meta.levels, steps, L("STEPS_LBL")))
             card.guideKey = key
             card:SetScript("OnClick", function(self)
                 if addon.SetCurrentGuide then
@@ -1875,19 +1876,19 @@ function addon:CreateModernUI()
 
     local lockText = GuideLockPanel:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
     lockText:SetPoint("TOP", lockIcon, "BOTTOM", 0, -14)
-    lockText:SetText("Guías Pro bloqueadas")
+    RegLoc(lockText, "PRO_GUIDES_LOCKED")
     lockText:SetTextColor(C.gold[1], C.gold[2], C.gold[3])
     GuideLockPanel.title = lockText
 
     local lockSub = GuideLockPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     lockSub:SetPoint("TOP", lockText, "BOTTOM", 0, -8)
-    lockSub:SetText("Introduce tu código Pro para desbloquear las guías de leveo.")
+    RegLoc(lockSub, "PRO_UNLOCK_HINT")
     GuideLockPanel.sub = lockSub
 
     local unlockBtn = CreateFrame("Button", nil, GuideLockPanel, "UIPanelButtonTemplate")
     unlockBtn:SetSize(170, 26)
     unlockBtn:SetPoint("TOP", lockSub, "BOTTOM", 0, -18)
-    unlockBtn:SetText("Desbloquear Pro")
+    RegLoc(unlockBtn, "UNLOCK_PRO")
     unlockBtn:SetScript("OnClick", function()
         if addon.RequestProCode then addon:RequestProCode("guides") end
     end)
@@ -2917,13 +2918,13 @@ function addon:CreateModernUI()
     SettingsPanel.title = cfgTitle
     SettingsPanel.labels = {}
 
-    local function CreateCheckbox(parent, text, x, y, key)
+    local function CreateCheckbox(parent, textKey, x, y, key)
         local cbName = "SKquests_CB_" .. key
         local cb = CreateFrame("CheckButton", cbName, parent, "UICheckButtonTemplate")
         cb:SetPoint("TOPLEFT", x, y)
         local label = _G[cbName .. "Text"]
         if label then
-            label:SetText(text)
+            RegLoc(label, textKey)
             table.insert(SettingsPanel.labels, label)
         end
         cb:SetChecked(SKquestsDB and SKquestsDB.config and SKquestsDB.config[key] ~= false)
@@ -2935,7 +2936,7 @@ function addon:CreateModernUI()
         return cb
     end
 
-    CreateCheckbox(SettingsPanel, "Minimizar en combate", 20, -50, "autoMinimize")
+    CreateCheckbox(SettingsPanel, "AUTO_MINIMIZE", 20, -50, "autoMinimize")
 
     local lockBtn = CreateFrame("CheckButton", "SKquests_CB_lock", SettingsPanel, "UICheckButtonTemplate")
     lockBtn:SetPoint("TOPLEFT", 20, -80)
@@ -3183,7 +3184,7 @@ Características:
 • Enlaces rápidos y botón copiables a Wowhead.
 
 Creado con amor para la comunidad.
-Versión Alpha 0.11.2
+Versión Alpha 0.11.3
 ]])
     AboutPanel.desc = abDesc
 
@@ -3431,7 +3432,7 @@ function addon:RefreshList()
                 btn.dot:SetText("")
                 btn.icon:Show()
                 btn.icon:SetTexture("Interface\\QuestFrame\\UI-QuestLog-BookIcon")
-                btn.txt:SetText(chData.title or "Capítulo " .. dataIdx)
+                btn.txt:SetText(chData.title or (L("CHAPTER") .. " " .. dataIdx))
                 btn.lvl:SetText("")
 
                 if dataIdx == selectedGuideChapter then
