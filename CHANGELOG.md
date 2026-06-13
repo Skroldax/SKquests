@@ -3,6 +3,16 @@
 All notable changes to SKquests will be documented in this file.
 This project follows [Semantic Versioning](https://semver.org/) and [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.11.1-alpha] - 2026-06-13
+
+### Added
+- **Mejora del tema Blizzard Classic**: se procesó e integró una nueva textura de fondo de pergamino clara, suave y limpia (sin marcas de agua ni ruidos visuales molestos).
+- **Tarjetas de selección de guías integradas**: ahora el fondo de las tarjetas de Alianza y Horda se adapta dinámicamente al tema, usando transparencias suaves (15% de opacidad) al usar fondos personalizados y respondiendo al hover dinámicamente.
+
+### Fixed
+- **Superposición de paneles en la interfaz**: corregido un error de renderizado donde las tarjetas de selección de guía se superponían con otras pestañas (como Acerca de) al cambiar de pestaña.
+- **Sincronización del tema**: corregido un problema donde los cambios del tema no se aplicaban al panel de selección de guías debido a early returns y scripts OnLeave que forzaban colores sólidos.
+
 ## [0.11.0-alpha] - 2026-06-13
 
 ### Added
