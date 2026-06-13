@@ -402,6 +402,8 @@ local Themes = {
         objDone     = {0.20, 0.85, 0.20},
         objPending  = {0.85, 0.85, 0.85},
         wowBlue     = {0.35, 0.60, 1.00},
+        textures    = { bg = "Interface\\ChatFrame\\ChatFrameBackground", border = "Interface\\Tooltips\\UI-Tooltip-Border" },
+        metrics     = { borderSize = 12, padding = 4 },
     },
     light = {
         bg          = {0.95, 0.92, 0.84}, -- pergamino claro
@@ -417,9 +419,11 @@ local Themes = {
         dim         = {0.40, 0.35, 0.25},
         sectionLbl  = {0.48, 0.40, 0.28},
         green       = {0.10, 0.55, 0.10},
-        objDone     = {0.15, 0.60, 0.15},
-        objPending  = {0.28, 0.24, 0.15},
-        wowBlue     = {0.10, 0.35, 0.75},
+        objDone     = {0.25, 0.60, 0.25},
+        objPending  = {0.20, 0.15, 0.10},
+        wowBlue     = {0.15, 0.35, 0.80},
+        textures    = { bg = "Interface\\ChatFrame\\ChatFrameBackground", border = "Interface\\Tooltips\\UI-Tooltip-Border" },
+        metrics     = { borderSize = 12, padding = 4 },
     }
 }
 
@@ -527,14 +531,15 @@ local ROW_H = 28
 --  SOPORTE PARA BACKDROP & THEME
 -- ============================================================
 local function ApplyBD(f, bg, border, edgeSize)
+    -- default fallback if not called inside ApplyTheme
     f:SetBackdrop({
         bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-        tile = true, tileSize = 16, edgeSize = edgeSize or 12,
-        insets = {left=3, right=3, top=3, bottom=3},
+        tile = true, tileSize = 256, edgeSize = edgeSize or 16,
+        insets = {left=4, right=4, top=4, bottom=4},
     })
-    f:SetBackdropColor(bg[1], bg[2], bg[3], 0.98)
-    f:SetBackdropBorderColor(border[1], border[2], border[3], 0.8)
+    if bg then f:SetBackdropColor(bg[1], bg[2], bg[3], 0.98) end
+    if border then f:SetBackdropBorderColor(border[1], border[2], border[3], 0.8) end
 end
 
 function addon:ApplyTheme()
@@ -543,19 +548,34 @@ function addon:ApplyTheme()
 
     if not MainFrame then return end
 
-    -- Aplicar colores de fondo y bordes
-    MainFrame:SetBackdropColor(C.bg[1], C.bg[2], C.bg[3], 0.98)
-    MainFrame:SetBackdropBorderColor(C.border[1], C.border[2], C.border[3], 0.8)
+    local function UpdateBD(frame, alpha)
+        frame:SetBackdrop({
+            bgFile   = C.textures and C.textures.bg or "Interface\\ChatFrame\\ChatFrameBackground",
+            edgeFile = C.textures and C.textures.border or "Interface\\Tooltips\\UI-Tooltip-Border",
+            tile = true, tileSize = 256, 
+            edgeSize = C.metrics and C.metrics.borderSize or 16,
+            insets = {left=4, right=4, top=4, bottom=4},
+        })
+        frame:SetBackdropBorderColor(C.border[1], C.border[2], C.border[3], 1.0)
+    end
 
+    -- Aplicar texturas, fondos y bordes
+    UpdateBD(MainFrame, 0.98)
+    MainFrame:SetBackdropColor(C.bg[1], C.bg[2], C.bg[3], 0.98)
+    
+    UpdateBD(Sidenav, 0.98)
     Sidenav:SetBackdropColor(C.bgSide[1], C.bgSide[2], C.bgSide[3], 0.98)
     Sidenav:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], 0.8)
-
+    
+    UpdateBD(ListPanel, 0.98)
     ListPanel:SetBackdropColor(C.bgList[1], C.bgList[2], C.bgList[3], 0.98)
     ListPanel:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], 0.8)
-
+    
+    UpdateBD(DetailPanel, 0.98)
     DetailPanel:SetBackdropColor(C.bgDetail[1], C.bgDetail[2], C.bgDetail[3], 0.98)
     DetailPanel:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], 0.8)
-
+    
+    UpdateBD(RightSidebar, 0.98)
     RightSidebar:SetBackdropColor(C.bgSide[1], C.bgSide[2], C.bgSide[3], 0.98)
     RightSidebar:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], 0.8)
 

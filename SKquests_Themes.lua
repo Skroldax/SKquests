@@ -50,7 +50,7 @@ addon.Themes.BlizzardClassic = {
     name = "Blizzard Classic",
     key = "blizzardclassic",
     isEditable = true,
-    textures = { bg = Textures.Solid, border = "Interface\\Tooltips\\UI-Tooltip-Border" },
+    textures = { bg = "Interface\\AddOns\\SKquests\\Media\\blizzard_bg.blp", border = "Interface\\AddOns\\SKquests\\Media\\blizzard_border.blp" },
     colors = {
         bgPanel    = {0.12, 0.08, 0.04, 0.98},
         bgHover    = {0.20, 0.14, 0.08, 0.5},
@@ -66,7 +66,7 @@ addon.Themes.Dragonflight = {
     name = "Dragonflight",
     key = "dragonflight",
     isEditable = true,
-    textures = { bg = Textures.Solid, border = Textures.Solid },
+    textures = { bg = "Interface\\AddOns\\SKquests\\Media\\dragonflight_bg.blp", border = "Interface\\AddOns\\SKquests\\Media\\dragonflight_border.blp" },
     colors = {
         bgPanel    = {0.20, 0.05, 0.05, 0.95},
         bgHover    = {0.30, 0.10, 0.10, 0.8},
@@ -82,7 +82,7 @@ addon.Themes.WrathClassic = {
     name = "Wrath Classic",
     key = "wrathclassic",
     isEditable = true,
-    textures = { bg = Textures.Solid, border = "Interface\\Tooltips\\UI-Tooltip-Border" },
+    textures = { bg = "Interface\\AddOns\\SKquests\\Media\\wrath_bg.blp", border = "Interface\\AddOns\\SKquests\\Media\\wrath_border.blp" },
     colors = {
         bgPanel    = {0.05, 0.10, 0.15, 0.95},
         bgHover    = {0.10, 0.20, 0.30, 0.6},
@@ -98,7 +98,7 @@ addon.Themes.Modern = {
     name = "Modern",
     key = "modern",
     isEditable = true,
-    textures = { bg = Textures.Solid, border = Textures.Solid },
+    textures = { bg = "Interface\\AddOns\\SKquests\\Media\\modern_bg.blp", border = "Interface\\AddOns\\SKquests\\Media\\modern_border.blp" },
     colors = {
         bgPanel    = {0.04, 0.08, 0.15, 0.95},
         bgHover    = {0.08, 0.16, 0.30, 0.8},
@@ -114,7 +114,7 @@ addon.Themes.WarcraftLogs = {
     name = "Warcraft Logs",
     key = "warcraftlogs",
     isEditable = true,
-    textures = { bg = Textures.Solid, border = Textures.Solid },
+    textures = { bg = "Interface\\AddOns\\SKquests\\Media\\warcraftlogs_bg.blp", border = "Interface\\AddOns\\SKquests\\Media\\warcraftlogs_border.blp" },
     colors = {
         bgPanel    = {0.07, 0.07, 0.07, 0.98},
         bgHover    = {0.12, 0.12, 0.12, 1.0},
@@ -130,7 +130,7 @@ addon.Themes.AscensionWoW = {
     name = "Ascension WoW",
     key = "ascensionwow",
     isEditable = true,
-    textures = { bg = Textures.Solid, border = "Interface\\Tooltips\\UI-Tooltip-Border" },
+    textures = { bg = "Interface\\AddOns\\SKquests\\Media\\ascension_bg.blp", border = "Interface\\AddOns\\SKquests\\Media\\ascension_border.blp" },
     colors = {
         bgPanel    = {0.18, 0.14, 0.08, 0.98},
         bgHover    = {0.28, 0.22, 0.14, 0.80},
@@ -194,14 +194,17 @@ function addon:GetCustomPalette(themeKey)
         bgSelected = { c.accent[1] * 0.45, c.accent[2] * 0.45, c.accent[3] * 0.45 },
         bgHover    = { c.bgHover[1], c.bgHover[2], c.bgHover[3] },
         border     = { c.border[1], c.border[2], c.border[3] },
-        borderDim  = mul(c.border, 0.8),
+        borderDim  = mul(c.border, 0.75),
         gold       = { c.textTitle[1], c.textTitle[2], c.textTitle[3] },
         white      = { c.textNormal[1], c.textNormal[2], c.textNormal[3] },
-        dim        = mul(c.textNormal, 0.62),
-        sectionLbl = mul(c.textNormal, 0.80),
-        green      = { 0.20, 0.85, 0.20 },
-        objDone    = { 0.20, 0.85, 0.20 },
+        dim        = mul(c.textNormal, 0.75),
+        sectionLbl = mul(c.textNormal, 0.85),
+        green      = { 0.2, 0.85, 0.2 },
+        objDone    = { c.accent[1], c.accent[2], c.accent[3] },
         objPending = { c.textNormal[1], c.textNormal[2], c.textNormal[3] },
         wowBlue    = { c.accent[1], c.accent[2], c.accent[3] },
+        
+        textures   = t.textures,
+        metrics    = t.metrics
     }
 end
