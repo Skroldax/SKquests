@@ -94,18 +94,18 @@ addon.Themes.WrathClassic = {
     metrics = { borderSize = 1, padding = 4 },
 }
 
-addon.Themes.RUFModern = {
-    name = "RUF Modern",
-    key = "rufmodern",
+addon.Themes.Modern = {
+    name = "Modern",
+    key = "modern",
     isEditable = true,
     textures = { bg = Textures.Solid, border = Textures.Solid },
     colors = {
-        bgPanel    = {0.12, 0.12, 0.12, 0.95},
-        bgHover    = {0.22, 0.22, 0.22, 1.0},
-        border     = {0.20, 0.20, 0.20, 1.0},
+        bgPanel    = {0.11, 0.11, 0.11, 1.0},
+        bgHover    = {0.16, 0.17, 0.18, 1.0},
+        border     = {0.0, 0.0, 0.0, 0.0},
         textNormal = {0.80, 0.80, 0.80},
-        textTitle  = {0.90, 0.90, 0.90},
-        accent     = {0.60, 0.60, 0.60},
+        textTitle  = {0.44, 0.53, 0.85},
+        accent     = {0.44, 0.53, 0.85},
     },
     metrics = { borderSize = 1, padding = 4 },
 }
@@ -126,6 +126,22 @@ addon.Themes.WarcraftLogs = {
     metrics = { borderSize = 1, padding = 4 },
 }
 
+addon.Themes.AscensionWoW = {
+    name = "Ascension WoW",
+    key = "ascensionwow",
+    isEditable = true,
+    textures = { bg = Textures.Solid, border = "Interface\\Tooltips\\UI-Tooltip-Border" },
+    colors = {
+        bgPanel    = {0.137, 0.118, 0.094, 0.98},
+        bgHover    = {0.220, 0.176, 0.129, 0.80},
+        border     = {0.470, 0.370, 0.235, 1.0},
+        textNormal = {0.900, 0.840, 0.745},
+        textTitle  = {0.823, 0.627, 0.235},
+        accent     = {0.823, 0.627, 0.235},
+    },
+    metrics = { borderSize = 1, padding = 4 },
+}
+
 -- índice por clave de config
 addon.ThemesByKey = {
     elvuidark       = addon.Themes.ElvUIDark,
@@ -133,12 +149,13 @@ addon.ThemesByKey = {
     blizzardclassic = addon.Themes.BlizzardClassic,
     dragonflight    = addon.Themes.Dragonflight,
     wrathclassic    = addon.Themes.WrathClassic,
-    rufmodern       = addon.Themes.RUFModern,
+    modern          = addon.Themes.Modern,
     warcraftlogs    = addon.Themes.WarcraftLogs,
+    ascensionwow    = addon.Themes.AscensionWoW,
 }
 
 -- Orden de temas extra para el desplegable
-addon.ThemeOrder = { "elvuidark", "minimaldark", "blizzardclassic", "dragonflight", "wrathclassic", "rufmodern", "warcraftlogs" }
+addon.ThemeOrder = { "elvuidark", "minimaldark", "blizzardclassic", "dragonflight", "wrathclassic", "modern", "warcraftlogs", "ascensionwow" }
 
 -- Fallback del sistema Pro (build público sin SKquests_ProCodes.lua):
 -- bloqueado por defecto. SKquests_ProCodes.lua (privado) se carga DESPUÉS

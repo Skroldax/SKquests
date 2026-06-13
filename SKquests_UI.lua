@@ -2844,7 +2844,7 @@ function addon:CreateModernUI()
     themeIcon:SetTexture("Interface\\ChatFrame\\ChatFrameExpandArrow")
 
     local function ThemeBtnText()
-        local t = addon.db and addon.db.theme or "oscuro"
+        local t = addon.config and addon.config.theme or "oscuro"
         if t == "oscuro" then return L("THEME_DARK") end
         if t == "claro" then return L("THEME_LIGHT") end
         if t == "elvuidark" then return "ElvUI Dark" end
@@ -2852,13 +2852,14 @@ function addon:CreateModernUI()
         if t == "blizzardclassic" then return "Blizzard Classic" end
         if t == "dragonflight" then return "Dragonflight" end
         if t == "wrathclassic" then return "Wrath Classic" end
-        if t == "rufmodern" then return "RUF Modern" end
+        if t == "modern" then return L("THEME_MODERN") end
         if t == "warcraftlogs" then return "Warcraft Logs" end
+        if t == "ascensionwow" then return L("THEME_ASCENSION") end
         return t
     end
     themeBtnLbl:SetText(ThemeBtnText())
     
-    local themesList = { "oscuro", "claro", "elvuidark", "minimaldark", "blizzardclassic", "dragonflight", "wrathclassic", "rufmodern", "warcraftlogs" }
+    local themesList = { "oscuro", "claro", "elvuidark", "minimaldark", "blizzardclassic", "dragonflight", "wrathclassic", "modern", "warcraftlogs", "ascensionwow" }
     
     local themeMenu = CreateFrame("Frame", "SKquestsThemeMenu", SettingsPanel)
     themeMenu:SetSize(160, 115)
@@ -2891,8 +2892,8 @@ function addon:CreateModernUI()
         
         btn:SetScript("OnClick", function(self)
             local nextT = self.themeKey
-            if SKquests.db then SKquests.db.theme = nextT end
-            if SKquestsDB and SKquestsDB.profile then SKquestsDB.profile.theme = nextT end
+            if SKquests.config then SKquests.config.theme = nextT end
+            if SKquestsDB and SKquestsDB.config then SKquestsDB.config.theme = nextT end
             addon:ApplyTheme()
             themeBtnLbl:SetText(ThemeBtnText())
             themeMenu:Hide()
@@ -2917,8 +2918,9 @@ function addon:CreateModernUI()
                 elseif tKey == "blizzardclassic" then tName = "Blizzard Classic"
                 elseif tKey == "dragonflight" then tName = "Dragonflight"
                 elseif tKey == "wrathclassic" then tName = "Wrath Classic"
-                elseif tKey == "rufmodern" then tName = "RUF Modern"
+                elseif tKey == "modern" then tName = L("THEME_MODERN")
                 elseif tKey == "warcraftlogs" then tName = "Warcraft Logs"
+                elseif tKey == "ascensionwow" then tName = L("THEME_ASCENSION")
                 end
                 
                 tButtons[i].txt:SetText(tName)
