@@ -2,7 +2,7 @@
 
 Addon de guía de leveo y explorador de misiones para **World of Warcraft 3.3.5a** (WotLK), desarrollado para [Project Ascension](https://ascension.gg/) y compatible con cualquier servidor 3.3.5a.
 
-![Versión](https://img.shields.io/badge/versi%C3%B3n-0.8.5--alpha-orange)
+![Versión](https://img.shields.io/github/v/release/Skroldax/SKquests?include_prereleases&label=versi%C3%B3n&color=orange)
 ![Interfaz](https://img.shields.io/badge/interfaz-30300-blue)
 
 ## Características
