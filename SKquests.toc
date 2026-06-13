@@ -1,7 +1,7 @@
 ## Interface: 30300
 ## Title: SKquests
 ## Author: Skroldax
-## Version: Alpha 0.8.4
+## Version: Alpha 0.11.2
 ## SavedVariables: SKquestsDB
 
 SKquests_Localization.lua
@@ -14,13 +14,15 @@ SKquests_DetailDB.lua
 SKquests_ObjectiveDB.lua
 SKquests_SpawnData_Questie.lua
 SKquests_MapData.lua
+BronzebeardQuestChains.lua
 Alliance_1_60.lua
 Horde_1_60.lua
 SKquests_Guide_esES.lua
 SKquests.lua
-SKquests_Themes.lua
 SKquests_ProCodes.lua
-SKquests_ThemeEditor.lua
 SKquests_Tracker.lua
 SKquests_MinimapButton.lua
+SKquests_Rewards.lua
+SKquests_Themes.lua
+SKquests_ThemeEditor.lua
 SKquests_UI.lua

@@ -1,7 +1,7 @@
 -- File: SKquests_UI.lua
 -- Rediseño completo de la interfaz de SKquests al estilo Web 3 Columnas
 -- Soporta modo oscuro/claro, ventana ajustable y pestañas dinámicas.
--- Versión Alpha 0.8.4
+-- Versión Alpha 0.11.2
 
 local addon = SKquests
 
@@ -12,6 +12,28 @@ SKquests_Guides = {
 }
 
 local L = function(key) return SKquests_Localization and SKquests_Localization:Get(key) or key end
+
+-- Función auxiliar para leer auras de XP personalizadas de Ascension
+local function GetAscensionXPMultiplier()
+    local mult = 1.0
+    for i = 1, 40 do
+        local name = UnitBuff("player", i)
+        if name then
+            local n = string.lower(name)
+            -- Aura de Prestigio (200%)
+            if (string.find(n, "prestigio") or string.find(n, "prestige") or string.find(n, "prestigie")) and string.find(n, "aura") then
+                mult = mult + 2.0
+            -- Aura de XP (50%)
+            elseif (string.find(n, "aura") and (string.find(n, "experiencia") or string.find(n, "experience"))) then
+                mult = mult + 0.5
+            -- Poción de XP (25%)
+            elseif (string.find(n, "poci") or string.find(n, "potion") or string.find(n, "elixir")) and (string.find(n, "experiencia") or string.find(n, "experience") or string.find(n, "xp")) then
+                mult = mult + 0.25
+            end
+        end
+    end
+    return mult
+end
 
 -- ============================================================
 --  MAPA DE ZONAS WotLK/Classic (LOOKUP TABLE)
@@ -245,6 +267,40 @@ local function GetQuestLoc(id)
     end
 end
 
+local function GetLocalizedQuestName(quest)
+    if not quest then return "" end
+    if IsSpanish() then
+        local loc = GetQuestLoc(quest.id)
+        return (loc and loc.T) or quest.name_loc or quest.name
+    else
+        return quest.name
+    end
+end
+
+-- Normaliza nombres para matching tolerante: minúsculas, sin comillas,
+-- espacios colapsados (la DB de pfQuest a veces guarda 'Wanted:  "Hogger"').
+local function QNameNorm(s)
+    if not s or s == "" then return "" end
+    s = s:lower():gsub('"', ''):gsub("%s+", " ")
+    return (s:gsub("^%s+", ""):gsub("%s+$", ""))
+end
+
+local function GetQuestIdByName(name)
+    if not name or name == "" then return nil end
+    local target = QNameNorm(name)
+    if target == "" then return nil end
+    for id, q in pairs(SKquests_DetailDB) do
+        if QNameNorm(q.name) == target or QNameNorm(q.name_loc) == target then
+            return id
+        end
+        local loc = GetQuestLoc(id)
+        if loc and loc.T and QNameNorm(loc.T) == target then
+            return id
+        end
+    end
+    return nil
+end
+
 local function PfText(s)
     if not s then return s end
     s = s:gsub("%$[Bb]", "\n")
@@ -346,6 +402,8 @@ local Themes = {
         objDone     = {0.20, 0.85, 0.20},
         objPending  = {0.85, 0.85, 0.85},
         wowBlue     = {0.35, 0.60, 1.00},
+        textures    = { bg = "Interface\\ChatFrame\\ChatFrameBackground", border = "Interface\\Tooltips\\UI-Tooltip-Border" },
+        metrics     = { borderSize = 12, padding = 4 },
     },
     light = {
         bg          = {0.95, 0.92, 0.84}, -- pergamino claro
@@ -361,9 +419,11 @@ local Themes = {
         dim         = {0.40, 0.35, 0.25},
         sectionLbl  = {0.48, 0.40, 0.28},
         green       = {0.10, 0.55, 0.10},
-        objDone     = {0.15, 0.60, 0.15},
-        objPending  = {0.28, 0.24, 0.15},
-        wowBlue     = {0.10, 0.35, 0.75},
+        objDone     = {0.25, 0.60, 0.25},
+        objPending  = {0.20, 0.15, 0.10},
+        wowBlue     = {0.15, 0.35, 0.80},
+        textures    = { bg = "Interface\\ChatFrame\\ChatFrameBackground", border = "Interface\\Tooltips\\UI-Tooltip-Border" },
+        metrics     = { borderSize = 12, padding = 4 },
     }
 }
 
@@ -397,6 +457,63 @@ local filteredGuideSteps = {}
 local guideChapters = {}
 local selectedGuideChapter = 1
 
+-- Coloca botones invisibles sobre cada [nombre de quest] del texto envuelto,
+-- para que cada quest (incluida la línea resumen) sea clickeable por separado.
+-- Defensivo: se invoca dentro de pcall; si algo falla no rompe el render.
+local function LayoutQuestLinks(parent, cb, lblFS, plain, links, width)
+    cb.qbtns = cb.qbtns or {}
+    for _, b in ipairs(cb.qbtns) do b:Hide() end
+    if not links or #links == 0 or not width or width < 20 then return end
+    local mfs = parent.measureFS
+    if not mfs then
+        mfs = parent:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+        mfs:Hide()
+        parent.measureFS = mfs
+    end
+    mfs:SetText("Ay")
+    local lineH = (mfs:GetStringHeight() or 12) + 2
+    local function W(s) mfs:SetText(s); return mfs:GetStringWidth() or 0 end
+    local spaceW = W(" ")
+    -- tokenizar y simular el salto de línea (wrap) palabra por palabra
+    local words, pos, x, y = {}, {}, 0, 0
+    for w in plain:gmatch("%S+") do words[#words + 1] = w end
+    for i, w in ipairs(words) do
+        local ww = W(w)
+        if x > 0 and (x + ww) > width then x = 0; y = y + lineH end
+        pos[i] = { x = x, y = y, w = ww }
+        x = x + ww + spaceW
+    end
+    -- emparejar cada run "[...]" con su link (en orden) y crear el botón
+    local li, bi, i = 1, 1, 1
+    while i <= #words and li <= #links do
+        if words[i]:find("[", 1, true) then
+            local s = i
+            while i <= #words and not words[i]:find("]", 1, true) do i = i + 1 end
+            local e = math.min(i, #words)
+            local lk = links[li]; li = li + 1
+            if lk.qid then
+                local rx, ry = pos[s].x, pos[s].y
+                local rw = (pos[e].y == ry) and ((pos[e].x + pos[e].w) - rx) or (width - rx)
+                local b = cb.qbtns[bi]
+                if not b then b = CreateFrame("Button", nil, parent); cb.qbtns[bi] = b end
+                b.qid = lk.qid
+                b:SetScript("OnClick", function(self)
+                    selectedQuestId = self.qid
+                    addon:SwitchTab("quests")
+                end)
+                b:ClearAllPoints()
+                b:SetPoint("TOPLEFT", lblFS, "TOPLEFT", rx, -ry)
+                b:SetSize(math.max(8, rw), lineH)
+                b:Show()
+                bi = bi + 1
+            end
+            i = e + 1
+        else
+            i = i + 1
+        end
+    end
+end
+
 -- Widgets del addon
 local MainFrame = nil
 local Sidenav = nil
@@ -414,37 +531,130 @@ local ROW_H = 28
 --  SOPORTE PARA BACKDROP & THEME
 -- ============================================================
 local function ApplyBD(f, bg, border, edgeSize)
+    -- default fallback if not called inside ApplyTheme
     f:SetBackdrop({
         bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-        tile = true, tileSize = 16, edgeSize = edgeSize or 12,
-        insets = {left=3, right=3, top=3, bottom=3},
+        tile = true, tileSize = 256, edgeSize = edgeSize or 16,
+        insets = {left=4, right=4, top=4, bottom=4},
     })
-    f:SetBackdropColor(bg[1], bg[2], bg[3], 0.98)
-    f:SetBackdropBorderColor(border[1], border[2], border[3], 0.8)
+    if bg then f:SetBackdropColor(bg[1], bg[2], bg[3], 0.98) end
+    if border then f:SetBackdropBorderColor(border[1], border[2], border[3], 0.8) end
 end
 
 function addon:ApplyTheme()
     local theme = SKquestsDB and SKquestsDB.config and SKquestsDB.config.theme or "dark"
+    if theme == "claro" then theme = "light" end
+    if theme == "oscuro" then theme = "dark" end
     C = Themes[theme] or (addon.GetCustomPalette and addon:GetCustomPalette(theme)) or Themes.dark
 
     if not MainFrame then return end
 
-    -- Aplicar colores de fondo y bordes
-    MainFrame:SetBackdropColor(C.bg[1], C.bg[2], C.bg[3], 0.98)
-    MainFrame:SetBackdropBorderColor(C.border[1], C.border[2], C.border[3], 0.8)
+    -- Marco temático pintado (9-slice) + inset del contenido (o inset normal)
+    do
+        local tkey = SKquestsDB and SKquestsDB.config and SKquestsDB.config.theme or "dark"
+        if tkey == "claro" then tkey = "light" end
+        if tkey == "oscuro" then tkey = "dark" end
+        local bt = addon.ApplyThemeFrameBorder and addon:ApplyThemeFrameBorder(tkey)
+        if addon.SetPanelInset then addon:SetPanelInset(bt or 10) end
+    end
 
-    Sidenav:SetBackdropColor(C.bgSide[1], C.bgSide[2], C.bgSide[3], 0.98)
-    Sidenav:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], 0.8)
+    local function UpdateBD(frame, alpha)
+        -- IMPORTANTE: no usar el marco pintado como edgeFile (rompe el borde) ni
+        -- tilear el bg como fondo de cada panel. Borde estándar + color de paleta.
+        frame:SetBackdrop({
+            bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
+            edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+            tile = true, tileSize = 16,
+            edgeSize = 14,
+            insets = {left=3, right=3, top=3, bottom=3},
+        })
+        frame:SetBackdropBorderColor(C.border[1], C.border[2], C.border[3], 1.0)
+    end
 
-    ListPanel:SetBackdropColor(C.bgList[1], C.bgList[2], C.bgList[3], 0.98)
-    ListPanel:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], 0.8)
+    -- Aplicar texturas, fondos y bordes
+    local isCustomBG = C.textures and C.textures.bg and (C.textures.bg:find("SKquests") or C.textures.bg:find("Media"))
+    local panelAlpha = isCustomBG and 0.0 or 0.98
 
-    DetailPanel:SetBackdropColor(C.bgDetail[1], C.bgDetail[2], C.bgDetail[3], 0.98)
-    DetailPanel:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], 0.8)
+    if isCustomBG then
+        MainFrame:SetBackdrop({
+            bgFile   = C.textures.bg,
+            edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+            tile = false,
+            edgeSize = 14,
+            insets = {left=3, right=3, top=3, bottom=3},
+        })
+        MainFrame:SetBackdropColor(1, 1, 1, 0.98)
+        MainFrame:SetBackdropBorderColor(C.border[1], C.border[2], C.border[3], 0)
+    else
+        UpdateBD(MainFrame, 0.98)
+        MainFrame:SetBackdropColor(C.bg[1], C.bg[2], C.bg[3], 0.98)
+    end
+    
+    UpdateBD(Sidenav, 0.98)
+    Sidenav:SetBackdropColor(C.bgSide[1], C.bgSide[2], C.bgSide[3], panelAlpha)
+    Sidenav:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustomBG and 0.25 or 0.8)
+    
+    UpdateBD(ListPanel, 0.98)
+    ListPanel:SetBackdropColor(C.bgList[1], C.bgList[2], C.bgList[3], panelAlpha)
+    ListPanel:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustomBG and 0.25 or 0.8)
+    
+    UpdateBD(DetailPanel, 0.98)
+    DetailPanel:SetBackdropColor(C.bgDetail[1], C.bgDetail[2], C.bgDetail[3], panelAlpha)
+    DetailPanel:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustomBG and 0.25 or 0.8)
+    
+    UpdateBD(RightSidebar, 0.98)
+    RightSidebar:SetBackdropColor(C.bgSide[1], C.bgSide[2], C.bgSide[3], panelAlpha)
+    RightSidebar:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustomBG and 0.25 or 0.8)
 
-    RightSidebar:SetBackdropColor(C.bgSide[1], C.bgSide[2], C.bgSide[3], 0.98)
-    RightSidebar:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], 0.8)
+    if SettingsPanel then
+        UpdateBD(SettingsPanel, 0.98)
+        SettingsPanel:SetBackdropColor(C.bgSide[1], C.bgSide[2], C.bgSide[3], panelAlpha)
+        SettingsPanel:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustomBG and 0.25 or 0.8)
+    end
+    if AboutPanel then
+        UpdateBD(AboutPanel, 0.98)
+        AboutPanel:SetBackdropColor(C.bgSide[1], C.bgSide[2], C.bgSide[3], panelAlpha)
+        AboutPanel:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustomBG and 0.25 or 0.8)
+    end
+    if GuideCardsPanel then
+        UpdateBD(GuideCardsPanel, 0.98)
+        GuideCardsPanel:SetBackdropColor(C.bgList[1], C.bgList[2], C.bgList[3], panelAlpha)
+        GuideCardsPanel:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustomBG and 0.25 or 0.8)
+        if GuideCardsPanel.titleFS then
+            GuideCardsPanel.titleFS:SetTextColor(C.gold[1], C.gold[2], C.gold[3])
+        end
+        if GuideCardsPanel.cards then
+            for _, card in ipairs(GuideCardsPanel.cards) do
+                card:SetBackdrop({
+                    bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
+                    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+                    tile = true, tileSize = 16,
+                    edgeSize = 12,
+                    insets = {left=3, right=3, top=3, bottom=3},
+                })
+                card:SetBackdropColor(C.bgDetail[1], C.bgDetail[2], C.bgDetail[3], isCustomBG and 0.15 or 0.98)
+                card:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustomBG and 0.4 or 0.8)
+                if card.title then
+                    card.title:SetTextColor(C.white[1], C.white[2], C.white[3])
+                end
+                if card.sub then
+                    card.sub:SetTextColor(C.dim[1], C.dim[2], C.dim[3])
+                end
+            end
+        end
+    end
+    if GuideLockPanel then
+        UpdateBD(GuideLockPanel, 0.98)
+        GuideLockPanel:SetBackdropColor(C.bgList[1], C.bgList[2], C.bgList[3], panelAlpha)
+        GuideLockPanel:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustomBG and 0.25 or 0.8)
+        if GuideLockPanel.title then
+            GuideLockPanel.title:SetTextColor(C.gold[1], C.gold[2], C.gold[3])
+        end
+        if GuideLockPanel.sub then
+            GuideLockPanel.sub:SetTextColor(C.white[1], C.white[2], C.white[3])
+        end
+    end
 
     -- Aplicar colores de texto de la barra de título
     MainFrame.titleText:SetTextColor(C.gold[1], C.gold[2], C.gold[3])
@@ -538,19 +748,68 @@ end
 -- ============================================================
 -- Criterio ÚNICO de elegibilidad, compartido por el tab Zonas y el Explorador.
 -- Así una zona nunca puede mostrar quests que la lista después descarta.
+-- Inyección ÚNICA de BronzebeardQuestChains como quests custom (nombres limpios,
+-- sin sufijo, sin duplicar). Cada una lleva su coord de azerothhub para el pin.
+local BQByName = {}
+do
+    if BronzebeardQuestChains and SKquests_DetailDB then
+        local ZMAP = {
+            ["camp-narache"] = 220, ["coldridge-valley"] = 132, ["deathknell"] = 154,
+            ["northshire"] = 9, ["shadowglen"] = 188, ["valley-of-trials"] = 363,
+            ["azshara"] = 16, ["desolace"] = 405, ["wetlands"] = 11,
+        }
+        local function norm(s) return (string.lower(s):gsub("[^%w]", "")) end
+        local present = {}
+        for _, q in pairs(SKquests_DetailDB) do
+            if q.name then present[norm(q.name)] = true end
+        end
+        local synthId = 990000
+        for _, e in pairs(BronzebeardQuestChains) do
+            if e.name then
+                BQByName[string.lower(e.name)] = e
+                local nkey = norm(e.name)
+                if not present[nkey] then
+                    present[nkey] = true
+                    synthId = synthId + 1
+                    SKquests_DetailDB[synthId] = {
+                        id = synthId, name = e.name, name_loc = e.name,
+                        desc = e.description, logDesc = e.description,
+                        zoneId = ZMAP[e.zoneId] or 1, level = 1, minLevel = 1,
+                        isCustom = true, faction = e.faction,
+                        bqCoord = { x = e.x, y = e.y }, bqId = e.id,
+                    }
+                end
+            end
+        end
+    end
+end
+
 local function IsQuestEligible(id, q)
     local title = string.upper(q.name or "")
     -- descartar quests sin nombre (entradas corruptas del volcado)
     if title:gsub("%s", "") == "" then return false end
-    if title:find("<UNUSED>") or title:find("<NYI>") or title:find("<TXT>") or title:find("%[UNUSED%]") then
+    -- basura del cliente: <TEST ...>, <UNUSED 1>, <NYI>, <TXT>, [UNUSED], etc.
+    if title:find("<TEST") or title:find("<UNUSED") or title:find("<NYI")
+       or title:find("<TXT") or title:find("%[UNUSED") or title:find("%[NYI")
+       or title:find("%[TEST") or title:find("<DEPRECATED>") then
         return false
     end
+    -- Designer Island (151): zona de pruebas de desarrollo, no es del juego
+    if q.zoneId == 151 then return false end
+    if q.desc == "No information available" then return false end
+    if title:find("FLAG") or title:find("BLIZZARD ACCOUNT:") or title:find("COLLECTOR'S EDITION:") then return false end
     local l1 = tonumber(q.level) or 0
     local l2 = tonumber(q.lvl) or 0
     local l3 = tonumber(q.minLevel) or 0
     local l4 = tonumber(q.reqLevel) or 0
     if (l1 > 60) or (l2 > 60) or (l3 > 60) or (l4 > 60) then
         return false
+    end
+    -- Ocultar quests con nivel < 1 (eventos, clase con level=-1, etc.) a menos
+    -- que sean custom o que el jugador ya las tenga aceptadas en su registro.
+    if not q.isCustom and l1 <= 0 then
+        local active = addon.Tracker and addon.Tracker.IsActive and addon.Tracker:IsActive(q.name)
+        if not active then return false end
     end
 
     -- Filtrar misiones PvP (Campos de batalla y zonas exclusivas PvP)
@@ -695,7 +954,15 @@ local function BuildGuideChapters()
     
     for i, step in ipairs(guide) do
         local ges = GetGuideES(i)
-        local t = (ges and ges.title) or step.title or "Paso " .. i
+        local rawTitle = (ges and ges.title) or step.title or "Paso " .. i
+        local t = rawTitle
+        -- Parse title like "1-5 Northshire Valley — Circuit 1"
+        -- Also supports "1-5 Northshire Valley ? Circuit 1" or hyphen
+        local zoneMatch = rawTitle:match("^(?:%d+%-%d+%s+)?(.+?)%s*[%-—%?]%s*Circui[to]+")
+        if zoneMatch then
+            t = zoneMatch:gsub("^%s+", ""):gsub("%s+$", "")
+        end
+
         if t ~= currentTitle then
             if currentTitle ~= "" then
                 table.insert(guideChapters, { title = currentTitle, startIndex = chapterStartIndex, endIndex = i - 1 })
@@ -749,8 +1016,84 @@ local function UpdateDetailPanelAnchors()
         DetailPanel:SetPoint("BOTTOMRIGHT", RightSidebar, "BOTTOMLEFT", -6, 0)
     else
         RightSidebar:Hide()
-        DetailPanel:SetPoint("BOTTOMRIGHT", MainFrame, "BOTTOMRIGHT", -10, 10)
+        local ins = addon._inset or 10
+        DetailPanel:SetPoint("BOTTOMRIGHT", MainFrame, "BOTTOMRIGHT", -ins, ins)
     end
+end
+
+-- ============================================================
+--  MARCO TEMÁTICO 9-SLICE (texturas pintadas vía SetTexCoord)
+--  Recorta esquinas/bordes de una sola textura de marco y mete
+--  el contenido hacia adentro para que no se tape nada.
+-- ============================================================
+-- Fracción del marco que ocupa la esquina (x,y), por tema.
+local THEME_FRAC = {
+    blizzardclassic = {0.134, 0.371}, wrathclassic = {0.147, 0.396},
+    dragonflight = {0.114, 0.331}, modern = {0.109, 0.316},
+    warcraftlogs = {0.095, 0.293}, ascensionwow = {0.117, 0.320},
+}
+local THEME_BT = 44   -- grosor del marco en pantalla = inset del contenido
+
+function addon:SetPanelInset(inset)
+    addon._inset = inset
+    local f = MainFrame
+    if not f then return end
+    if f.titlebar then
+        f.titlebar:ClearAllPoints()
+        f.titlebar:SetPoint("TOPLEFT", f, "TOPLEFT", inset, -(inset + 2))
+        f.titlebar:SetPoint("TOPRIGHT", f, "TOPRIGHT", -inset, -(inset + 2))
+    end
+    if Sidenav then
+        Sidenav:ClearAllPoints()
+        Sidenav:SetPoint("TOPLEFT", f, "TOPLEFT", inset, -(inset + 28))
+        Sidenav:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", inset, inset)
+    end
+    for _, p in ipairs({ GuideCardsPanel, GuideLockPanel }) do
+        if p then
+            p:ClearAllPoints()
+            p:SetPoint("TOPLEFT", ListPanel, "TOPLEFT", 0, 0)
+            p:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -inset, inset)
+        end
+    end
+    UpdateDetailPanelAnchors()
+end
+
+function addon:ApplyThemeFrameBorder(key)
+    local f = MainFrame
+    if not f then return end
+    local fr = THEME_FRAC[key]
+    if not fr then
+        if f._themeBorder then f._themeBorder:Hide() end
+        return
+    end
+    local fx, fy = fr[1], fr[2]
+    local BT = THEME_BT
+    local tex = "Interface\\AddOns\\SKquests\\Media\\" .. key .. "_border"
+    local tb = f._themeBorder
+    if not tb then
+        tb = CreateFrame("Frame", nil, f)
+        tb:SetAllPoints(f); tb:EnableMouse(false)
+        tb:SetFrameLevel(f:GetFrameLevel() + 30)
+        tb._t = {}
+        for _, k in ipairs({ "tl","tr","bl","br","et","eb","el","er" }) do
+            tb._t[k] = tb:CreateTexture(nil, "ARTWORK")
+        end
+        f._themeBorder = tb
+    end
+    tb:Show()
+    local T = tb._t
+    for _, k in ipairs({ "tl","tr","bl","br","et","eb","el","er" }) do
+        T[k]:SetTexture(tex); T[k]:ClearAllPoints()
+    end
+    T.tl:SetTexCoord(0, fx, 0, fy);       T.tl:SetPoint("TOPLEFT", 0, 0);        T.tl:SetSize(BT, BT)
+    T.tr:SetTexCoord(1-fx, 1, 0, fy);     T.tr:SetPoint("TOPRIGHT", 0, 0);       T.tr:SetSize(BT, BT)
+    T.bl:SetTexCoord(0, fx, 1-fy, 1);     T.bl:SetPoint("BOTTOMLEFT", 0, 0);     T.bl:SetSize(BT, BT)
+    T.br:SetTexCoord(1-fx, 1, 1-fy, 1);   T.br:SetPoint("BOTTOMRIGHT", 0, 0);    T.br:SetSize(BT, BT)
+    T.et:SetTexCoord(fx, 1-fx, 0, fy);    T.et:SetPoint("TOPLEFT", BT, 0);   T.et:SetPoint("TOPRIGHT", -BT, 0);   T.et:SetHeight(BT)
+    T.eb:SetTexCoord(fx, 1-fx, 1-fy, 1);  T.eb:SetPoint("BOTTOMLEFT", BT, 0);T.eb:SetPoint("BOTTOMRIGHT", -BT, 0);T.eb:SetHeight(BT)
+    T.el:SetTexCoord(0, fx, fy, 1-fy);    T.el:SetPoint("TOPLEFT", 0, -BT);  T.el:SetPoint("BOTTOMLEFT", 0, BT);  T.el:SetWidth(BT)
+    T.er:SetTexCoord(1-fx, 1, fy, 1-fy);  T.er:SetPoint("TOPRIGHT", 0, -BT); T.er:SetPoint("BOTTOMRIGHT", 0, BT); T.er:SetWidth(BT)
+    return BT
 end
 
 -- ============================================================
@@ -810,7 +1153,7 @@ local function LayoutDetailSections(ch)
         ch.objSec:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", 0, -6)
         ch.objSec:SetPoint("TOPRIGHT", ch.header, "BOTTOMRIGHT", 0, -6)
         if activeTab == "guide" then
-            ch.objSec:SetHeight(320)
+            -- Let RefreshDetail handle the height dynamically based on contents
         else
             ch.objSec:SetHeight(120)
         end
@@ -911,9 +1254,6 @@ function addon:CreateModernUI()
 
     ApplyBD(f, C.bg, C.border, 12)
 
-    -- Sliders creados dinámicamente más adelante en SettingsPanel
-    local wSlider, hSlider
-
     -- Guardar tamaño al terminar resize
     f:SetScript("OnSizeChanged", function(self, w, h)
         w = math.floor(w)
@@ -922,30 +1262,66 @@ function addon:CreateModernUI()
             SKquestsDB.config.width = w
             SKquestsDB.config.height = h
         end
-        if wSlider then wSlider:SetValue(w) end
-        if hSlider then hSlider:SetValue(h) end
         addon:UpdateListRows()
     end)
 
-    -- ---- CONTROL DE REDIMENSIÓN (GRABBER) ----
-    local grabber = CreateFrame("Button", nil, f)
-    grabber:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -2, 2)
-    grabber:SetSize(16, 16)
-    grabber:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
-    grabber:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
-    grabber:SetFrameLevel(f:GetFrameLevel() + 5)
-    grabber:SetScript("OnMouseDown", function(self, button)
-        f:StartSizing("BOTTOMRIGHT")
-    end)
-    grabber:SetScript("OnMouseUp", function(self, button)
-        f:StopMovingOrSizing()
-    end)
+    -- ---- CONTROL DE REDIMENSIÓN (CORNER HANDLES) ----
+    local resizeHandles = {}
+    local corners = {
+        { point = "BOTTOMRIGHT", x = -2, y = 2, size = 16 },
+        { point = "BOTTOMLEFT", x = 2, y = 2, size = 16 },
+        { point = "TOPRIGHT", x = -2, y = -2, size = 16 },
+        { point = "TOPLEFT", x = 2, y = -2, size = 16 },
+    }
+
+    for _, info in ipairs(corners) do
+        local handle = CreateFrame("Button", nil, f)
+        handle:SetPoint(info.point, f, info.point, info.x, info.y)
+        handle:SetSize(info.size, info.size)
+        handle:SetFrameLevel(f:GetFrameLevel() + 10)
+
+        if info.point == "BOTTOMRIGHT" then
+            handle:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
+            handle:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
+        else
+            -- Resaltado sutil en hover
+            local tex = handle:CreateTexture(nil, "HIGHLIGHT")
+            tex:SetAllPoints()
+            tex:SetTexture(1, 1, 1, 0.15)
+        end
+
+        handle:SetScript("OnMouseDown", function(self, button)
+            if button == "LeftButton" then
+                f:StartSizing(info.point)
+            end
+        end)
+        handle:SetScript("OnMouseUp", function(self, button)
+            f:StopMovingOrSizing()
+        end)
+
+        table.insert(resizeHandles, handle)
+    end
+    f.resizeHandles = resizeHandles
+
+    function addon:UpdateResizeHandles()
+        local locked = SKquestsDB and SKquestsDB.config and SKquestsDB.config.locked or false
+        if f.resizeHandles then
+            for _, handle in ipairs(f.resizeHandles) do
+                if locked then
+                    handle:Hide()
+                else
+                    handle:Show()
+                end
+            end
+        end
+    end
 
     -- ---- BARRA DE TÍTULO ----
     local titlebar = CreateFrame("Frame", nil, f)
     titlebar:SetPoint("TOPLEFT", f, "TOPLEFT", 10, -8)
     titlebar:SetPoint("TOPRIGHT", f, "TOPRIGHT", -10, -8)
     titlebar:SetHeight(24)
+    f.titlebar = titlebar
 
     -- Logotipo de WoW en textura circular
     local logo = titlebar:CreateTexture(nil, "OVERLAY")
@@ -1219,18 +1595,30 @@ function addon:CreateModernUI()
     facBtn:SetBackdropColor(0,0,0,0.4)
     local facLbl = facBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     facLbl:SetPoint("CENTER", 0, 0)
+    facLbl:SetText("<- Guías")
     facBtn.lbl = facLbl
     guideFiltersFrame.facBtn = facBtn
 
     facBtn:SetScript("OnClick", function(self)
-        local currentG = addon.db and addon.db.currentGuide or "Horde"
-        local nextG = currentG == "Alliance" and "Horde" or "Alliance"
-        addon:SetCurrentGuide(nextG)
-        selectedGuideChapter = 1
-        BuildGuideChapters()
-        addon:UpdateListRows()
-        addon:RefreshDetail()
-        facBtn.lbl:SetText(nextG == "Alliance" and L("ALLIANCE") or L("HORDE"))
+        addon.selectedGuideKey = nil
+        addon:SwitchTab("guide")
+    end)
+
+    -- Botón "volver a la rejilla de guías"
+    local backBtn = CreateFrame("Button", nil, guideFiltersFrame)
+    backBtn:SetPoint("LEFT", facBtn, "RIGHT", 8, 0)
+    backBtn:SetSize(80, 20)
+    backBtn:RegisterForClicks("LeftButtonUp")
+    ApplyBD(backBtn, {0,0,0}, {0.5,0.4,0.3}, 8)
+    backBtn:SetBackdropColor(0,0,0,0.4)
+    local backLbl = backBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    backLbl:SetPoint("CENTER", 0, 0)
+    backLbl:SetText("<- Guías")
+    backBtn.lbl = backLbl
+    guideFiltersFrame.backBtn = backBtn
+    backBtn:SetScript("OnClick", function()
+        addon.selectedGuideKey = nil
+        addon:SwitchTab("guide")
     end)
 
     -- Listado Faux Scrollable — Los botones son hijos DIRECTOS del scroll frame
@@ -1377,6 +1765,133 @@ function addon:CreateModernUI()
     DetailPanel:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -10, 10)
     ApplyBD(DetailPanel, C.bgDetail, C.borderDim, 8)
 
+    -- ================================================================
+    --  PANEL DE SELECCIÓN DE GUÍAS (rejilla de tarjetas, estilo Zonas)
+    --  Se muestra al entrar a la pestaña "guide" cuando Pro está
+    --  desbloqueado y aún no se eligió una guía (addon.selectedGuideKey == nil)
+    -- ================================================================
+    GuideCardsPanel = CreateFrame("Frame", nil, f)
+    GuideCardsPanel:SetPoint("TOPLEFT", ListPanel, "TOPLEFT", 0, 0)
+    GuideCardsPanel:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -10, 10)
+    ApplyBD(GuideCardsPanel, C.bgList, C.borderDim, 8)
+    GuideCardsPanel:Hide()
+    addon.GuideCardsPanel = GuideCardsPanel
+
+    local gcTitle = GuideCardsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    gcTitle:SetPoint("TOPLEFT", 16, -14)
+    gcTitle:SetText("Elige una guía de leveo")
+    gcTitle:SetTextColor(C.gold[1], C.gold[2], C.gold[3])
+    GuideCardsPanel.titleFS = gcTitle
+
+    -- Metadatos de presentación por facción (autodetectado contra SKquests_Guides)
+    local GUIDE_META = {
+        Alliance = { label = "Alianza", color = {0.30, 0.50, 0.95}, levels = "1-60" },
+        Horde    = { label = "Horda",   color = {0.90, 0.25, 0.25}, levels = "1-60" },
+    }
+
+    function addon:RefreshGuideCards()
+        local panel = addon.GuideCardsPanel
+        panel.cards = panel.cards or {}
+        for _, c in ipairs(panel.cards) do c:Hide() end
+
+        local keys = {}
+        if SKquests_Guides then
+            for k in pairs(SKquests_Guides) do table.insert(keys, k) end
+        end
+        table.sort(keys)
+
+        local COLS, CW, CH, GAP = 2, 300, 84, 14
+        for i, key in ipairs(keys) do
+            local card = panel.cards[i]
+            if not card then
+                card = CreateFrame("Button", nil, panel)
+                card:SetSize(CW, CH)
+                local isCustom = C.textures and C.textures.bg and (C.textures.bg:find("SKquests") or C.textures.bg:find("Media"))
+                ApplyBD(card, C.bgDetail, C.borderDim, 6)
+                card:SetBackdropColor(C.bgDetail[1], C.bgDetail[2], C.bgDetail[3], isCustom and 0.15 or 0.98)
+                card:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustom and 0.4 or 0.8)
+                card.title = card:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+                card.title:SetPoint("TOPLEFT", 14, -12)
+                card.fac = card:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+                card.fac:SetPoint("TOPLEFT", 14, -36)
+                card.sub = card:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+                card.sub:SetPoint("BOTTOMLEFT", 14, 12)
+                card:SetScript("OnEnter", function(self)
+                    local isCustom = C.textures and C.textures.bg and (C.textures.bg:find("SKquests") or C.textures.bg:find("Media"))
+                    self:SetBackdropColor(C.bgHover[1], C.bgHover[2], C.bgHover[3], isCustom and 0.35 or 1.0)
+                end)
+                card:SetScript("OnLeave", function(self)
+                    local isCustom = C.textures and C.textures.bg and (C.textures.bg:find("SKquests") or C.textures.bg:find("Media"))
+                    self:SetBackdropColor(C.bgDetail[1], C.bgDetail[2], C.bgDetail[3], isCustom and 0.15 or 0.98)
+                end)
+                panel.cards[i] = card
+            end
+            local row = math.floor((i - 1) / COLS)
+            local col = (i - 1) % COLS
+            card:ClearAllPoints()
+            card:SetPoint("TOPLEFT", panel, "TOPLEFT", 16 + col * (CW + GAP), -44 - row * (CH + GAP))
+
+            local meta = GUIDE_META[key] or { label = key, color = {0.8, 0.8, 0.8}, levels = "" }
+            local guide = SKquests_Guides[key]
+            local steps = (type(guide) == "table") and #guide or 0
+            card.title:SetText(meta.label)
+            card.title:SetTextColor(C.white[1], C.white[2], C.white[3])
+            card.fac:SetText(meta.label)
+            card.fac:SetTextColor(meta.color[1], meta.color[2], meta.color[3])
+            card.sub:SetText(("Niveles: %s  -  %d pasos"):format(meta.levels, steps))
+            card.guideKey = key
+            card:SetScript("OnClick", function(self)
+                if addon.SetCurrentGuide then
+                    addon:SetCurrentGuide(self.guideKey)
+                else
+                    addon.db = addon.db or {}
+                    addon.db.currentGuide = self.guideKey
+                end
+                addon.selectedGuideKey = self.guideKey
+                selectedGuideChapter = 1
+                BuildGuideChapters()
+                addon:SwitchTab("guide")
+                addon:UpdateListRows()
+                if addon.RefreshDetail then addon:RefreshDetail() end
+            end)
+            card:Show()
+        end
+    end
+
+    -- ================================================================
+    --  PANEL DE CANDADO PRO (pestaña "guide" cuando Pro está bloqueado)
+    -- ================================================================
+    GuideLockPanel = CreateFrame("Frame", nil, f)
+    GuideLockPanel:SetPoint("TOPLEFT", ListPanel, "TOPLEFT", 0, 0)
+    GuideLockPanel:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -10, 10)
+    ApplyBD(GuideLockPanel, C.bgList, C.borderDim, 8)
+    GuideLockPanel:Hide()
+    addon.GuideLockPanel = GuideLockPanel
+
+    local lockIcon = GuideLockPanel:CreateTexture(nil, "ARTWORK")
+    lockIcon:SetTexture("Interface\\Buttons\\LockButton-Locked-Up")
+    lockIcon:SetSize(64, 64)
+    lockIcon:SetPoint("CENTER", 0, 50)
+
+    local lockText = GuideLockPanel:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
+    lockText:SetPoint("TOP", lockIcon, "BOTTOM", 0, -14)
+    lockText:SetText("Guías Pro bloqueadas")
+    lockText:SetTextColor(C.gold[1], C.gold[2], C.gold[3])
+    GuideLockPanel.title = lockText
+
+    local lockSub = GuideLockPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    lockSub:SetPoint("TOP", lockText, "BOTTOM", 0, -8)
+    lockSub:SetText("Introduce tu código Pro para desbloquear las guías de leveo.")
+    GuideLockPanel.sub = lockSub
+
+    local unlockBtn = CreateFrame("Button", nil, GuideLockPanel, "UIPanelButtonTemplate")
+    unlockBtn:SetSize(170, 26)
+    unlockBtn:SetPoint("TOP", lockSub, "BOTTOM", 0, -18)
+    unlockBtn:SetText("Desbloquear Pro")
+    unlockBtn:SetScript("OnClick", function()
+        if addon.RequestProCode then addon:RequestProCode("guides") end
+    end)
+
     local dScroll = CreateFrame("ScrollFrame", "SKquestsDetailScroll", DetailPanel, "UIPanelScrollFrameTemplate")
     dScroll:SetPoint("TOPLEFT", DetailPanel, "TOPLEFT", 6, -6)
     dScroll:SetPoint("BOTTOMRIGHT", DetailPanel, "BOTTOMRIGHT", -26, 6)
@@ -1489,6 +2004,7 @@ function addon:CreateModernUI()
     end
 
     local imgMode = "flat"
+    local customMap = false
     local imgZoom = 1
     local imgOffX, imgOffY = 0, 0
     local MAP_W, MAP_H = 1002, 668
@@ -1569,16 +2085,24 @@ function addon:CreateModernUI()
         if imgMode == "map" then
             local s = (cw / MAP_W) * imgZoom
             imgCanvas:SetSize(MAP_W * s, MAP_H * s)
-            for i = 1, 12 do
-                local col = (i - 1) % 4
-                local row = math.floor((i - 1) / 4)
-                local t = mapTiles[i]
-                local tw = (col == 3) and 234 or 256
-                local th = (row == 2) and 156 or 256
-                t:SetSize(tw * s, th * s)
+            if customMap then
+                local t = mapTiles[1]
+                t:SetSize(MAP_W * s, MAP_H * s)
                 t:ClearAllPoints()
-                t:SetPoint("TOPLEFT", imgCanvas, "TOPLEFT", col * 256 * s, -row * 256 * s)
-                t:SetTexCoord(0, tw / 256, 0, th / 256)
+                t:SetPoint("TOPLEFT", imgCanvas, "TOPLEFT", 0, 0)
+                t:SetTexCoord(0, 1, 0, 1)
+            else
+                for i = 1, 12 do
+                    local col = (i - 1) % 4
+                    local row = math.floor((i - 1) / 4)
+                    local t = mapTiles[i]
+                    local tw = (col == 3) and 234 or 256
+                    local th = (row == 2) and 156 or 256
+                    t:SetSize(tw * s, th * s)
+                    t:ClearAllPoints()
+                    t:SetPoint("TOPLEFT", imgCanvas, "TOPLEFT", col * 256 * s, -row * 256 * s)
+                    t:SetTexCoord(0, tw / 256, 0, th / 256)
+                end
             end
         else
             imgCanvas:SetSize(cw * imgZoom, chh * imgZoom)
@@ -1637,6 +2161,10 @@ function addon:CreateModernUI()
         end
     end)
     questImgBox:SetScript("OnUpdate", function(self)
+        if self.needsLayout and imgClip:GetWidth() and imgClip:GetWidth() > 1 then
+            self.needsLayout = false
+            ImgLayout()
+        end
         if not imgDragging then return end
         local x, y = GetCursorPosition()
         local sc = self:GetEffectiveScale()
@@ -1670,18 +2198,52 @@ function addon:CreateModernUI()
             local c = u and u.coords and u.coords[1]
             return c and c[3]
         end
+
         local mapZone = q and q.zoneId
+        -- Subzonas de inicio -> usar el mapa PADRE (Teldrassil, Elwynn, etc.).
+        -- Los spawns de pfQuest ya están en coords del padre, así que se colocan
+        -- directos sin proyección (Shadowglen queda arriba-izquierda, etc.).
+        local STARTING_PARENT = {
+            [188] = 141, [9] = 12, [154] = 85, [220] = 215, [363] = 14, [132] = 1,
+        }
+        -- Solo las quests VANILLA usan el mapa padre (coords pfQuest directas).
+        -- Las custom (BronzebeardQuestChains) mantienen su subzona para cargar la
+        -- imagen de azerothhub y colocar el pin con sus coords directas.
+        if mapZone and STARTING_PARENT[mapZone] and not (q and q.bqCoord) then
+            mapZone = STARTING_PARENT[mapZone]
+        end
+        local originalMapZone = mapZone
         local folder = mapZone and GetZoneMapFolder(mapZone)
         if q and not folder then
             -- la quest no tiene mapa propio: usar la zona del NPC de inicio/entrega
             mapZone = NpcZone(q.giverId) or NpcZone(q.enderId)
+            originalMapZone = mapZone
             folder = mapZone and GetZoneMapFolder(mapZone)
         end
+        _G.SKquests_UI_CurrentMapZone = mapZone
+
         local usedMap = false
-        -- Intenta la carpeta de la zona; si la textura no existe (SetTexture
-        -- falla), prueba la zona padre (p. ej. Shadowglen -> Teldrassil).
+        customMap = false
+        -- Mapas custom que SÍ existen en Media\Maps (lista blanca determinista).
+        -- En este cliente SetTexture() devuelve verdadero aunque el archivo no
+        -- exista, así que no podemos confiar en su retorno: usamos la lista.
+        local CUSTOM_MAP_FILES = {
+            Shadowglen = true, Northshire = true, Deathknell = true,
+            CampNarache = true, ValleyOfTrials = true, ColdridgeValley = true,
+            Azshara = true,
+        }
+        local function TryCustomMap(fld)
+            if not fld or not CUSTOM_MAP_FILES[fld] then return false end
+            local basePath = "Interface\\AddOns\\SKquests\\Media\\Maps\\" .. fld
+            mapTiles[1]:SetTexture(basePath .. ".tga")
+            customMap = true
+            return true
+        end
+
+        -- Intenta la carpeta de la zona (estándar de WoW)
         local function TryFolder(fld)
             if not fld then return false end
+            if TryCustomMap(fld) then return true end
             local base = "Interface\\WorldMap\\" .. fld .. "\\" .. fld
             if mapTiles[1]:SetTexture(base .. "1") then
                 for i = 2, 12 do mapTiles[i]:SetTexture(base .. i) end
@@ -1708,38 +2270,56 @@ function addon:CreateModernUI()
         end
         if usedMap then
             imgMode = "map"
-            for i = 1, 12 do mapTiles[i]:Show() end
+            if customMap then
+                mapTiles[1]:Show()
+                for i = 2, 12 do mapTiles[i]:Hide() end
+            else
+                for i = 1, 12 do mapTiles[i]:Show() end
+            end
             flatTex:Hide()
             OV.Show(folder)
             local nPin = 0
             local PIN_BUDGET = 160
 
-            local zData = pfDB and pfDB["zones"] and pfDB["zones"]["data"] and pfDB["zones"]["data"][mapZone]
-            local parentZone = zData and zData[1]
+            local originalZData = pfDB and pfDB["zones"] and pfDB["zones"]["data"] and pfDB["zones"]["data"][originalMapZone]
+            local expectedParent = originalZData and originalZData[1]
+            
+            -- AUTO ZOOM ELIMINADO (El usuario prefiere el mapa padre sin zoom o usar custom maps)
 
             -- Reúne coordenadas de un NPC u objeto en la zona del mapa:
             -- pfQuest classic + pfQuest ascension + SKquests_SpawnData
             local function CollectCoords(kind, id)
                 local out = {}
                 if not id then return out end
+
+                -- Inyectar coordenadas custom si el id es de BronzebeardQuestChains
+                if BronzebeardQuestChains and BronzebeardQuestChains[id] then
+                    local bq = BronzebeardQuestChains[id]
+                    local zID = SKquests_DetailDB[id] and SKquests_DetailDB[id].zoneId or 141
+                    -- Aquí asumimos que siempre lo queremos pintar si estamos en su zona, 
+                    -- así que devolvemos la coordenada.
+                    table.insert(out, {bq.x, bq.y, zID})
+                    return out
+                end
+
                 -- Una coordenada pertenece a este mapa si su zona usa la misma
                 -- carpeta de mapa (el DetailDB usa subzonas, pfQuest usa zonas
                 -- de mapa: p.ej. 9 Northshire y 12 Elwynn comparten "Elwynn")
                 local function OnThisMap(z)
-                    return z == mapZone or (parentZone and z == parentZone) or (folder and GetZoneMapFolder(z) == folder)
+                    return z == mapZone or z == originalMapZone or (expectedParent and z == expectedParent) or (folder and GetZoneMapFolder(z) == folder)
                 end
                 if kind == "object" then
                     local o = GetObjectData(id)
                     if o and o.coords then
                         for _, c in ipairs(o.coords) do
-                            if c[3] and OnThisMap(c[3]) then out[#out + 1] = c end
+                            if c[3] and OnThisMap(c[3]) then out[#out + 1] = {c[1], c[2], c[3]} end
                         end
                     end
                     local sd = SKquests_SpawnData and SKquests_SpawnData.objects and SKquests_SpawnData.objects[id]
                     if sd and sd.spawns then
                         for z, sp in pairs(sd.spawns) do
                             if OnThisMap(z) then
-                                for _, c in ipairs(sp) do out[#out + 1] = c end
+                                for _, c in ipairs(sp) do out[#out + 1] = {c[1], c[2], z} end
                             end
                         end
                     end
@@ -1747,14 +2327,14 @@ function addon:CreateModernUI()
                     local u = GetUnitData(id)
                     if u and u.coords then
                         for _, c in ipairs(u.coords) do
-                            if c[3] and OnThisMap(c[3]) then out[#out + 1] = c end
+                            if c[3] and OnThisMap(c[3]) then out[#out + 1] = {c[1], c[2], c[3]} end
                         end
                     end
                     local sd = SKquests_SpawnData and SKquests_SpawnData.npcs and SKquests_SpawnData.npcs[id]
                     if sd and sd.spawns then
                         for z, sp in pairs(sd.spawns) do
                             if OnThisMap(z) then
-                                for _, c in ipairs(sp) do out[#out + 1] = c end
+                                for _, c in ipairs(sp) do out[#out + 1] = {c[1], c[2], z} end
                             end
                         end
                     end
@@ -1762,20 +2342,49 @@ function addon:CreateModernUI()
                 return out
             end
 
+            -- Tomamos la transformación REAL de cada subzona desde pfQuest
+            -- (pfDB.zones.data[zona] = {padre, ancho, alto, x, y}), que es la
+            -- calibración correcta. Formato CustomMapOffsets = {zw, zh, zx, zy}.
+            if not _G.SKquests_CustomMapOffsets then
+                _G.SKquests_CustomMapOffsets = {}
+                local zd = pfDB and pfDB["zones"] and pfDB["zones"]["data"]
+                if zd then
+                    for _, zid in ipairs({188, 220, 154, 9, 363, 132}) do
+                        local d = zd[zid]
+                        if d and d[2] and d[4] then
+                            _G.SKquests_CustomMapOffsets[zid] = { d[2], d[3], d[4], d[5] }
+                        end
+                    end
+                end
+            end
+            local CustomMapOffsets = _G.SKquests_CustomMapOffsets
+
             -- Punto coloreado de objetivo, con agrupado de spawns próximos
             local placed = {}
-            local function PlaceDot(x, y, r, g, b, label, sub, category)
-                if zData then
-                    -- Translate parent coords to subzone coords
-                    local pWidth = zData[2]
-                    local pHeight = zData[3]
-                    local pOffsetX = zData[4]
-                    local pOffsetY = zData[5]
-                    x = (x - pOffsetX) * 100 / pWidth
-                    y = (y - pOffsetY) * 100 / pHeight
-                    
-                    if x < -25 or x > 125 or y < -25 or y > 125 then
-                        return false -- Outside the bounds of the subzone map
+            local function PlaceDot(x, y, z, r, g, b, label, sub, category)
+                -- 1. Proyectar PADRE -> SUBZONA (cuando vemos mapa custom)
+                if customMap and z and z ~= mapZone then
+                    local parentData = pfDB and pfDB["zones"] and pfDB["zones"]["data"] and pfDB["zones"]["data"][mapZone]
+                    if parentData and parentData[1] == z then
+                        -- Usar calibracion custom si existe, sino intentar usar DB
+                        local calib = CustomMapOffsets[mapZone]
+                        if calib then
+                            local zw, zh, zx, zy = calib[1], calib[2], calib[3], calib[4]
+                            x = (x - zx) * 100 / zw
+                            y = (y - zy) * 100 / zh
+                        elseif parentData[2] and parentData[4] then
+                            local zw, zh, zx, zy = parentData[2], parentData[3], parentData[4], parentData[5]
+                            x = (x - zx) * 100 / zw
+                            y = (y - zy) * 100 / zh
+                        end
+                    end
+                -- 2. Proyectar SUBZONA -> PADRE (cuando vemos mapa Vanilla normal)
+                elseif not customMap and z and z ~= mapZone then
+                    local czData = pfDB and pfDB["zones"] and pfDB["zones"]["data"] and pfDB["zones"]["data"][z]
+                    if czData and czData[1] == mapZone and czData[2] and czData[4] then
+                        local zw, zh, zx, zy = czData[2], czData[3], czData[4], czData[5]
+                        x = zx + (x * zw / 100)
+                        y = zy + (y * zh / 100)
                     end
                 end
                 
@@ -1840,7 +2449,7 @@ function addon:CreateModernUI()
                     local added = 0
                     for _, c in ipairs(CollectCoords(kind, id)) do
                         if nPin >= PIN_BUDGET or added >= 15 then break end
-                        if PlaceDot(c[1], c[2], r, g, b, name, roleTxt, category) then
+                        if PlaceDot(c[1], c[2], c[3], r, g, b, name, roleTxt, category) then
                             added = added + 1
                         end
                     end
@@ -1852,24 +2461,52 @@ function addon:CreateModernUI()
                 local added = 0
                 for _, c in ipairs(CollectCoords(kind, id)) do
                     if added < 5 then
+                        local cx, cy, cz = c[1], c[2], c[3]
+                        -- 1. Proyectar PADRE -> SUBZONA (cuando vemos mapa custom)
+                        if customMap and cz and cz ~= mapZone then
+                            local parentData = pfDB and pfDB["zones"] and pfDB["zones"]["data"] and pfDB["zones"]["data"][mapZone]
+                            if parentData and parentData[1] == cz then
+                                local calib = CustomMapOffsets[mapZone]
+                                if calib then
+                                    local zw, zh, zx, zy = calib[1], calib[2], calib[3], calib[4]
+                                    cx = (cx - zx) * 100 / zw
+                                    cy = (cy - zy) * 100 / zh
+                                elseif parentData[2] and parentData[4] then
+                                    local zw, zh, zx, zy = parentData[2], parentData[3], parentData[4], parentData[5]
+                                    cx = (cx - zx) * 100 / zw
+                                    cy = (cy - zy) * 100 / zh
+                                end
+                            end
+                        -- 2. Proyectar SUBZONA -> PADRE (cuando vemos mapa Vanilla normal)
+                        elseif not customMap and cz and cz ~= mapZone then
+                            local czData = pfDB and pfDB["zones"] and pfDB["zones"]["data"] and pfDB["zones"]["data"][cz]
+                            if czData and czData[1] == mapZone and czData[2] and czData[4] then
+                                local zw, zh, zx, zy = czData[2], czData[3], czData[4], czData[5]
+                                cx = zx + (cx * zw / 100)
+                                cy = zy + (cy * zh / 100)
+                            end
+                        end
                         nPin = nPin + 1; added = added + 1
                         local pin = GetPin(nPin)
                         pin:SetSize(20, 20)
-                        pin.relX = c[1] / 100
-                        pin.relY = c[2] / 100
+                        pin.relX = cx / 100
+                        pin.relY = cy / 100
                         pin.tex:SetTexture(icon)
                         pin.tex:SetVertexColor(1, 1, 1, 1)
                         pin.tex:SetBlendMode("BLEND")
                         if pin.glow then pin.glow:Hide() end
                         pin:SetScript("OnMouseDown", nil)
                         pin.label = name or ("NPC " .. tostring(id))
-                        pin.sub = string.format("%s (%.1f, %.1f)", role, c[1], c[2])
+                        pin.sub = string.format("%s (%.1f, %.1f)", role, cx, cy)
                         pin:Show()
                     end
                 end
             end
 
             if q then
+                local hasNpc = q.giverId or q.enderId
+                local bq = q.bqCoord or (q.name and BQByName[string.lower(q.name)])
+
                 -- 1) Pines de objetivos (SKquests_ObjectiveDB)
                 local links = SKquests_ObjectiveLinks and SKquests_ObjectiveLinks[q.id]
                 if links then
@@ -1877,21 +2514,40 @@ function addon:CreateModernUI()
                     local txtUse  = IsSpanish() and "Objeto: interactuar" or "Object: interact"
                     local txtLoot = IsSpanish() and "Recoleccion" or "Collect"
                     local txtLootObj = IsSpanish() and "Recoleccion (Objeto)" or "Collect (Object)"
-                    
+
                     AddObjectivePins(links.npcs,         "npc",    "kill",     txtKill)
                     AddObjectivePins(links.objects,      "object", "interact", txtUse)
                     AddObjectivePins(links.item_npcs,    "npc",    "gather",   txtLoot)
                     AddObjectivePins(links.item_objects, "object", "gather",   txtLootObj)
                 end
 
-                -- 2) Giver/finisher encima (soporta inicios/entregas por objeto)
-                local gName = (IsSpanish() and q.giver_loc) or q.giver
-                local eName = (IsSpanish() and q.ender_loc) or q.ender
-                local gKind = (q.giverType == "GO") and "object" or "npc"
-                local eKind = (q.enderType == "GO") and "object" or "npc"
-                AddPins(q.giverId, gKind, gName, "Interface\\GossipFrame\\AvailableQuestIcon", L("MAP_START"))
-                if q.enderId ~= q.giverId then
-                    AddPins(q.enderId, eKind, eName, "Interface\\GossipFrame\\ActiveQuestIcon", L("MAP_END"))
+                if hasNpc then
+                    -- 2) Giver/finisher con NPC (misma proyección que los puntos verdes)
+                    local gName = (IsSpanish() and q.giver_loc) or q.giver
+                    local eName = (IsSpanish() and q.ender_loc) or q.ender
+                    local gKind = (q.giverType == "GO") and "object" or "npc"
+                    local eKind = (q.enderType == "GO") and "object" or "npc"
+                    AddPins(q.giverId, gKind, gName, "Interface\\GossipFrame\\AvailableQuestIcon", L("MAP_START"))
+                    if q.enderId ~= q.giverId then
+                        AddPins(q.enderId, eKind, eName, "Interface\\GossipFrame\\ActiveQuestIcon", L("MAP_END"))
+                    end
+                elseif bq then
+                    -- Quest nueva (BronzebeardQuestChains): solo el NPC de inicio,
+                    -- en coords de azerothhub DIRECTAS sobre la imagen custom de
+                    -- la subzona (la imagen y las coords vienen de la misma página).
+                    nPin = nPin + 1
+                    local pin = GetPin(nPin)
+                    pin:SetSize(20, 20)
+                    pin.relX = bq.x / 100
+                    pin.relY = bq.y / 100
+                    pin.tex:SetTexture("Interface\\GossipFrame\\AvailableQuestIcon")
+                    pin.tex:SetVertexColor(1, 1, 1, 1)
+                    pin.tex:SetBlendMode("BLEND")
+                    if pin.glow then pin.glow:Hide() end
+                    pin:SetScript("OnMouseDown", nil)
+                    pin.label = q.name
+                    pin.sub = string.format("%s (%.0f, %.0f)", L("MAP_START"), bq.x, bq.y)
+                    pin:Show()
                 end
             end
         else
@@ -1900,7 +2556,15 @@ function addon:CreateModernUI()
             flatTex:SetTexture(GetQuestTexture(q and q.image))
             flatTex:Show()
         end
-        self:Show()
+                -- Mostramos la caja siempre que se haya cargado un mapa:
+        -- custom (azerothhub, Media\Maps) para quests BronzebeardQuestChains,
+        -- y el mapa WorldMap de la zona para las vanilla (con sus pines pfQuest).
+        if usedMap then
+            self:Show()
+            self.needsLayout = true
+        else
+            self:Hide()
+        end
         ImgLayout()
     end
 
@@ -2035,6 +2699,12 @@ function addon:CreateModernUI()
     rewardLbl:SetTextColor(0.85, 0.70, 0.35)
     rewardSec.lbl = rewardLbl
 
+    -- Dinero + XP de recompensa (datos de SKquests_Rewards / quest_template)
+    local moneyLbl = rewardSec:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    moneyLbl:SetPoint("TOPRIGHT", rewardSec, "TOPRIGHT", -8, -3)
+    moneyLbl:SetJustifyH("RIGHT")
+    rewardSec.moneyLbl = moneyLbl
+
     -- Sub-label recompensas fijas
     local fixedLbl = rewardSec:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     fixedLbl:SetPoint("TOPLEFT", 4, -20)
@@ -2111,10 +2781,11 @@ function addon:CreateModernUI()
         local function fill(btns)
             for _, btn in ipairs(btns) do
                 if btn:IsShown() and btn.itemId and not btn.itemLink then
-                    local nm, lk, _, _, _, _, _, _, _, tx = GetItemInfo(btn.itemId)
+                    local tx = GetItemIcon(btn.itemId)
+                    if tx then btn.tex:SetTexture(tx) end
+                    local nm, lk = GetItemInfo(btn.itemId)
                     if nm then
                         btn.itemLink = lk
-                        if tx then btn.tex:SetTexture(tx) end
                     else
                         pending = true
                     end
@@ -2265,80 +2936,37 @@ function addon:CreateModernUI()
     end
 
     CreateCheckbox(SettingsPanel, "Minimizar en combate", 20, -50, "autoMinimize")
-    CreateCheckbox(SettingsPanel, "Integración con Questie", 20, -80, "questieIntegration")
-    CreateCheckbox(SettingsPanel, "Mostrar mapa en guía", 20, -110, "showImage")
 
-    local themeLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    themeLbl:SetPoint("TOPLEFT", 20, -150)
-    RegLoc(themeLbl, "THEME_LBL")
-    table.insert(SettingsPanel.labels, themeLbl)
-
-    -- ---- SELECTOR DE TEMA (desplegable) ----
-    local function ThemeDisplayName(key)
-        if key == "dark" then return "Oscuro" end
-        if key == "light" then return "Claro" end
-        local t = addon.ThemesByKey and addon.ThemesByKey[key]
-        return t and t.name or "Oscuro"
+    local lockBtn = CreateFrame("CheckButton", "SKquests_CB_lock", SettingsPanel, "UICheckButtonTemplate")
+    lockBtn:SetPoint("TOPLEFT", 20, -80)
+    local lockLabel = _G["SKquests_CB_lockText"]
+    if lockLabel then
+        RegLoc(lockLabel, "LOCK_WINDOW")
+        table.insert(SettingsPanel.labels, lockLabel)
     end
-
-    local themeDD = CreateFrame("Button", "SKquestsThemeDropdown", SettingsPanel, "UIDropDownMenuTemplate")
-    themeDD:SetPoint("LEFT", themeLbl, "RIGHT", -6, -2)
-    UIDropDownMenu_SetWidth(themeDD, 150)
-
-    function addon:RefreshThemeDropdown()
-        local cur = SKquestsDB and SKquestsDB.config and SKquestsDB.config.theme or "dark"
-        UIDropDownMenu_SetSelectedValue(themeDD, cur)
-        UIDropDownMenu_SetText(themeDD, ThemeDisplayName(cur))
-    end
-
-    local function SelectTheme(key)
-        local t = addon.ThemesByKey and addon.ThemesByKey[key]
-        if t and t.isPro and not addon:IsProUnlocked() then
-            -- tema Pro bloqueado: pedir código; se aplica al desbloquear
-            if addon.RequestProCode then addon:RequestProCode(key) end
-            return
-        end
-        SKquests.config.theme = key
-        SKquestsDB.config.theme = key
-        addon:ApplyTheme()
-        addon:RefreshThemeDropdown()
-    end
-
-    UIDropDownMenu_Initialize(themeDD, function(self, level)
-        local function AddTheme(key)
-            local info = UIDropDownMenu_CreateInfo()
-            local t = addon.ThemesByKey and addon.ThemesByKey[key]
-            local locked = t and t.isPro and not addon:IsProUnlocked()
-            info.text = ThemeDisplayName(key) .. (locked and " |cffff5555[Pro]|r" or (t and t.isPro and " |cff33ff99[Pro]|r" or ""))
-            info.value = key
-            info.func = function() SelectTheme(key) end
-            info.checked = (SKquestsDB and SKquestsDB.config and SKquestsDB.config.theme) == key
-            UIDropDownMenu_AddButton(info, level)
-        end
-        AddTheme("dark")
-        AddTheme("light")
-        if addon.ThemeOrder then
-            for _, key in ipairs(addon.ThemeOrder) do AddTheme(key) end
-        end
+    lockBtn:SetChecked(SKquestsDB and SKquestsDB.config and SKquestsDB.config.locked or false)
+    lockBtn:SetScript("OnClick", function(self)
+        local lock = self:GetChecked()
+        SKquests.config.locked = lock
+        SKquestsDB.config.locked = lock
+        f:SetMovable(not lock)
+        f:SetResizable(not lock)
+        addon:UpdateResizeHandles()
     end)
-    addon:RefreshThemeDropdown()
 
-    -- Editor de temas (Modo Pro)
-    local editorBtn = CreateFrame("Button", nil, SettingsPanel, "UIPanelButtonTemplate")
-    editorBtn:SetPoint("LEFT", themeDD, "RIGHT", -6, 2)
-    editorBtn:SetSize(130, 22)
-    editorBtn:SetText("Editor |cff33ff99(Pro)|r")
-    editorBtn:SetScript("OnClick", function()
-        if addon.OpenThemeEditor then addon:OpenThemeEditor() end
-    end)
+    -- ---- SELECTOR DE TEMA Y EDITOR PRO ELIMINADOS (v0.9.0) ----
+    -- Esta build usa solo la paleta oscura. El Modo Pro ahora protege
+    -- las GUÍAS de leveo (no los temas). Se conserva un no-op por si
+    -- alguna ruta antigua llama a RefreshThemeDropdown.
+    function addon:RefreshThemeDropdown() end
 
     local opLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    opLbl:SetPoint("TOPLEFT", 20, -190)
+    opLbl:SetPoint("TOPLEFT", 20, -120)
     RegLoc(opLbl, "OPACITY_LBL")
     table.insert(SettingsPanel.labels, opLbl)
 
     local opSlider = CreateFrame("Slider", "SKquestsOpacitySliderUI", SettingsPanel, "OptionsSliderTemplate")
-    opSlider:SetPoint("TOPLEFT", 20, -215)
+    opSlider:SetPoint("TOPLEFT", 20, -145)
     opSlider:SetWidth(220)
     opSlider:SetMinMaxValues(20, 100)
     opSlider:SetValue((SKquestsDB and SKquestsDB.config and SKquestsDB.config.opacity or 0.9) * 100)
@@ -2362,49 +2990,9 @@ function addon:CreateModernUI()
         end
     end)
 
-    local lockBtn = CreateFrame("CheckButton", "SKquests_CB_lock", SettingsPanel, "UICheckButtonTemplate")
-    lockBtn:SetPoint("TOPLEFT", 20, -250)
-    local lockLabel = _G["SKquests_CB_lockText"]
-    if lockLabel then
-        RegLoc(lockLabel, "LOCK_WINDOW")
-        table.insert(SettingsPanel.labels, lockLabel)
-    end
-    lockBtn:SetChecked(SKquestsDB and SKquestsDB.config and SKquestsDB.config.locked or false)
-    lockBtn:SetScript("OnClick", function(self)
-        local lock = self:GetChecked()
-        SKquests.config.locked = lock
-        SKquestsDB.config.locked = lock
-        f:SetMovable(not lock)
-        f:SetResizable(not lock)
-        if lock then
-            grabber:Hide()
-        else
-            grabber:Show()
-        end
-    end)
-
-    local facLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    facLbl:SetPoint("TOPLEFT", 20, -290)
-    RegLoc(facLbl, "GUIDE_FORMULA")
-    table.insert(SettingsPanel.labels, facLbl)
-
-    local facBtn = CreateFrame("Button", nil, SettingsPanel, "UIPanelButtonTemplate")
-    facBtn:SetPoint("LEFT", facLbl, "RIGHT", 10, -1)
-    facBtn:SetSize(120, 22)
-    facBtn:SetText(addon.db and addon.db.currentGuide == "Alliance" and L("ALLIANCE") or L("HORDE"))
-    facBtn:SetScript("OnClick", function(self)
-        local currentG = addon.db and addon.db.currentGuide or "Horde"
-        local nextG = currentG == "Alliance" and "Horde" or "Alliance"
-        addon:SetCurrentGuide(nextG)
-        self:SetText(nextG == "Alliance" and L("ALLIANCE") or L("HORDE"))
-        BuildFilteredQuestIds()
-        addon:UpdateListRows()
-        addon:RefreshDetail()
-    end)
-
     -- ---- IDIOMA ----
     local langLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    langLbl:SetPoint("LEFT", facBtn, "RIGHT", 40, 1)
+    langLbl:SetPoint("TOPLEFT", 20, -190)
     RegLoc(langLbl, "LANGUAGE")
     table.insert(SettingsPanel.labels, langLbl)
 
@@ -2425,74 +3013,137 @@ function addon:CreateModernUI()
         self:SetText(LangBtnText())
     end)
 
-    -- ---- CONFIGURACIÓN DE REDIMENSIÓN POR SLIDERS ----
-    local wLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    wLbl:SetPoint("TOPLEFT", 20, -330)
-    RegLoc(wLbl, "WIDTH_LBL")
-    table.insert(SettingsPanel.labels, wLbl)
+    -- ---- TEMA ----
+    local themeLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    themeLbl:SetPoint("TOPLEFT", 20, -230)
+    RegLoc(themeLbl, "THEME_LBL")
+    table.insert(SettingsPanel.labels, themeLbl)
 
-    wSlider = CreateFrame("Slider", "SKquestsWidthSliderUI", SettingsPanel, "OptionsSliderTemplate")
-    wSlider:SetPoint("TOPLEFT", 20, -355)
-    wSlider:SetWidth(220)
-    wSlider:SetMinMaxValues(800, 1600)
-    wSlider:SetValue(initialW)
-    wSlider:SetValueStep(10)
+    local themeBtn = CreateFrame("Button", nil, SettingsPanel)
+    themeBtn:SetPoint("LEFT", themeLbl, "RIGHT", 10, -1)
+    themeBtn:SetSize(140, 22)
+    themeBtn:RegisterForClicks("LeftButtonUp")
+    ApplyBD(themeBtn, {0,0,0}, {0.5,0.4,0.3}, 8)
+    themeBtn:SetBackdropColor(0,0,0,0.4)
     
-    local wLow = _G["SKquestsWidthSliderUILow"]
-    if wLow then wLow:SetText("800") end
-    local wHigh = _G["SKquestsWidthSliderUIHigh"]
-    if wHigh then wHigh:SetText("1600") end
-    local wText = _G["SKquestsWidthSliderUIText"]
-    if wText then wText:SetText("Ancho: " .. initialW .. "px") end
-
-    -- Slider de ancho: actualizar etiqueta en tiempo real, aplicar tamaño solo al soltar
-    wSlider:SetScript("OnValueChanged", function(self, val)
-        val = math.floor(val)
-        local sliderText = _G[self:GetName() .. "Text"]
-        if sliderText then sliderText:SetText("Ancho: " .. val .. "px") end
-    end)
-    wSlider:SetScript("OnMouseUp", function(self)
-        local val = math.floor(self:GetValue())
-        if SKquestsDB and SKquestsDB.config then
-            SKquestsDB.config.width = val
-        end
-        f:SetWidth(val)
-        addon:UpdateListRows()
-    end)
-
-    local hLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    hLbl:SetPoint("TOPLEFT", 280, -330)
-    RegLoc(hLbl, "HEIGHT_LBL")
-    table.insert(SettingsPanel.labels, hLbl)
-
-    hSlider = CreateFrame("Slider", "SKquestsHeightSliderUI", SettingsPanel, "OptionsSliderTemplate")
-    hSlider:SetPoint("TOPLEFT", 280, -355)
-    hSlider:SetWidth(220)
-    hSlider:SetMinMaxValues(480, 1000)
-    hSlider:SetValue(initialH)
-    hSlider:SetValueStep(10)
+    local themeBtnLbl = themeBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    themeBtnLbl:SetPoint("LEFT", 6, 0)
+    themeBtn.lbl = themeBtnLbl
     
-    local hLow = _G["SKquestsHeightSliderUILow"]
-    if hLow then hLow:SetText("480") end
-    local hHigh = _G["SKquestsHeightSliderUIHigh"]
-    if hHigh then hHigh:SetText("1000") end
-    local hText = _G["SKquestsHeightSliderUIText"]
-    if hText then hText:SetText("Alto: " .. initialH .. "px") end
+    local themeIcon = themeBtn:CreateTexture(nil, "OVERLAY")
+    themeIcon:SetSize(12, 12)
+    themeIcon:SetPoint("RIGHT", -4, 0)
+    themeIcon:SetTexture("Interface\\ChatFrame\\ChatFrameExpandArrow")
 
-    -- Slider de alto: igual, aplicar solo al soltar
-    hSlider:SetScript("OnValueChanged", function(self, val)
-        val = math.floor(val)
-        local sliderText = _G[self:GetName() .. "Text"]
-        if sliderText then sliderText:SetText("Alto: " .. val .. "px") end
-    end)
-    hSlider:SetScript("OnMouseUp", function(self)
-        local val = math.floor(self:GetValue())
-        if SKquestsDB and SKquestsDB.config then
-            SKquestsDB.config.height = val
+    local function ThemeBtnText()
+        local t = addon.config and addon.config.theme or "oscuro"
+        if t == "oscuro" then return L("THEME_DARK") end
+        if t == "claro" then return L("THEME_LIGHT") end
+        if t == "elvuidark" then return "ElvUI Dark" end
+        if t == "minimaldark" then return "Minimal Dark" end
+        if t == "blizzardclassic" then return L("THEME_BLIZZARDCLASSIC") end
+        if t == "dragonflight" then return L("THEME_DRAGONFLIGHT") end
+        if t == "wrathclassic" then return L("THEME_WRATHCLASSIC") end
+        if t == "modern" then return L("THEME_MODERN") end
+        if t == "warcraftlogs" then return L("THEME_WARCRAFTLOGS") end
+        if t == "ascensionwow" then return L("THEME_ASCENSION") end
+        return t
+    end
+    themeBtnLbl:SetText(ThemeBtnText())
+    
+    local themesList = { "oscuro", "claro", "elvuidark", "minimaldark", "blizzardclassic", "dragonflight", "wrathclassic", "modern", "warcraftlogs", "ascensionwow" }
+    
+    local themeMenu = CreateFrame("Frame", "SKquestsThemeMenu", SettingsPanel)
+    themeMenu:SetSize(160, 115)
+    themeMenu:SetPoint("TOPLEFT", themeBtn, "BOTTOMLEFT", 0, -2)
+    themeMenu:SetFrameStrata("TOOLTIP")
+    ApplyBD(themeMenu, {0.05, 0.05, 0.05}, {0.5,0.4,0.3}, 8)
+    themeMenu:Hide()
+
+    local tScroll = CreateFrame("ScrollFrame", "SKquestsThemeScroll", themeMenu, "FauxScrollFrameTemplate")
+    tScroll:SetPoint("TOPLEFT", 4, -4)
+    tScroll:SetPoint("BOTTOMRIGHT", -26, 4)
+    
+    local tButtons = {}
+    for i = 1, 5 do
+        local btn = CreateFrame("Button", nil, themeMenu)
+        btn:SetSize(130, 20)
+        if i == 1 then
+            btn:SetPoint("TOPLEFT", tScroll, "TOPLEFT", 0, 0)
+        else
+            btn:SetPoint("TOPLEFT", tButtons[i-1], "BOTTOMLEFT", 0, 0)
         end
-        f:SetHeight(val)
-        addon:UpdateListRows()
+        local hl = btn:CreateTexture(nil, "HIGHLIGHT")
+        hl:SetAllPoints()
+        hl:SetColorTexture(1, 1, 1, 0.1)
+        local txt = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+        txt:SetPoint("LEFT", 4, 0)
+        txt:SetPoint("RIGHT", -4, 0)
+        txt:SetJustifyH("LEFT")
+        btn.txt = txt
+        
+        btn:SetScript("OnClick", function(self)
+            local nextT = self.themeKey
+            if SKquests.config then SKquests.config.theme = nextT end
+            if SKquestsDB and SKquestsDB.config then SKquestsDB.config.theme = nextT end
+            addon:ApplyTheme()
+            themeBtnLbl:SetText(ThemeBtnText())
+            themeMenu:Hide()
+        end)
+        tButtons[i] = btn
+    end
+
+    local function RefreshThemeMenu()
+        FauxScrollFrame_Update(tScroll, #themesList, 5, 20)
+        local offset = FauxScrollFrame_GetOffset(tScroll)
+        for i = 1, 5 do
+            local idx = offset + i
+            if idx <= #themesList then
+                local tKey = themesList[idx]
+                tButtons[i].themeKey = tKey
+                
+                local tName = tKey
+                if tKey == "oscuro" then tName = L("THEME_DARK")
+                elseif tKey == "claro" then tName = L("THEME_LIGHT")
+                elseif tKey == "elvuidark" then tName = "ElvUI Dark"
+                elseif tKey == "minimaldark" then tName = "Minimal Dark"
+                elseif tKey == "blizzardclassic" then tName = L("THEME_BLIZZARDCLASSIC")
+                elseif tKey == "dragonflight" then tName = L("THEME_DRAGONFLIGHT")
+                elseif tKey == "wrathclassic" then tName = L("THEME_WRATHCLASSIC")
+                elseif tKey == "modern" then tName = L("THEME_MODERN")
+                elseif tKey == "warcraftlogs" then tName = L("THEME_WARCRAFTLOGS")
+                elseif tKey == "ascensionwow" then tName = L("THEME_ASCENSION")
+                end
+                
+                tButtons[i].txt:SetText(tName)
+                tButtons[i]:Show()
+            else
+                tButtons[i]:Hide()
+            end
+        end
+    end
+
+    tScroll:SetScript("OnVerticalScroll", function(self, offset)
+        FauxScrollFrame_OnVerticalScroll(self, offset, 20, RefreshThemeMenu)
     end)
+    themeMenu:SetScript("OnShow", RefreshThemeMenu)
+
+    themeBtn:SetScript("OnClick", function()
+        if themeMenu:IsShown() then themeMenu:Hide() else themeMenu:Show() end
+    end)
+    themeBtn:SetScript("OnHide", function() themeMenu:Hide() end)
+
+    local editThemeBtn = CreateFrame("Button", nil, SettingsPanel, "UIPanelButtonTemplate")
+    editThemeBtn:SetPoint("LEFT", themeBtn, "RIGHT", 10, 0)
+    editThemeBtn:SetSize(120, 22)
+    RegLoc(editThemeBtn, "EDIT_THEME", "upper")
+    editThemeBtn:SetScript("OnClick", function()
+        if addon.OpenThemeEditor then
+            addon:OpenThemeEditor()
+        end
+    end)
+
+
 
     local acceptCfgBtn = CreateFrame("Button", nil, SettingsPanel, "UIPanelButtonTemplate")
     acceptCfgBtn:SetPoint("BOTTOMRIGHT", SettingsPanel, "BOTTOMRIGHT", -20, 20)
@@ -2532,7 +3183,7 @@ Características:
 • Enlaces rápidos y botón copiables a Wowhead.
 
 Creado con amor para la comunidad.
-Versión Alpha 0.1.4
+Versión Alpha 0.11.2
 ]])
     AboutPanel.desc = abDesc
 
@@ -2561,10 +3212,10 @@ Versión Alpha 0.1.4
         if SKquestsDB.config.locked then
             f:SetMovable(false)
             f:SetResizable(false)
-            grabber:Hide()
         end
         f:SetAlpha(SKquestsDB.config.opacity or 0.9)
     end
+    addon:UpdateResizeHandles()
 
     BuildZonesList()
     BuildFilteredQuestIds()
@@ -2606,6 +3257,8 @@ end
 -- ============================================================
 function addon:UpdateListRows()
     if not ListPanel or not ListPanel.scroll then return end
+    if addon._inListUpdate then return end   -- guarda anti-recursion (OnShow -> UpdateListRows)
+    addon._inListUpdate = true
     local h = ListPanel.scroll:GetHeight()
     
     -- Fallback si el motor de WoW aún no ha dibujado y da altura 0
@@ -2649,7 +3302,11 @@ function addon:UpdateListRows()
         if bar then bar:SetValue(0) end
     end
     FauxScrollFrame_Update(ListPanel.scroll, totalItems, visibleRows, ROW_H)
+    -- FauxScrollFrame_Update oculta el frame si los items caben sin scroll;
+    -- re-mostrarlo aqui (la guarda evita la recursion del OnShow).
+    ListPanel.scroll:Show()
     addon:RefreshList()
+    addon._inListUpdate = false
 end
 
 -- ============================================================
@@ -2657,8 +3314,9 @@ end
 -- ============================================================
 function addon:RefreshList()
     if not ListPanel or not ListPanel.scroll then return end
-    -- El scroll quedaba oculto en algunos tabs; forzar que se muestre
-    if not ListPanel.scroll:IsShown() then ListPanel.scroll:Show() end
+    -- Re-mostrar el frame por si FauxScrollFrame_Update lo ocultó (pocos items).
+    -- Es seguro: UpdateListRows tiene guarda anti-recursión (_inListUpdate).
+    ListPanel.scroll:Show()
 
     local offset = FauxScrollFrame_GetOffset(ListPanel.scroll)
     local h = ListPanel.scroll:GetHeight()
@@ -2894,11 +3552,21 @@ function addon:RefreshDetail()
     local ch = DetailPanel.child
     if not ch then return end
 
-    -- Por defecto, ocultar todos los checkboxes de la guía y recompensas
+    -- Por defecto, ocultar TODOS los elementos de la guía (checkboxes, sus
+    -- botones de link, encabezados de circuito y cajas de mapa) para que no
+    -- queden visibles "detrás" del detalle de quest.
     if ch.objSec.checkbuttons then
         for _, cb in ipairs(ch.objSec.checkbuttons) do
             cb:Hide()
+            if cb.linkBtn then cb.linkBtn:Hide() end
+            if cb.qbtns then for _, b in ipairs(cb.qbtns) do b:Hide() end end
         end
+    end
+    if ch.objSec.circuitHeaders then
+        for _, h in ipairs(ch.objSec.circuitHeaders) do h:Hide() end
+    end
+    if ch.objSec.mapBoxes then
+        for _, m in ipairs(ch.objSec.mapBoxes) do m:Hide() end
     end
 
     if ch.rewardSec then
@@ -2984,7 +3652,8 @@ function addon:RefreshDetail()
             if logD and logD ~= "" then
                 objText = "|cffd4c078" .. PfText(logD) .. "|r"
             end
-            objText = objText .. "\n\n|cff888888" .. L("STARTS_WITH") .. " " .. (q.giver_loc or q.giver or L("UNKNOWN")) .. "\n" .. L("ENDS_WITH") .. " " .. (q.ender_loc or q.ender or L("UNKNOWN")) .. "|r"
+            -- (Se quitó la línea "Starts with / Turn in to" porque ya aparece
+            --  en la sección START / TURN IN; era información duplicada.)
             ch.objSec.box.text:SetText(objText)
         end
 
@@ -3000,7 +3669,7 @@ function addon:RefreshDetail()
         ch.descSec.text:SetText(descText)
         
         -- Dador/Ender localizados
-        local giverName = q.giver_loc or q.giver or L("UNKNOWN")
+        local giverName = (IsSpanish() and q.giver_loc) or q.giver or q.giver_loc or L("UNKNOWN")
         if q.giverType == "GO" then
             ch.npcSec.grid.startCard.title:SetText(L("START_GO"))
         else
@@ -3008,7 +3677,7 @@ function addon:RefreshDetail()
         end
         ch.npcSec.grid.startCard.name:SetText(giverName)
 
-        local enderName = q.ender_loc or q.ender or L("UNKNOWN")
+        local enderName = (IsSpanish() and q.ender_loc) or q.ender or q.ender_loc or L("UNKNOWN")
         if q.enderType == "GO" then
             ch.npcSec.grid.endCard.title:SetText(L("END_GO"))
         else
@@ -3026,11 +3695,56 @@ function addon:RefreshDetail()
         local statusText = active and L("ST_ACTIVE") or (isCompleted and L("ST_DONE") or L("ST_NOT_STARTED"))
         RightSidebar.rows.status.val:SetText(statusText)
 
+        -- Dinero + XP de recompensa (SKquests_Rewards, desde quest_template)
+        local rwd = SKquests_Rewards and SKquests_Rewards[tonumber(q.id) or q.id]
+        local rwParts = {}
+        
+        local baseXP = rwd and rwd.x or 0
+        local finalMoney = rwd and rwd.m or 0
+        local finalXP = baseXP
+        
+        -- Integración con Questie para obtener bonos de XP dinámicos (Ascension rates, Rested, Heirlooms, Penalty)
+        if QuestieLoader and type(QuestieLoader.ImportModule) == "function" then
+            local QuestXP = QuestieLoader:ImportModule("QuestXP")
+            if QuestXP and type(QuestXP.GetQuestLogRewardXP) == "function" then
+                local qidNum = tonumber(q.id)
+                if qidNum then
+                    local dynXp = QuestXP:GetQuestLogRewardXP(qidNum, false)
+                    if dynXp then
+                        finalXP = dynXp
+                    end
+                end
+            end
+        end
+
+        -- Multiplicadores de auras custom de Ascension
+        local customMult = GetAscensionXPMultiplier()
+        if customMult ~= 1.0 then
+            finalXP = math.floor(finalXP * customMult)
+        end
+
+        if finalMoney > 0 then
+            rwParts[#rwParts + 1] = (GetCoinTextureString and GetCoinTextureString(finalMoney)) or tostring(finalMoney)
+        end
+        
+        if finalXP > 0 or baseXP > 0 then
+            if finalXP ~= baseXP and baseXP > 0 then
+                local mult = finalXP / baseXP
+                local multStr = string.format("%.2f", mult)
+                multStr = string.gsub(multStr, "%.?0+$", "")
+                rwParts[#rwParts + 1] = "|cffffd200" .. finalXP .. " XP|r |cffaaaaaa(Base: " .. baseXP .. " XP, x" .. multStr .. ")|r"
+            else
+                rwParts[#rwParts + 1] = "|cffffd200" .. finalXP .. " XP|r"
+            end
+        end
+        local moneyStr = table.concat(rwParts, "   ")
+        ch.rewardSec.moneyLbl:SetText(moneyStr)
+
         -- Mostrar Recompensas (fijas)
         local hasFixed = q.rewards and #q.rewards > 0
         local hasChoice = q.choiceRewards and #q.choiceRewards > 0
 
-        if hasFixed or hasChoice then
+        if hasFixed or hasChoice or moneyStr ~= "" then
             ch.rewardSec:Show()
             -- Botones de recompensas fijas
             for r = 1, 4 do
@@ -3041,10 +3755,11 @@ function addon:RefreshDetail()
                     btn.itemName = rew.name
                     btn.itemLink = nil
                     btn.tex:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
-                    local itemName, itemLink, _, _, _, _, _, _, _, itemTexture = GetItemInfo(rew.id)
+                    local itemTexture = GetItemIcon(rew.id)
+                    if itemTexture then btn.tex:SetTexture(itemTexture) end
+                    local itemName, itemLink = GetItemInfo(rew.id)
                     if itemName then
                         btn.itemLink = itemLink
-                        if itemTexture then btn.tex:SetTexture(itemTexture) end
                     end
                     btn:Show()
                 else
@@ -3061,10 +3776,11 @@ function addon:RefreshDetail()
                     btn.itemId = rew.id
                     btn.itemLink = nil
                     btn.tex:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
-                    local itemName, itemLink, _, _, _, _, _, _, _, itemTexture = GetItemInfo(rew.id)
+                    local itemTexture = GetItemIcon(rew.id)
+                    if itemTexture then btn.tex:SetTexture(itemTexture) end
+                    local itemName, itemLink = GetItemInfo(rew.id)
                     if itemName then
                         btn.itemLink = itemLink
-                        if itemTexture then btn.tex:SetTexture(itemTexture) end
                     end
                     btn:Show()
                 else
@@ -3072,12 +3788,19 @@ function addon:RefreshDetail()
                 end
             end
             ch.rewardSec:RequestUncached()
-            -- Ajustar altura de rewardSec según si hay choice o no
+            -- Ajustar altura según haya choice, fijas o solo dinero/XP
             if hasChoice then
                 ch.rewardSec:SetHeight(110)
-            else
+            elseif hasFixed then
                 ch.rewardSec:SetHeight(64)
                 ch.rewardSec.choiceLbl:Hide()
+                for r = 1, 6 do ch.rewardSec.choiceButtons[r]:Hide() end
+            else
+                -- solo dinero/XP, sin items: panel compacto
+                ch.rewardSec:SetHeight(24)
+                ch.rewardSec.fixedLbl:Hide()
+                ch.rewardSec.choiceLbl:Hide()
+                for r = 1, 4 do ch.rewardSec.buttons[r]:Hide() end
                 for r = 1, 6 do ch.rewardSec.choiceButtons[r]:Hide() end
             end
         else
@@ -3087,7 +3810,7 @@ function addon:RefreshDetail()
         local prevQ = q.prevId and SKquests_DetailDB[q.prevId]
         if prevQ then
             RightSidebar.chain.prevBtn:Show()
-            RightSidebar.chain.prevBtn:SetText("◄ " .. (prevQ.name_loc or prevQ.name))
+            RightSidebar.chain.prevBtn:SetText("Prev: " .. GetLocalizedQuestName(prevQ))
             RightSidebar.chain.prevBtn:SetScript("OnClick", function()
                 selectedQuestId = q.prevId
                 addon:RefreshDetail()
@@ -3100,7 +3823,7 @@ function addon:RefreshDetail()
         local nextQ = (q.nextId and SKquests_DetailDB[q.nextId]) or (q.rewardNextId and SKquests_DetailDB[q.rewardNextId])
         if nextQ then
             RightSidebar.chain.nextBtn:Show()
-            RightSidebar.chain.nextBtn:SetText((nextQ.name_loc or nextQ.name) .. " ►")
+            RightSidebar.chain.nextBtn:SetText(GetLocalizedQuestName(nextQ) .. " (Next)")
             RightSidebar.chain.nextBtn:SetScript("OnClick", function()
                 selectedQuestId = nextQ.id
                 addon:RefreshDetail()
@@ -3213,7 +3936,7 @@ function addon:RefreshDetail()
 
         if q then
             
-            local giverName = q.giver_loc or q.giver or L("UNKNOWN")
+            local giverName = (IsSpanish() and q.giver_loc) or q.giver or q.giver_loc or L("UNKNOWN")
             if q.giverType == "GO" then
                 ch.npcSec.grid.startCard.title:SetText(L("START_GO"))
             else
@@ -3221,7 +3944,7 @@ function addon:RefreshDetail()
             end
             ch.npcSec.grid.startCard.name:SetText(giverName)
 
-            local enderName = q.ender_loc or q.ender or L("UNKNOWN")
+            local enderName = (IsSpanish() and q.ender_loc) or q.ender or q.ender_loc or L("UNKNOWN")
             if q.enderType == "GO" then
                 ch.npcSec.grid.endCard.title:SetText(L("END_GO"))
             else
@@ -3236,24 +3959,81 @@ function addon:RefreshDetail()
             RightSidebar.rows.minLvl.val:SetText(ml > 0 and ml or "1")
             RightSidebar.rows.status.val:SetText(entry.isComplete and L("ST_READY") or L("ST_PROGRESS"))
 
+            -- Dinero + XP de recompensa
+            local rwParts = {}
+            SelectQuestLogEntry(selectedQuestLogIdx)
+            local logMoney = GetQuestLogRewardMoney and GetQuestLogRewardMoney() or 0
+            local logXP = GetQuestLogRewardXP and GetQuestLogRewardXP() or 0
+            
+            local rwd = SKquests_Rewards and SKquests_Rewards[tonumber(q.id) or q.id]
+            
+            local baseXP = rwd and rwd.x or 0
+            local finalMoney = (logMoney and logMoney > 0) and logMoney or (rwd and rwd.m or 0)
+            local finalXP = baseXP
+            
+            if logXP and logXP > 0 then
+                finalXP = logXP
+            end
+            
+            -- Integración con Questie para obtener bonos de XP dinámicos (Ascension rates, Rested, Heirlooms, Penalty)
+            if QuestieLoader and type(QuestieLoader.ImportModule) == "function" then
+                local QuestXP = QuestieLoader:ImportModule("QuestXP")
+                if QuestXP and type(QuestXP.GetQuestLogRewardXP) == "function" then
+                    local qidNum = tonumber(q.id)
+                    if qidNum then
+                        local dynXp = QuestXP:GetQuestLogRewardXP(qidNum, false)
+                        if dynXp then
+                            finalXP = dynXp
+                        end
+                    end
+                end
+            end
+            
+            -- Multiplicadores de auras custom de Ascension
+            local customMult = GetAscensionXPMultiplier()
+            if customMult ~= 1.0 then
+                finalXP = math.floor(finalXP * customMult)
+            end
+            
+            if finalMoney > 0 then
+                rwParts[#rwParts + 1] = (GetCoinTextureString and GetCoinTextureString(finalMoney)) or tostring(finalMoney)
+            end
+            
+            if finalXP > 0 or baseXP > 0 then
+                if finalXP ~= baseXP and baseXP > 0 then
+                    local mult = finalXP / baseXP
+                    local multStr = string.format("%.2f", mult)
+                    multStr = string.gsub(multStr, "%.?0+$", "")
+                    rwParts[#rwParts + 1] = "|cffffd200" .. finalXP .. " XP|r |cffaaaaaa(Base: " .. baseXP .. " XP, x" .. multStr .. ")|r"
+                else
+                    rwParts[#rwParts + 1] = "|cffffd200" .. finalXP .. " XP|r"
+                end
+            end
+            
+            local moneyStr = table.concat(rwParts, "   ")
+            if ch.rewardSec.moneyLbl then
+                ch.rewardSec.moneyLbl:SetText(moneyStr)
+            end
+
             -- Mostrar Recompensas
-            if q.rewards and #q.rewards > 0 then
+            if (q.rewards and #q.rewards > 0) or moneyStr ~= "" then
                 ch.rewardSec:Show()
                 for r = 1, 4 do
                     local btn = ch.rewardSec.buttons[r]
-                    local rew = q.rewards[r]
+                    local rew = q.rewards and q.rewards[r]
                     if rew then
                         btn.itemId = rew.id
                         btn.itemName = rew.name
                         btn.itemLink = nil
                         btn.tex:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
                         
-                        local itemName, itemLink, _, _, _, _, _, _, _, itemTexture = GetItemInfo(rew.id)
+                        local itemTexture = GetItemIcon(rew.id)
+                        if itemTexture then
+                            btn.tex:SetTexture(itemTexture)
+                        end
+                        local itemName, itemLink = GetItemInfo(rew.id)
                         if itemName then
                             btn.itemLink = itemLink
-                            if itemTexture then
-                                btn.tex:SetTexture(itemTexture)
-                            end
                         end
                         btn:Show()
                     else
@@ -3267,7 +4047,7 @@ function addon:RefreshDetail()
             local prevQ = q.prevId and SKquests_DetailDB[q.prevId]
             if prevQ then
                 RightSidebar.chain.prevBtn:Show()
-                RightSidebar.chain.prevBtn:SetText("◄ " .. (prevQ.name_loc or prevQ.name))
+                RightSidebar.chain.prevBtn:SetText("Prev: " .. GetLocalizedQuestName(prevQ))
                 RightSidebar.chain.prevBtn:SetScript("OnClick", function()
                     selectedQuestId = q.prevId
                     addon:SwitchTab("quests")
@@ -3279,7 +4059,7 @@ function addon:RefreshDetail()
             local nextQ = (q.nextId and SKquests_DetailDB[q.nextId]) or (q.rewardNextId and SKquests_DetailDB[q.rewardNextId])
             if nextQ then
                 RightSidebar.chain.nextBtn:Show()
-                RightSidebar.chain.nextBtn:SetText((nextQ.name_loc or nextQ.name) .. " ►")
+                RightSidebar.chain.nextBtn:SetText(GetLocalizedQuestName(nextQ) .. " (Next)")
                 RightSidebar.chain.nextBtn:SetScript("OnClick", function()
                     selectedQuestId = nextQ.id
                     addon:SwitchTab("quests")
@@ -3313,8 +4093,7 @@ function addon:RefreshDetail()
         ch.questImgBox:Hide()
 
         local guide = addon:GetGuideTable()
-        local step = guide and guide[selectedStepIdx]
-        if not step then
+        if not guide or not guideChapters or not guideChapters[selectedGuideChapter] then
             ch.header.title:SetText("No hay pasos de guía cargados")
             ch.header.meta:SetText("Elige otra facción en Ajustes si es necesario.")
             ch.header.level:SetText("")
@@ -3322,99 +4101,234 @@ function addon:RefreshDetail()
             ch.mapBox:Hide()
             ch.objSec.tomtomBtn:Hide()
             ch.objSec.box:Show()
+            ch.objSec:SetHeight(320)
             LayoutDetailSections(ch)
             return
         end
 
-        local ges = GetGuideES(selectedStepIdx)
-        ch.header.title:SetText((ges and ges.title) or step.title)
-        ch.header.level:SetText(L("STEP") .. " " .. selectedStepIdx)
-        ch.header.meta:SetText(L("STEP_OBJECTIVE"))
+        local chapterData = guideChapters[selectedGuideChapter]
+        ch.header.title:SetText(chapterData.title)
+        ch.header.level:SetText("")
+        ch.header.meta:SetText("Progreso de Zona")
 
-        -- Separar por líneas el texto de la guía
-        local lines = {}
-        local rawText = (ges and ges.text) or step.text or step.objectives or ""
-        for line in rawText:gmatch("[^\r\n]+") do
-            line = line:gsub("^%s+", ""):gsub("%s+$", "")
-            if line ~= "" then
-                table.insert(lines, line)
-            end
-        end
+        ch.objSec.box:Hide()
+        ch.mapBox:Hide()
+        ch.objSec.tomtomBtn:Hide()
 
-        ch.objSec.box:Hide() -- Ocultar bloque único de texto
+        -- Configurar pools dinámicos
+        ch.objSec.checkbuttons = ch.objSec.checkbuttons or {}
+        ch.objSec.circuitHeaders = ch.objSec.circuitHeaders or {}
+        ch.objSec.mapBoxes = ch.objSec.mapBoxes or {}
 
-        -- Crear o reusar pool de checkbuttons
-        if not ch.objSec.checkbuttons then
-            ch.objSec.checkbuttons = {}
-            for i = 1, 25 do
-                local cbName = "SKquests_GuideCB_" .. i
-                local cb = CreateFrame("CheckButton", cbName, ch.objSec, "UICheckButtonTemplate")
-                cb:SetSize(20, 20)
-                
-                local lbl = cb:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-                lbl:SetPoint("LEFT", cb, "RIGHT", 6, 0)
-                lbl:SetPoint("RIGHT", ch.objSec, "RIGHT", -10, 0)
-                lbl:SetJustifyH("LEFT")
-                lbl:SetWordWrap(true)
-                cb.lbl = lbl
-
-                cb:SetScript("OnClick", function(self)
-                    if not SKquestsDB.profile.guideProgress then
-                        SKquestsDB.profile.guideProgress = {}
-                    end
-                    local key = selectedStepIdx .. "_" .. self.lineIdx
-                    SKquestsDB.profile.guideProgress[key] = self:GetChecked()
-                end)
-
-                ch.objSec.checkbuttons[i] = cb
-            end
-        end
-
-        -- Posicionar y mostrar los checkboxes
-        local prev = ch.objSec.lbl
-        for i = 1, 25 do
-            local cb = ch.objSec.checkbuttons[i]
-            if i <= #lines then
-                cb:ClearAllPoints()
-                if i == 1 then
-                    cb:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", 0, -8)
-                else
-                    cb:SetPoint("TOPLEFT", ch.objSec.checkbuttons[i-1].lbl, "BOTTOMLEFT", -26, -6)
-                end
-                
-                cb.lineIdx = i
-                cb.lbl:SetText(lines[i])
-                cb.lbl:SetTextColor(C.white[1], C.white[2], C.white[3])
-                
-                local key = selectedStepIdx .. "_" .. i
-                local checked = SKquestsDB.profile.guideProgress and SKquestsDB.profile.guideProgress[key] or false
-                cb:SetChecked(checked)
-                
-                cb:Show()
-            else
-                cb:Hide()
-            end
-        end
+        -- Ocultar todo el pool primero
+        for _, cb in ipairs(ch.objSec.checkbuttons) do cb:Hide() end
+        for _, h in ipairs(ch.objSec.circuitHeaders) do h:Hide() end
+        for _, m in ipairs(ch.objSec.mapBoxes) do m:Hide() end
 
         local showMap = SKquestsDB and SKquestsDB.config and SKquestsDB.config.showImage ~= false
-        local mapPath = GetGuideMapTexture(step.image)
-        if showMap and mapPath then
-            ch.mapBox.tex:SetTexture(mapPath)
-            ch.mapBox:Show()
-            if #lines > 0 then
-                ch.mapBox:ClearAllPoints()
-                ch.mapBox:SetPoint("TOPLEFT", ch.objSec.checkbuttons[#lines].lbl, "BOTTOMLEFT", -26, -50)
-                ch.mapBox:SetPoint("TOPRIGHT", ch.objSec, "TOPRIGHT", -8, 0)
-            else
-                ch.mapBox:ClearAllPoints()
-                ch.mapBox:SetPoint("TOPLEFT", ch.objSec.lbl, "BOTTOMLEFT", 0, -50)
+        local prevAnchor = ch.objSec.lbl
+        local cbIndex = 1
+        local headerIndex = 1
+        local mapIndex = 1
+
+        for stepIdx = chapterData.startIndex, chapterData.endIndex do
+            local step = guide[stepIdx]
+            local ges = GetGuideES(stepIdx)
+            if step then
+                -- Título del Circuito
+                local hd = ch.objSec.circuitHeaders[headerIndex]
+                if not hd then
+                    hd = ch.objSec:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+                    hd:SetJustifyH("LEFT")
+                    hd:SetTextColor(1, 0.82, 0)
+                    ch.objSec.circuitHeaders[headerIndex] = hd
+                end
+                
+                -- Usa el título traducido si existe (y saca solo la parte del Circuito)
+                local fullTitle = (ges and ges.title) or step.title
+                local circMatch = fullTitle:match("Circui[to]+.*")
+                if circMatch then
+                    hd:SetText(circMatch)
+                else
+                    hd:SetText(fullTitle)
+                end
+                
+                hd:ClearAllPoints()
+                if headerIndex == 1 then
+                    hd:SetPoint("TOPLEFT", prevAnchor, "BOTTOMLEFT", 0, -15)
+                else
+                    hd:SetPoint("TOPLEFT", prevAnchor, "BOTTOMLEFT", 0, -35)
+                end
+                hd:Show()
+                prevAnchor = hd
+                headerIndex = headerIndex + 1
+
+                -- Líneas del circuito
+                local rawText = (ges and ges.text) or step.text or step.objectives or ""
+                local lineCount = 1
+                for line in rawText:gmatch("[^\r\n]+") do
+                    line = line:gsub("^%s+", ""):gsub("%s+$", "")
+                    if line ~= "" then
+                        local cb = ch.objSec.checkbuttons[cbIndex]
+                        if not cb then
+                            cb = CreateFrame("CheckButton", "SKquests_GuideCB_"..cbIndex, ch.objSec, "UICheckButtonTemplate")
+                            cb:SetSize(20, 20)
+                            local lbl = cb:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+                            lbl:SetPoint("TOPLEFT", cb, "RIGHT", 6, 6)
+                            lbl:SetJustifyH("LEFT")
+                            lbl:SetJustifyV("TOP")
+                            lbl:SetWordWrap(true)
+                            lbl:SetNonSpaceWrap(true)
+                            cb.lbl = lbl
+                            ch.objSec.checkbuttons[cbIndex] = cb
+                        end
+
+                                                cb.stepIdx = stepIdx
+                        cb.lineIdx = lineCount
+                        
+                        cb:ClearAllPoints()
+                        if lineCount == 1 then
+                            cb:SetPoint("TOPLEFT", prevAnchor, "BOTTOMLEFT", 20, -10)
+                        else
+                            cb:SetPoint("TOPLEFT", prevAnchor, "BOTTOMLEFT", -26, -6)
+                        end
+                        
+                        -- Resaltar CADA nombre de quest entrecomillado con su propia
+                        -- traducción. (Antes se tomaba solo el primero y se reemplazaban
+                        -- todos por ese mismo, causando "[A Threat Within] and [A Threat Within]...")
+                        -- Resaltar cada quest y recolectar sus links (cada [nombre]
+                        -- entra en 'links' en orden; qid puede ser nil si no se halla).
+                        local firstQid = nil
+                        local links = {}
+                        line = line:gsub('"(.-)"', function(name)
+                            local qid = GetQuestIdByName(name)
+                            local q = qid and SKquests_DetailDB[qid]
+                            local locName = (q and GetLocalizedQuestName(q)) or name
+                            local disp = '[' .. locName .. ']'
+                            if qid and not firstQid then firstQid = qid end
+                            links[#links + 1] = { disp = disp, qid = qid }
+                            return '|cff00ccff' .. disp .. '|r'
+                        end)
+                        cb.questIdLink = firstQid
+                        cb.links = links
+
+                        -- Ancho explícito para que el texto envuelva (multilínea).
+                        local availW = ch.objSec:GetWidth()
+                        if not availW or availW < 60 then availW = 470 end
+                        cb.lbl:SetWidth(availW - 44)
+                        cb.lbl:SetText(line)
+                        cb.lbl:SetTextColor(C.white[1], C.white[2], C.white[3])
+
+                        -- Botón sobre toda la línea: si hay 1 quest, abre su ficha;
+                        -- si hay varias, despliega un menú para elegir cuál abrir.
+                        if not cb.linkBtn then
+                            cb.linkBtn = CreateFrame("Button", nil, ch.objSec)
+                            cb.linkBtn:SetScript("OnClick", function()
+                                local resolved = {}
+                                if cb.links then
+                                    for _, lk in ipairs(cb.links) do
+                                        if lk.qid then resolved[#resolved + 1] = lk end
+                                    end
+                                end
+                                if #resolved == 1 then
+                                    selectedQuestId = resolved[1].qid
+                                    addon:SwitchTab("quests")
+                                elseif #resolved > 1 then
+                                    local menu = {}
+                                    for _, lk in ipairs(resolved) do
+                                        local nm = lk.disp:gsub("^%[", ""):gsub("%]$", "")
+                                        menu[#menu + 1] = {
+                                            text = nm, notCheckable = true,
+                                            func = function()
+                                                selectedQuestId = lk.qid
+                                                addon:SwitchTab("quests")
+                                            end,
+                                        }
+                                    end
+                                    if not addon._linkMenu then
+                                        addon._linkMenu = CreateFrame("Frame", "SKquestsLinkMenu", UIParent, "UIDropDownMenuTemplate")
+                                    end
+                                    if EasyMenu then EasyMenu(menu, addon._linkMenu, "cursor", 0, 0, "MENU") end
+                                elseif cb.questIdLink then
+                                    selectedQuestId = cb.questIdLink
+                                    addon:SwitchTab("quests")
+                                end
+                            end)
+                        end
+                        cb.linkBtn:ClearAllPoints()
+                        cb.linkBtn:SetPoint("TOPLEFT", cb.lbl, "TOPLEFT")
+                        cb.linkBtn:SetPoint("BOTTOMRIGHT", cb.lbl, "BOTTOMRIGHT")
+                        if cb.questIdLink then cb.linkBtn:Show() else cb.linkBtn:Hide() end
+                        if cb.qbtns then for _, b in ipairs(cb.qbtns) do b:Hide() end end
+
+                        local key = stepIdx .. "_" .. lineCount
+                        local checked = SKquestsDB.profile.guideProgress and SKquestsDB.profile.guideProgress[key] or false
+                        cb:SetChecked(checked)
+                        
+                        cb:SetScript("OnClick", function(self)
+                            if not SKquestsDB.profile.guideProgress then
+                                SKquestsDB.profile.guideProgress = {}
+                            end
+                            local key = self.stepIdx .. "_" .. self.lineIdx
+                            SKquestsDB.profile.guideProgress[key] = self:GetChecked()
+                        end)
+                        
+                        cb:Show()
+
+                        prevAnchor = cb.lbl
+                        cbIndex = cbIndex + 1
+                        lineCount = lineCount + 1
+                    end
+                end
+
+                -- Imagen del circuito
+                local mapPath = GetGuideMapTexture(step.image)
+                if showMap and mapPath then
+                    local mb = ch.objSec.mapBoxes[mapIndex]
+                    if not mb then
+                        mb = CreateFrame("Frame", nil, ch.objSec)
+                        mb:SetBackdrop({
+                            bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+                            edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+                            edgeSize = 8, insets = {left=2, right=2, top=2, bottom=2}
+                        })
+                        mb:SetBackdropColor(0,0,0,0.5)
+                        mb:SetBackdropBorderColor(0.5,0.4,0.3,0.5)
+                        local tex = mb:CreateTexture(nil, "ARTWORK")
+                        tex:SetPoint("TOPLEFT", 4, -4)
+                        tex:SetPoint("BOTTOMRIGHT", -4, 4)
+                        tex:SetTexCoord(0, 1, 0, 1)
+                        mb.tex = tex
+                        ch.objSec.mapBoxes[mapIndex] = mb
+                    end
+                    
+                    mb.tex:SetTexture(mapPath)
+                    mb:ClearAllPoints()
+                    mb:SetPoint("TOPLEFT", prevAnchor, "BOTTOMLEFT", -26, -15)
+                    mb:SetPoint("TOPRIGHT", ch.objSec, "TOPRIGHT", -8, 0)
+                    
+                    mb:SetHeight(320)
+                    mb:Show()
+                    prevAnchor = mb
+                    mapIndex = mapIndex + 1
+                end
             end
-        else
-            ch.mapBox:Hide()
         end
 
-        ch.objSec.tomtomBtn:Hide()
         LayoutDetailSections(ch)
+
+        -- Calculate total height of the content dynamically
+        local totalHeight = 40
+        if prevAnchor and prevAnchor.GetBottom and ch.objSec:GetTop() then
+            totalHeight = ch.objSec:GetTop() - prevAnchor:GetBottom() + 20
+        end
+        ch.objSec:SetHeight(math.max(320, totalHeight))
+        
+        local dHeight = 0
+        if ch.header:GetTop() and ch.objSec:GetBottom() then
+             dHeight = ch.header:GetTop() - ch.objSec:GetBottom() + 20
+        end
+        ch:SetHeight(math.max(DetailPanel.scroll:GetHeight() or 320, dHeight))
 
     else
         ch.header:Hide()
@@ -3435,6 +4349,37 @@ end
 -- ============================================================
 function addon:SwitchTab(tabId)
     activeTab = tabId
+
+    -- Paneles de guía Pro: ocultos salvo que la pestaña "guide" los active
+    if GuideCardsPanel then GuideCardsPanel:Hide() end
+    if GuideLockPanel then GuideLockPanel:Hide() end
+    if addon.GuideCardsPanel then addon.GuideCardsPanel:Hide() end
+    if addon.GuideLockPanel then addon.GuideLockPanel:Hide() end
+
+    -- Gating Pro de la pestaña Guía: candado (bloqueado) o rejilla (sin elegir)
+    if tabId == "guide" then
+        if not addon:IsProUnlocked() then
+            SettingsPanel:Hide(); AboutPanel:Hide()
+            ListPanel:Hide(); DetailPanel:Hide(); RightSidebar:Hide()
+            if ListPanel.guideFiltersFrame then ListPanel.guideFiltersFrame:Hide() end
+            if addon.GuideLockPanel then addon.GuideLockPanel:Show() end
+            if MainFrame and MainFrame.titleText then MainFrame.titleText:SetText("Guías (Pro)") end
+            addon:ApplyTheme()
+            return
+        elseif not addon.selectedGuideKey then
+            SettingsPanel:Hide(); AboutPanel:Hide()
+            ListPanel:Hide(); DetailPanel:Hide(); RightSidebar:Hide()
+            if ListPanel.guideFiltersFrame then ListPanel.guideFiltersFrame:Hide() end
+            if addon.GuideCardsPanel then
+                addon.GuideCardsPanel:Show()
+                addon:RefreshGuideCards()
+            end
+            if MainFrame and MainFrame.titleText then MainFrame.titleText:SetText("Elige tu guía de leveo") end
+            addon:ApplyTheme()
+            return
+        end
+        -- Pro desbloqueado + guía elegida: cae al flujo normal (panel de pasos)
+    end
 
     if tabId == "settings" then
         if ListPanel.zonePanel then ListPanel.zonePanel:Hide() end
@@ -3536,3 +4481,27 @@ function addon:ApplyLanguage(lang)
         if addon.RefreshDetail then addon:RefreshDetail() end
     end
 end
+
+SLASH_SKQCALIB1 = "/skqcalib"
+SlashCmdList["SKQCALIB"] = function(msg)
+    local cmd, val = strsplit(" ", msg or "")
+    val = tonumber(val)
+    if not val or not _G.SKquests_CustomMapOffsets then
+        print("|cff00ff00SKquests Calib:|r Uso: /skqcalib x|y|w|h <valor> (ej: /skqcalib x 0.5)")
+        return
+    end
+    local mapZone = _G.SKquests_UI_CurrentMapZone
+    if not mapZone or not _G.SKquests_CustomMapOffsets[mapZone] then
+        print("|cff00ff00SKquests Calib:|r Abre una zona custom primero.")
+        return
+    end
+    local calib = _G.SKquests_CustomMapOffsets[mapZone]
+    if cmd == "x" then calib[3] = calib[3] + val
+    elseif cmd == "y" then calib[4] = calib[4] + val
+    elseif cmd == "w" then calib[1] = calib[1] + val
+    elseif cmd == "h" then calib[2] = calib[2] + val
+    end
+    print(string.format("|cff00ff00Calibracion [%d]:|r w=%.2f, h=%.2f, x=%.2f, y=%.2f", mapZone, calib[1], calib[2], calib[3], calib[4]))
+    if SKquests.RefreshMap then SKquests:RefreshMap() end
+end
+
