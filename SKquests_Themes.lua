@@ -46,14 +46,99 @@ addon.Themes.MinimalDark = {
     metrics = { borderSize = 0, padding = 6 },
 }
 
--- índice por clave de config ("elvuidark" / "minimaldark")
-addon.ThemesByKey = {
-    elvuidark   = addon.Themes.ElvUIDark,
-    minimaldark = addon.Themes.MinimalDark,
+addon.Themes.BlizzardClassic = {
+    name = "Blizzard Classic",
+    key = "blizzardclassic",
+    isEditable = true,
+    textures = { bg = Textures.Solid, border = "Interface\\Tooltips\\UI-Tooltip-Border" },
+    colors = {
+        bgPanel    = {0.93, 0.87, 0.73, 1.0},
+        bgHover    = {0.80, 0.60, 0.20, 0.30},
+        border     = {0.60, 0.60, 0.60, 1.0},
+        textNormal = {0.15, 0.09, 0.04},
+        textTitle  = {0.35, 0.22, 0.05},
+        accent     = {0.60, 0.40, 0.10},
+    },
+    metrics = { borderSize = 1, padding = 4 },
 }
 
--- Orden de temas extra para el desplegable (esta build: solo los 2 libres)
-addon.ThemeOrder = { "elvuidark", "minimaldark" }
+addon.Themes.Dragonflight = {
+    name = "Dragonflight",
+    key = "dragonflight",
+    isEditable = true,
+    textures = { bg = Textures.Solid, border = Textures.Solid },
+    colors = {
+        bgPanel    = {0.11, 0.12, 0.13, 0.95},
+        bgHover    = {0.20, 0.22, 0.25, 0.5},
+        border     = {0.35, 0.35, 0.38, 1.0},
+        textNormal = {0.85, 0.85, 0.85},
+        textTitle  = {0.95, 0.80, 0.30},
+        accent     = {0.20, 0.60, 1.0},
+    },
+    metrics = { borderSize = 1, padding = 4 },
+}
+
+addon.Themes.WrathClassic = {
+    name = "Wrath Classic",
+    key = "wrathclassic",
+    isEditable = true,
+    textures = { bg = Textures.Solid, border = "Interface\\Tooltips\\UI-Tooltip-Border" },
+    colors = {
+        bgPanel    = {0.05, 0.08, 0.12, 0.90},
+        bgHover    = {0.15, 0.25, 0.40, 0.4},
+        border     = {0.40, 0.50, 0.60, 1.0},
+        textNormal = {0.85, 0.90, 0.95},
+        textTitle  = {0.40, 0.80, 1.0},
+        accent     = {0.30, 0.70, 0.95},
+    },
+    metrics = { borderSize = 1, padding = 4 },
+}
+
+addon.Themes.RUFModern = {
+    name = "RUF Modern",
+    key = "rufmodern",
+    isEditable = true,
+    textures = { bg = Textures.Solid, border = Textures.Solid },
+    colors = {
+        bgPanel    = {0.12, 0.12, 0.12, 0.95},
+        bgHover    = {0.22, 0.22, 0.22, 1.0},
+        border     = {0.20, 0.20, 0.20, 1.0},
+        textNormal = {0.80, 0.80, 0.80},
+        textTitle  = {0.90, 0.90, 0.90},
+        accent     = {0.60, 0.60, 0.60},
+    },
+    metrics = { borderSize = 1, padding = 4 },
+}
+
+addon.Themes.WarcraftLogs = {
+    name = "Warcraft Logs",
+    key = "warcraftlogs",
+    isEditable = true,
+    textures = { bg = Textures.Solid, border = Textures.Solid },
+    colors = {
+        bgPanel    = {0.05, 0.05, 0.07, 0.98},
+        bgHover    = {0.12, 0.12, 0.15, 1.0},
+        border     = {0.15, 0.15, 0.18, 1.0},
+        textNormal = {0.75, 0.75, 0.80},
+        textTitle  = {0.64, 0.20, 0.93},
+        accent     = {0.64, 0.20, 0.93},
+    },
+    metrics = { borderSize = 1, padding = 4 },
+}
+
+-- índice por clave de config
+addon.ThemesByKey = {
+    elvuidark       = addon.Themes.ElvUIDark,
+    minimaldark     = addon.Themes.MinimalDark,
+    blizzardclassic = addon.Themes.BlizzardClassic,
+    dragonflight    = addon.Themes.Dragonflight,
+    wrathclassic    = addon.Themes.WrathClassic,
+    rufmodern       = addon.Themes.RUFModern,
+    warcraftlogs    = addon.Themes.WarcraftLogs,
+}
+
+-- Orden de temas extra para el desplegable
+addon.ThemeOrder = { "elvuidark", "minimaldark", "blizzardclassic", "dragonflight", "wrathclassic", "rufmodern", "warcraftlogs" }
 
 -- Fallback del sistema Pro (build público sin SKquests_ProCodes.lua):
 -- bloqueado por defecto. SKquests_ProCodes.lua (privado) se carga DESPUÉS

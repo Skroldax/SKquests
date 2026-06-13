@@ -2821,14 +2821,142 @@ function addon:CreateModernUI()
         self:SetText(LangBtnText())
     end)
 
+    -- ---- TEMA ----
+    local themeLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    themeLbl:SetPoint("TOPLEFT", 20, -330)
+    RegLoc(themeLbl, "THEME_LBL")
+    table.insert(SettingsPanel.labels, themeLbl)
+
+    local themeBtn = CreateFrame("Button", nil, SettingsPanel)
+    themeBtn:SetPoint("LEFT", themeLbl, "RIGHT", 10, -1)
+    themeBtn:SetSize(140, 22)
+    themeBtn:RegisterForClicks("LeftButtonUp")
+    ApplyBD(themeBtn, {0,0,0}, {0.5,0.4,0.3}, 8)
+    themeBtn:SetBackdropColor(0,0,0,0.4)
+    
+    local themeBtnLbl = themeBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    themeBtnLbl:SetPoint("LEFT", 6, 0)
+    themeBtn.lbl = themeBtnLbl
+    
+    local themeIcon = themeBtn:CreateTexture(nil, "OVERLAY")
+    themeIcon:SetSize(12, 12)
+    themeIcon:SetPoint("RIGHT", -4, 0)
+    themeIcon:SetTexture("Interface\\ChatFrame\\ChatFrameExpandArrow")
+
+    local function ThemeBtnText()
+        local t = addon.db and addon.db.theme or "oscuro"
+        if t == "oscuro" then return L("THEME_DARK") end
+        if t == "claro" then return L("THEME_LIGHT") end
+        if t == "elvuidark" then return "ElvUI Dark" end
+        if t == "minimaldark" then return "Minimal Dark" end
+        if t == "blizzardclassic" then return "Blizzard Classic" end
+        if t == "dragonflight" then return "Dragonflight" end
+        if t == "wrathclassic" then return "Wrath Classic" end
+        if t == "rufmodern" then return "RUF Modern" end
+        if t == "warcraftlogs" then return "Warcraft Logs" end
+        return t
+    end
+    themeBtnLbl:SetText(ThemeBtnText())
+    
+    local themesList = { "oscuro", "claro", "elvuidark", "minimaldark", "blizzardclassic", "dragonflight", "wrathclassic", "rufmodern", "warcraftlogs" }
+    
+    local themeMenu = CreateFrame("Frame", "SKquestsThemeMenu", SettingsPanel)
+    themeMenu:SetSize(160, 115)
+    themeMenu:SetPoint("TOPLEFT", themeBtn, "BOTTOMLEFT", 0, -2)
+    themeMenu:SetFrameStrata("TOOLTIP")
+    ApplyBD(themeMenu, {0.05, 0.05, 0.05}, {0.5,0.4,0.3}, 8)
+    themeMenu:Hide()
+
+    local tScroll = CreateFrame("ScrollFrame", "SKquestsThemeScroll", themeMenu, "FauxScrollFrameTemplate")
+    tScroll:SetPoint("TOPLEFT", 4, -4)
+    tScroll:SetPoint("BOTTOMRIGHT", -26, 4)
+    
+    local tButtons = {}
+    for i = 1, 5 do
+        local btn = CreateFrame("Button", nil, themeMenu)
+        btn:SetSize(130, 20)
+        if i == 1 then
+            btn:SetPoint("TOPLEFT", tScroll, "TOPLEFT", 0, 0)
+        else
+            btn:SetPoint("TOPLEFT", tButtons[i-1], "BOTTOMLEFT", 0, 0)
+        end
+        local hl = btn:CreateTexture(nil, "HIGHLIGHT")
+        hl:SetAllPoints()
+        hl:SetColorTexture(1, 1, 1, 0.1)
+        local txt = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+        txt:SetPoint("LEFT", 4, 0)
+        txt:SetPoint("RIGHT", -4, 0)
+        txt:SetJustifyH("LEFT")
+        btn.txt = txt
+        
+        btn:SetScript("OnClick", function(self)
+            local nextT = self.themeKey
+            if SKquests.db then SKquests.db.theme = nextT end
+            if SKquestsDB and SKquestsDB.profile then SKquestsDB.profile.theme = nextT end
+            addon:ApplyTheme()
+            themeBtnLbl:SetText(ThemeBtnText())
+            themeMenu:Hide()
+        end)
+        tButtons[i] = btn
+    end
+
+    local function RefreshThemeMenu()
+        FauxScrollFrame_Update(tScroll, #themesList, 5, 20)
+        local offset = FauxScrollFrame_GetOffset(tScroll)
+        for i = 1, 5 do
+            local idx = offset + i
+            if idx <= #themesList then
+                local tKey = themesList[idx]
+                tButtons[i].themeKey = tKey
+                
+                local tName = tKey
+                if tKey == "oscuro" then tName = L("THEME_DARK")
+                elseif tKey == "claro" then tName = L("THEME_LIGHT")
+                elseif tKey == "elvuidark" then tName = "ElvUI Dark"
+                elseif tKey == "minimaldark" then tName = "Minimal Dark"
+                elseif tKey == "blizzardclassic" then tName = "Blizzard Classic"
+                elseif tKey == "dragonflight" then tName = "Dragonflight"
+                elseif tKey == "wrathclassic" then tName = "Wrath Classic"
+                elseif tKey == "rufmodern" then tName = "RUF Modern"
+                elseif tKey == "warcraftlogs" then tName = "Warcraft Logs"
+                end
+                
+                tButtons[i].txt:SetText(tName)
+                tButtons[i]:Show()
+            else
+                tButtons[i]:Hide()
+            end
+        end
+    end
+
+    tScroll:SetScript("OnVerticalScroll", function(self, offset)
+        FauxScrollFrame_OnVerticalScroll(self, offset, 20, RefreshThemeMenu)
+    end)
+    themeMenu:SetScript("OnShow", RefreshThemeMenu)
+
+    themeBtn:SetScript("OnClick", function()
+        if themeMenu:IsShown() then themeMenu:Hide() else themeMenu:Show() end
+    end)
+    themeBtn:SetScript("OnHide", function() themeMenu:Hide() end)
+
+    local editThemeBtn = CreateFrame("Button", nil, SettingsPanel, "UIPanelButtonTemplate")
+    editThemeBtn:SetPoint("LEFT", themeBtn, "RIGHT", 10, 0)
+    editThemeBtn:SetSize(120, 22)
+    RegLoc(editThemeBtn, "EDIT_THEME", "upper")
+    editThemeBtn:SetScript("OnClick", function()
+        if addon.OpenThemeEditor then
+            addon:OpenThemeEditor()
+        end
+    end)
+
     -- ---- CONFIGURACIÓN DE REDIMENSIÓN POR SLIDERS ----
     local wLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    wLbl:SetPoint("TOPLEFT", 20, -330)
+    wLbl:SetPoint("TOPLEFT", 20, -370)
     RegLoc(wLbl, "WIDTH_LBL")
     table.insert(SettingsPanel.labels, wLbl)
 
     wSlider = CreateFrame("Slider", "SKquestsWidthSliderUI", SettingsPanel, "OptionsSliderTemplate")
-    wSlider:SetPoint("TOPLEFT", 20, -355)
+    wSlider:SetPoint("TOPLEFT", 20, -395)
     wSlider:SetWidth(220)
     wSlider:SetMinMaxValues(800, 1600)
     wSlider:SetValue(initialW)
@@ -2857,12 +2985,12 @@ function addon:CreateModernUI()
     end)
 
     local hLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    hLbl:SetPoint("TOPLEFT", 280, -330)
+    hLbl:SetPoint("TOPLEFT", 280, -370)
     RegLoc(hLbl, "HEIGHT_LBL")
     table.insert(SettingsPanel.labels, hLbl)
 
     hSlider = CreateFrame("Slider", "SKquestsHeightSliderUI", SettingsPanel, "OptionsSliderTemplate")
-    hSlider:SetPoint("TOPLEFT", 280, -355)
+    hSlider:SetPoint("TOPLEFT", 280, -395)
     hSlider:SetWidth(220)
     hSlider:SetMinMaxValues(480, 1000)
     hSlider:SetValue(initialH)
