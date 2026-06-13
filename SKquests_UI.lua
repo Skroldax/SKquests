@@ -13,6 +13,28 @@ SKquests_Guides = {
 
 local L = function(key) return SKquests_Localization and SKquests_Localization:Get(key) or key end
 
+-- Función auxiliar para leer auras de XP personalizadas de Ascension
+local function GetAscensionXPMultiplier()
+    local mult = 1.0
+    for i = 1, 40 do
+        local name = UnitBuff("player", i)
+        if name then
+            local n = string.lower(name)
+            -- Aura de Prestigio (200%)
+            if (string.find(n, "prestigio") or string.find(n, "prestige") or string.find(n, "prestigie")) and string.find(n, "aura") then
+                mult = mult + 2.0
+            -- Aura de XP (50%)
+            elseif (string.find(n, "aura") and (string.find(n, "experiencia") or string.find(n, "experience"))) then
+                mult = mult + 0.5
+            -- Poción de XP (25%)
+            elseif (string.find(n, "poci") or string.find(n, "potion") or string.find(n, "elixir")) and (string.find(n, "experiencia") or string.find(n, "experience") or string.find(n, "xp")) then
+                mult = mult + 0.25
+            end
+        end
+    end
+    return mult
+end
+
 -- ============================================================
 --  MAPA DE ZONAS WotLK/Classic (LOOKUP TABLE)
 -- ============================================================
@@ -2542,10 +2564,11 @@ function addon:CreateModernUI()
         local function fill(btns)
             for _, btn in ipairs(btns) do
                 if btn:IsShown() and btn.itemId and not btn.itemLink then
-                    local nm, lk, _, _, _, _, _, _, _, tx = GetItemInfo(btn.itemId)
+                    local tx = GetItemIcon(btn.itemId)
+                    if tx then btn.tex:SetTexture(tx) end
+                    local nm, lk = GetItemInfo(btn.itemId)
                     if nm then
                         btn.itemLink = lk
-                        if tx then btn.tex:SetTexture(tx) end
                     else
                         pending = true
                     end
@@ -3420,12 +3443,43 @@ function addon:RefreshDetail()
         -- Dinero + XP de recompensa (SKquests_Rewards, desde quest_template)
         local rwd = SKquests_Rewards and SKquests_Rewards[tonumber(q.id) or q.id]
         local rwParts = {}
-        if rwd then
-            if rwd.m and rwd.m > 0 then
-                rwParts[#rwParts + 1] = (GetCoinTextureString and GetCoinTextureString(rwd.m)) or tostring(rwd.m)
+        
+        local baseXP = rwd and rwd.x or 0
+        local finalMoney = rwd and rwd.m or 0
+        local finalXP = baseXP
+        
+        -- Integración con Questie para obtener bonos de XP dinámicos (Ascension rates, Rested, Heirlooms, Penalty)
+        if QuestieLoader and type(QuestieLoader.ImportModule) == "function" then
+            local QuestXP = QuestieLoader:ImportModule("QuestXP")
+            if QuestXP and type(QuestXP.GetQuestLogRewardXP) == "function" then
+                local qidNum = tonumber(q.id)
+                if qidNum then
+                    local dynXp = QuestXP:GetQuestLogRewardXP(qidNum, false)
+                    if dynXp then
+                        finalXP = dynXp
+                    end
+                end
             end
-            if rwd.x and rwd.x > 0 then
-                rwParts[#rwParts + 1] = "|cffffd200" .. rwd.x .. " XP|r"
+        end
+
+        -- Multiplicadores de auras custom de Ascension
+        local customMult = GetAscensionXPMultiplier()
+        if customMult ~= 1.0 then
+            finalXP = math.floor(finalXP * customMult)
+        end
+
+        if finalMoney > 0 then
+            rwParts[#rwParts + 1] = (GetCoinTextureString and GetCoinTextureString(finalMoney)) or tostring(finalMoney)
+        end
+        
+        if finalXP > 0 or baseXP > 0 then
+            if finalXP ~= baseXP and baseXP > 0 then
+                local mult = finalXP / baseXP
+                local multStr = string.format("%.2f", mult)
+                multStr = string.gsub(multStr, "%.?0+$", "")
+                rwParts[#rwParts + 1] = "|cffffd200" .. finalXP .. " XP|r |cffaaaaaa(Base: " .. baseXP .. " XP, x" .. multStr .. ")|r"
+            else
+                rwParts[#rwParts + 1] = "|cffffd200" .. finalXP .. " XP|r"
             end
         end
         local moneyStr = table.concat(rwParts, "   ")
@@ -3446,10 +3500,11 @@ function addon:RefreshDetail()
                     btn.itemName = rew.name
                     btn.itemLink = nil
                     btn.tex:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
-                    local itemName, itemLink, _, _, _, _, _, _, _, itemTexture = GetItemInfo(rew.id)
+                    local itemTexture = GetItemIcon(rew.id)
+                    if itemTexture then btn.tex:SetTexture(itemTexture) end
+                    local itemName, itemLink = GetItemInfo(rew.id)
                     if itemName then
                         btn.itemLink = itemLink
-                        if itemTexture then btn.tex:SetTexture(itemTexture) end
                     end
                     btn:Show()
                 else
@@ -3466,10 +3521,11 @@ function addon:RefreshDetail()
                     btn.itemId = rew.id
                     btn.itemLink = nil
                     btn.tex:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
-                    local itemName, itemLink, _, _, _, _, _, _, _, itemTexture = GetItemInfo(rew.id)
+                    local itemTexture = GetItemIcon(rew.id)
+                    if itemTexture then btn.tex:SetTexture(itemTexture) end
+                    local itemName, itemLink = GetItemInfo(rew.id)
                     if itemName then
                         btn.itemLink = itemLink
-                        if itemTexture then btn.tex:SetTexture(itemTexture) end
                     end
                     btn:Show()
                 else
@@ -3648,24 +3704,81 @@ function addon:RefreshDetail()
             RightSidebar.rows.minLvl.val:SetText(ml > 0 and ml or "1")
             RightSidebar.rows.status.val:SetText(entry.isComplete and L("ST_READY") or L("ST_PROGRESS"))
 
+            -- Dinero + XP de recompensa
+            local rwParts = {}
+            SelectQuestLogEntry(selectedQuestLogIdx)
+            local logMoney = GetQuestLogRewardMoney and GetQuestLogRewardMoney() or 0
+            local logXP = GetQuestLogRewardXP and GetQuestLogRewardXP() or 0
+            
+            local rwd = SKquests_Rewards and SKquests_Rewards[tonumber(q.id) or q.id]
+            
+            local baseXP = rwd and rwd.x or 0
+            local finalMoney = (logMoney and logMoney > 0) and logMoney or (rwd and rwd.m or 0)
+            local finalXP = baseXP
+            
+            if logXP and logXP > 0 then
+                finalXP = logXP
+            end
+            
+            -- Integración con Questie para obtener bonos de XP dinámicos (Ascension rates, Rested, Heirlooms, Penalty)
+            if QuestieLoader and type(QuestieLoader.ImportModule) == "function" then
+                local QuestXP = QuestieLoader:ImportModule("QuestXP")
+                if QuestXP and type(QuestXP.GetQuestLogRewardXP) == "function" then
+                    local qidNum = tonumber(q.id)
+                    if qidNum then
+                        local dynXp = QuestXP:GetQuestLogRewardXP(qidNum, false)
+                        if dynXp then
+                            finalXP = dynXp
+                        end
+                    end
+                end
+            end
+            
+            -- Multiplicadores de auras custom de Ascension
+            local customMult = GetAscensionXPMultiplier()
+            if customMult ~= 1.0 then
+                finalXP = math.floor(finalXP * customMult)
+            end
+            
+            if finalMoney > 0 then
+                rwParts[#rwParts + 1] = (GetCoinTextureString and GetCoinTextureString(finalMoney)) or tostring(finalMoney)
+            end
+            
+            if finalXP > 0 or baseXP > 0 then
+                if finalXP ~= baseXP and baseXP > 0 then
+                    local mult = finalXP / baseXP
+                    local multStr = string.format("%.2f", mult)
+                    multStr = string.gsub(multStr, "%.?0+$", "")
+                    rwParts[#rwParts + 1] = "|cffffd200" .. finalXP .. " XP|r |cffaaaaaa(Base: " .. baseXP .. " XP, x" .. multStr .. ")|r"
+                else
+                    rwParts[#rwParts + 1] = "|cffffd200" .. finalXP .. " XP|r"
+                end
+            end
+            
+            local moneyStr = table.concat(rwParts, "   ")
+            if ch.rewardSec.moneyLbl then
+                ch.rewardSec.moneyLbl:SetText(moneyStr)
+            end
+
             -- Mostrar Recompensas
-            if q.rewards and #q.rewards > 0 then
+            if (q.rewards and #q.rewards > 0) or moneyStr ~= "" then
                 ch.rewardSec:Show()
                 for r = 1, 4 do
                     local btn = ch.rewardSec.buttons[r]
-                    local rew = q.rewards[r]
+                    local rew = q.rewards and q.rewards[r]
                     if rew then
                         btn.itemId = rew.id
                         btn.itemName = rew.name
                         btn.itemLink = nil
                         btn.tex:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
                         
-                        local itemName, itemLink, _, _, _, _, _, _, _, itemTexture = GetItemInfo(rew.id)
+                        local itemTexture = GetItemIcon(rew.id)
+                        if itemTexture then
+                            btn.tex:SetTexture(itemTexture)
+                        end
+                        local itemName, itemLink = GetItemInfo(rew.id)
                         if itemName then
                             btn.itemLink = itemLink
-                            if itemTexture then
-                                btn.tex:SetTexture(itemTexture)
-                            end
                         end
                         btn:Show()
                     else

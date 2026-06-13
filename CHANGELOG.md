@@ -3,6 +3,19 @@
 All notable changes to SKquests will be documented in this file.
 This project follows [Semantic Versioning](https://semver.org/) and [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.11.0-alpha] - 2026-06-13
+
+### Added
+- **Base de datos de Experiencia completa**: se reemplazó la base de datos parcial de vanilla por una extracción completa desde los archivos internos de *Questie*. El archivo `SKquests_Rewards.lua` ahora cuenta con más de 9,400 valores exactos de experiencia base para todas las misiones (incluyendo las custom y WotLK).
+- **Multiplicadores Dinámicos de XP**: integración nativa con la API de Questie (`QuestXP:GetQuestLogRewardXP`) para calcular en tiempo real los modificadores de experiencia por nivel, reliquias y Joyous Journeys.
+- **Auras Custom de Ascension**: escáner automático de buffs del jugador en la interfaz para aplicar los bonos de experiencia propios de Ascension (Aura de Experiencia +50%, Pociones +25%, Aura de Prestigio +200%).
+- **Visualización de Multiplicador**: la interfaz ahora desglosa la experiencia si tienes bonos, mostrando el total final junto a la base y el multiplicador exacto (ej. `334 XP (Base: 215 XP, x1.55)`).
+
+### Fixed
+- **Crashes por API faltante en 3.3.5**: la llamada nativa a `GetQuestLogRewardXP()` rompía silenciosamente la pestaña del *Quest Log* porque dicha función es de Cataclysm. Ahora se envuelve de forma segura y se calcula desde Questie.
+- **Iconos invisibles en el Quest Log**: al ver una recompensa por primera vez, el icono salía como interrogación porque el servidor aún no la cacheaba. Se cambió el uso asíncrono de `GetItemInfo` por la lectura síncrona `GetItemIcon` desde los archivos locales.
+- **Eliminación de misiones corruptas**: se borraron del código y la base de datos las misiones de prueba residuales ("The 'Chow' Quest (123)aa COPY").
+
 ## [0.10.17-alpha] - 2026-06-12
 
 ### Added
