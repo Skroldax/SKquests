@@ -117,6 +117,7 @@ SKquests_Localization.enUS = {
     PRO_UNLOCK_HINT = "Enter your Pro code to unlock the leveling guides.",
     UNLOCK_PRO = "Unlock Pro",
     CHAPTER = "Chapter",
+    ABOUT_DESC = "SKquests is a World of Warcraft 3.3.5a addon that acts as a step-by-step guide and quest tracker for levels 1-60.\n\nIt combines an optimized local database with the famous leveling guides for Alliance and Horde.\n\nFeatures:\n• Fully adjustable 3-column web-style redesign.\n• Premium dark mode and light parchment theme.\n• Dynamic step-by-step checklist on the right panel.\n• Live objective tracking and integrated Quest Log.\n• Wowhead quick links and copyable button.\n\nCreated with love for the community.\nVersion Alpha 0.11.4",
 }
 
 -- Spanish translations
@@ -226,6 +227,7 @@ SKquests_Localization.esES = {
     PRO_UNLOCK_HINT = "Introduce tu código Pro para desbloquear las guías de leveo.",
     UNLOCK_PRO = "Desbloquear Pro",
     CHAPTER = "Capítulo",
+    ABOUT_DESC = "SKquests es un addon para la versión 3.3.5a de World of Warcraft que sirve como guía paso a paso y rastreador de misiones de nivel 1-60.\n\nCombina una base de datos local optimizada con las famosas guías de leveo de la Alianza y la Horda.\n\nCaracterísticas:\n• Rediseño completo estilo Web 3 Columnas ajustable.\n• Modo oscuro y modo claro pergamino premium.\n• Checklist dinámico de pasos por puntos en el panel derecho.\n• Tracking en vivo de objetivos y Quest Log integrado.\n• Enlaces rápidos y botón copiables a Wowhead.\n\nCreado con amor para la comunidad.\nVersión Alpha 0.11.4",
 }
 
 function SKquests_Localization:SetLanguage(lang)

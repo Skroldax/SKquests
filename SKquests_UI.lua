@@ -1,7 +1,7 @@
 -- File: SKquests_UI.lua
 -- Rediseño completo de la interfaz de SKquests al estilo Web 3 Columnas
 -- Soporta modo oscuro/claro, ventana ajustable y pestañas dinámicas.
--- Versión Alpha 0.11.3
+-- Versión Alpha 0.11.4
 
 local addon = SKquests
 
@@ -3171,21 +3171,7 @@ function addon:CreateModernUI()
     abDesc:SetPoint("BOTTOMRIGHT", -16, 50)
     abDesc:SetJustifyH("LEFT")
     abDesc:SetJustifyV("TOP")
-    abDesc:SetText([[
-SKquests es un addon para la versión 3.3.5a de World of Warcraft que sirve como guía paso a paso y rastreador de misiones de nivel 1-60.
-
-Combina una base de datos local optimizada con las famosas guías de leveo de la Alianza y la Horda.
-
-Características:
-• Rediseño completo estilo Web 3 Columnas ajustable.
-• Modo oscuro y modo claro pergamino premium.
-• Checklist dinámico de pasos por puntos en el panel derecho.
-• Tracking en vivo de objetivos y Quest Log integrado.
-• Enlaces rápidos y botón copiables a Wowhead.
-
-Creado con amor para la comunidad.
-Versión Alpha 0.11.3
-]])
+    RegLoc(abDesc, "ABOUT_DESC")
     AboutPanel.desc = abDesc
 
     local acceptAbBtn = CreateFrame("Button", nil, AboutPanel, "UIPanelButtonTemplate")
