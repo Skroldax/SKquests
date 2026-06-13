@@ -120,11 +120,11 @@ end
 local function OpenEditor()
     local f = BuildEditor()
 
-    -- tema activo: solo los editables (elvuidark / minimaldark)
+    -- tema activo: solo los editables
     local themeKey = SKquestsDB and SKquestsDB.config and SKquestsDB.config.theme
     local theme = addon.ThemesByKey and addon.ThemesByKey[themeKey]
-    if not theme then
-        addon:Print("El editor solo funciona con los temas ElvUI Dark o Minimal Dark. Actívalo primero en Ajustes.")
+    if not theme or not theme.isEditable then
+        addon:Print("El editor no funciona con los temas por defecto. Elige otro tema (ej. ElvUI Dark) en Ajustes primero.")
         return
     end
 
@@ -212,9 +212,5 @@ StaticPopupDialogs["SKQUESTS_ADMIN_PASS"] = {
 
 -- Punto de entrada desde Ajustes
 function addon:OpenThemeEditor()
-    if SKquestsDB and SKquestsDB.config and SKquestsDB.config.adminUnlocked then
-        OpenEditor()
-    else
-        StaticPopup_Show("SKQUESTS_ADMIN_PASS")
-    end
+    OpenEditor()
 end

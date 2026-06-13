@@ -442,6 +442,60 @@ local rightSidebarShown = true
 local searchText = ""
 local selectedZoneFilter = "Todas"
 local selectedLevelFilter = "Todos"
+local selectedZoneFactionFilter = "Both" -- "Alliance", "Horde", "Both"
+
+local ZoneCoordinates = {
+    -- Continent 1: Kalimdor
+    [141]  = { continent = 1, x = 45, y = 10 }, -- Teldrassil
+    [188]  = { continent = 1, x = 45, y = 10 }, -- Shadowglen -> Teldrassil
+    [148]  = { continent = 1, x = 40, y = 20 }, -- Darkshore
+    [331]  = { continent = 1, x = 46, y = 28 }, -- Ashenvale
+    [17]   = { continent = 1, x = 48, y = 46 }, -- The Barrens
+    [14]   = { continent = 1, x = 58, y = 49 }, -- Durotar
+    [363]  = { continent = 1, x = 58, y = 49 }, -- Valley of Trials -> Durotar
+    [221]  = { continent = 1, x = 59, y = 54 }, -- Echo Isles -> Durotar
+    [215]  = { continent = 1, x = 39, y = 49 }, -- Mulgore
+    [220]  = { continent = 1, x = 39, y = 49 }, -- Camp Narache -> Mulgore
+    [406]  = { continent = 1, x = 38, y = 35 }, -- Stonetalon Mountains
+    [16]   = { continent = 1, x = 59, y = 30 }, -- Azshara
+    [493]  = { continent = 1, x = 51, y = 14 }, -- Moonglade
+    [361]  = { continent = 1, x = 44, y = 20 }, -- Felwood
+    [618]  = { continent = 1, x = 58, y = 15 }, -- Winterspring
+    [405]  = { continent = 1, x = 34, y = 45 }, -- Desolace
+    [15]   = { continent = 1, x = 56, y = 58 }, -- Dustwallow Marsh
+    [357]  = { continent = 1, x = 35, y = 62 }, -- Feralas
+    [400]  = { continent = 1, x = 49, y = 67 }, -- Thousand Needles
+    [440]  = { continent = 1, x = 54, y = 80 }, -- Tanaris
+    [490]  = { continent = 1, x = 43, y = 79 }, -- Un'Goro Crater
+    [1377] = { continent = 1, x = 34, y = 78 }, -- Silithus
+
+    -- Continent 2: Eastern Kingdoms
+    [1]    = { continent = 2, x = 48, y = 51 }, -- Dun Morogh
+    [132]  = { continent = 2, x = 48, y = 51 }, -- Coldridge Valley -> Dun Morogh
+    [12]   = { continent = 2, x = 48, y = 70 }, -- Elwynn Forest
+    [9]    = { continent = 2, x = 48, y = 70 }, -- Northshire Valley -> Elwynn Forest
+    [40]   = { continent = 2, x = 38, y = 75 }, -- Westfall
+    [38]   = { continent = 2, x = 56, y = 52 }, -- Loch Modan
+    [44]   = { continent = 2, x = 56, y = 71 }, -- Redridge Mountains
+    [10]   = { continent = 2, x = 48, y = 77 }, -- Duskwood
+    [11]   = { continent = 2, x = 50, y = 42 }, -- Wetlands
+    [47]   = { continent = 2, x = 57, y = 24 }, -- The Hinterlands
+    [267]  = { continent = 2, x = 47, y = 29 }, -- Hillsbrad Foothills
+    [36]   = { continent = 2, x = 46, y = 25 }, -- Alterac Mountains
+    [45]   = { continent = 2, x = 57, y = 30 }, -- Arathi Highlands
+    [33]   = { continent = 2, x = 45, y = 88 }, -- Stranglethorn Vale
+    [3]    = { continent = 2, x = 55, y = 60 }, -- Badlands
+    [8]    = { continent = 2, x = 57, y = 77 }, -- Swamp of Sorrows
+    [4]    = { continent = 2, x = 58, y = 85 }, -- Blasted Lands
+    [51]   = { continent = 2, x = 48, y = 60 }, -- Searing Gorge
+    [46]   = { continent = 2, x = 50, y = 65 }, -- Burning Steppes
+    [28]   = { continent = 2, x = 47, y = 18 }, -- Western Plaguelands
+    [139]  = { continent = 2, x = 56, y = 16 }, -- Eastern Plaguelands
+    [41]   = { continent = 2, x = 52, y = 77 }, -- Deadwind Pass
+    [130]  = { continent = 2, x = 38, y = 23 }, -- Silverpine Forest
+    [85]   = { continent = 2, x = 38, y = 14 }, -- Tirisfal Glades
+    [154]  = { continent = 2, x = 38, y = 14 }, -- Deathknell -> Tirisfal Glades
+}
 
 -- Listas filtradas
 local filteredQuestIds = {}
@@ -522,6 +576,7 @@ local DetailPanel = nil
 local RightSidebar = nil
 local SettingsPanel = nil
 local AboutPanel = nil
+local ZonesMapPanel = nil
 
 local listButtons = {}
 local MAX_ROWS = 35
@@ -837,6 +892,48 @@ local function IsQuestEligible(id, q)
     return true
 end
 
+local function GetQuestFaction(id, q)
+    if not q then return nil end
+    
+    -- 1. Try pfDB["quests"]["data"][id] for the "race" field
+    if pfDB and pfDB["quests"] and pfDB["quests"]["data"] then
+        local pq = pfDB["quests"]["data"][id]
+        if pq and pq.race then
+            if pq.race == 77 then
+                return "Alliance"
+            elseif pq.race == 178 then
+                return "Horde"
+            end
+        end
+    end
+
+    -- 2. Try the giver NPC faction
+    if q.giverId and q.giverType ~= "GO" then
+        local u = GetUnitData(q.giverId)
+        if u and u.fac then
+            if u.fac == "A" then
+                return "Alliance"
+            elseif u.fac == "H" then
+                return "Horde"
+            end
+        end
+    end
+
+    -- 3. Try the ender NPC faction
+    if q.enderId and q.enderType ~= "GO" then
+        local u = GetUnitData(q.enderId)
+        if u and u.fac then
+            if u.fac == "A" then
+                return "Alliance"
+            elseif u.fac == "H" then
+                return "Horde"
+            end
+        end
+    end
+
+    return "Both"
+end
+
 local function BuildZonesList()
     local zonesData = {}
     if not SKquests_DetailDB then return end
@@ -848,10 +945,21 @@ local function BuildZonesList()
            and exp ~= "TBC" and exp ~= "WotLK" then
             local name = GetZoneName(q.zoneId)
             if not zonesData[name] then
-                zonesData[name] = { minL = 100, maxL = 0, count = 0, id = q.zoneId }
+                zonesData[name] = { minL = 100, maxL = 0, count = 0, id = q.zoneId, allianceQuests = 0, hordeQuests = 0 }
             end
             local z = zonesData[name]
             z.count = z.count + 1
+            
+            local fac = GetQuestFaction(id, q)
+            if fac == "Alliance" then
+                z.allianceQuests = z.allianceQuests + 1
+            elseif fac == "Horde" then
+                z.hordeQuests = z.hordeQuests + 1
+            else
+                z.allianceQuests = z.allianceQuests + 1
+                z.hordeQuests = z.hordeQuests + 1
+            end
+
             local lvl = tonumber(q.level) or 0
             if lvl > 0 then
                 if lvl < z.minL then z.minL = lvl end
@@ -863,14 +971,40 @@ local function BuildZonesList()
     uniqueZones = {}
     for name, z in pairs(zonesData) do
         if z.minL == 100 then z.minL = 1 end
-        table.insert(uniqueZones, {
-            name = name,
-            minL = z.minL,
-            maxL = z.maxL,
-            count = z.count,
-            id = z.id,
-            expansion = GetZoneExpansion(z.id),
-        })
+        
+        local fac = "Both"
+        if z.allianceQuests > 0 and z.hordeQuests == 0 then
+            fac = "Alliance"
+        elseif z.hordeQuests > 0 and z.allianceQuests == 0 then
+            fac = "Horde"
+        end
+
+        local showZone = false
+        if selectedZoneFactionFilter == "Both" then
+            showZone = true
+        elseif selectedZoneFactionFilter == "Alliance" then
+            showZone = (fac == "Alliance" or fac == "Both")
+        elseif selectedZoneFactionFilter == "Horde" then
+            showZone = (fac == "Horde" or fac == "Both")
+        end
+
+        -- Filtro por continente (Kalimdor=1 / Eastern Kingdoms=2). Las zonas con
+        -- continente conocido se filtran; las sin dato (mazmorras, etc.) se dejan.
+        local cont = ZoneCoordinates[z.id] and ZoneCoordinates[z.id].continent
+        local contOK = (not addon._zoneContinent) or (not cont) or (cont == addon._zoneContinent)
+
+        if showZone and contOK then
+            table.insert(uniqueZones, {
+                name = name,
+                minL = z.minL,
+                maxL = z.maxL,
+                count = z.count,
+                id = z.id,
+                faction = fac,
+                continent = cont,
+                expansion = GetZoneExpansion(z.id),
+            })
+        end
     end
     table.sort(uniqueZones, function(a, b) return a.name < b.name end)
 end
@@ -1621,6 +1755,77 @@ function addon:CreateModernUI()
         addon:SwitchTab("guide")
     end)
 
+    -- Cabecera alternativa para las Zonas
+    local zoneFiltersFrame = CreateFrame("Frame", nil, ListPanel)
+    zoneFiltersFrame:SetPoint("TOPLEFT", ListPanel, "TOPLEFT", 6, -6)
+    zoneFiltersFrame:SetPoint("TOPRIGHT", ListPanel, "TOPRIGHT", -6, -6)
+    zoneFiltersFrame:SetHeight(30)
+    zoneFiltersFrame:Hide()
+    ListPanel.zoneFiltersFrame = zoneFiltersFrame
+
+    local btnAlliance = CreateFrame("Button", nil, zoneFiltersFrame)
+    btnAlliance:SetSize(76, 20)
+    btnAlliance:SetPoint("TOPLEFT", 0, -4)
+    ApplyBD(btnAlliance, {0,0,0}, {0.5,0.4,0.3}, 8)
+    local lblAlliance = btnAlliance:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    lblAlliance:SetPoint("CENTER", 0, 0)
+    RegLoc(lblAlliance, "FILTER_ALLIANCE")
+    btnAlliance.lbl = lblAlliance
+
+    local btnHorde = CreateFrame("Button", nil, zoneFiltersFrame)
+    btnHorde:SetSize(76, 20)
+    btnHorde:SetPoint("LEFT", btnAlliance, "RIGHT", 6, 0)
+    ApplyBD(btnHorde, {0,0,0}, {0.5,0.4,0.3}, 8)
+    local lblHorde = btnHorde:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    lblHorde:SetPoint("CENTER", 0, 0)
+    RegLoc(lblHorde, "FILTER_HORDE")
+    btnHorde.lbl = lblHorde
+
+    local btnBoth = CreateFrame("Button", nil, zoneFiltersFrame)
+    btnBoth:SetSize(76, 20)
+    btnBoth:SetPoint("LEFT", btnHorde, "RIGHT", 6, 0)
+    ApplyBD(btnBoth, {0,0,0}, {0.5,0.4,0.3}, 8)
+    local lblBoth = btnBoth:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    lblBoth:SetPoint("CENTER", 0, 0)
+    RegLoc(lblBoth, "FILTER_BOTH")
+    btnBoth.lbl = lblBoth
+
+    local function UpdateZoneFactionFilterUI()
+        if selectedZoneFactionFilter == "Alliance" then
+            btnAlliance:SetBackdropColor(0.2, 0.4, 0.8, 0.8)
+            btnHorde:SetBackdropColor(0, 0, 0, 0.4)
+            btnBoth:SetBackdropColor(0, 0, 0, 0.4)
+        elseif selectedZoneFactionFilter == "Horde" then
+            btnAlliance:SetBackdropColor(0, 0, 0, 0.4)
+            btnHorde:SetBackdropColor(0.8, 0.2, 0.2, 0.8)
+            btnBoth:SetBackdropColor(0, 0, 0, 0.4)
+        else
+            btnAlliance:SetBackdropColor(0, 0, 0, 0.4)
+            btnHorde:SetBackdropColor(0, 0, 0, 0.4)
+            btnBoth:SetBackdropColor(0.6, 0.5, 0.3, 0.8)
+        end
+        BuildZonesList()
+        FauxScrollFrame_SetOffset(ListPanel.scroll, 0)
+        local zbar = _G[ListPanel.scroll:GetName() .. "ScrollBar"]
+        if zbar then zbar:SetValue(0) end
+        addon:UpdateListRows()
+        if addon.RefreshZonesMap then addon:RefreshZonesMap() end
+    end
+    addon.UpdateZoneFactionFilterUI = UpdateZoneFactionFilterUI
+
+    btnAlliance:SetScript("OnClick", function()
+        selectedZoneFactionFilter = "Alliance"
+        UpdateZoneFactionFilterUI()
+    end)
+    btnHorde:SetScript("OnClick", function()
+        selectedZoneFactionFilter = "Horde"
+        UpdateZoneFactionFilterUI()
+    end)
+    btnBoth:SetScript("OnClick", function()
+        selectedZoneFactionFilter = "Both"
+        UpdateZoneFactionFilterUI()
+    end)
+
     -- Listado Faux Scrollable — Los botones son hijos DIRECTOS del scroll frame
     -- (FauxScrollFrame no necesita scrollContent; el offset se usa en RefreshList)
     local listScroll = CreateFrame("ScrollFrame", "SKquestsListFauxScroll", ListPanel, "FauxScrollFrameTemplate")
@@ -1732,13 +1937,38 @@ function addon:CreateModernUI()
                 addon:RefreshDetail()
             elseif activeTab == "zones" then
                 selectedZoneFilter = self.zoneName
-                addon:SwitchTab("quests")
-                BuildFilteredQuestIds()
-                -- Al venir de una lista larga, empezar la nueva lista arriba
-                FauxScrollFrame_SetOffset(ListPanel.scroll, 0)
-                local zbar = _G[ListPanel.scroll:GetName() .. "ScrollBar"]
-                if zbar then zbar:SetValue(0) end
-                addon:UpdateListRows()
+                local zid
+                for _, z in ipairs(uniqueZones) do
+                    if z.name == self.zoneName then zid = z.id; break end
+                end
+                -- Subzonas iniciales: tienen carpeta pero NO mapa nativo real
+                -- (saldrían en café), así que se tratan como "sin mapa".
+                local NO_MAP_FOLDER = {
+                    Shadowglen=true, Northshire=true, Deathknell=true,
+                    CampNarache=true, ValleyOfTrials=true, ColdridgeValley=true,
+                }
+                local folder = zid and GetZoneMapFolder(zid)
+                if zid and ZonesMapPanel and folder and not NO_MAP_FOLDER[folder] then
+                    -- Zona con mapa -> abrir su mapa
+                    ZonesMapPanel.currentMapMode = "zone"
+                    ZonesMapPanel.currentSelectedZoneId = zid
+                    ZonesMapPanel.currentSelectedZoneName = self.zoneName
+                    ZonesMapPanel.zoneZoom = 1
+                    ZonesMapPanel.zoneOffX = 0
+                    ZonesMapPanel.zoneOffY = 0
+                    if ZonesMapPanel.UpdateContinentTabs then
+                        ZonesMapPanel.UpdateContinentTabs()
+                    end
+                    PlaySound("igMainMenuOption")
+                else
+                    -- Dungeon / cueva (sin mapa de continente) -> ir a Quests filtrado
+                    addon:SwitchTab("quests")
+                    BuildFilteredQuestIds()
+                    FauxScrollFrame_SetOffset(ListPanel.scroll, 0)
+                    local zbar = _G[ListPanel.scroll:GetName() .. "ScrollBar"]
+                    if zbar then zbar:SetValue(0) end
+                    addon:UpdateListRows()
+                end
             end
             addon:RefreshList()
             if ListPanel.RefreshZonePanel then ListPanel.RefreshZonePanel() end
@@ -1764,6 +1994,948 @@ function addon:CreateModernUI()
     DetailPanel:SetPoint("BOTTOMLEFT", ListPanel, "BOTTOMRIGHT", 6, 0)
     DetailPanel:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -10, 10)
     ApplyBD(DetailPanel, C.bgDetail, C.borderDim, 8)
+
+    -- ================================================================
+    --  PANEL DE ATLAS / MAPA DEL MUNDO (ZONES MAP PANEL)
+    -- ================================================================
+    ZonesMapPanel = CreateFrame("Frame", nil, f)
+    ZonesMapPanel:SetPoint("TOPLEFT", ListPanel, "TOPRIGHT", 6, 0)
+    ZonesMapPanel:SetPoint("BOTTOMLEFT", ListPanel, "BOTTOMRIGHT", 6, 0)
+    ZonesMapPanel:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -10, 10)
+    ApplyBD(ZonesMapPanel, C.bgDetail, C.borderDim, 8)
+    ZonesMapPanel:Hide()
+    addon.ZonesMapPanel = ZonesMapPanel
+
+    -- Map states
+    ZonesMapPanel.currentMapMode = "continent" -- "continent" or "zone"
+    ZonesMapPanel.currentSelectedZoneId = nil
+    ZonesMapPanel.currentSelectedZoneName = ""
+    ZonesMapPanel.zoneZoom = 1
+    ZonesMapPanel.zoneOffX = 0
+    ZonesMapPanel.zoneOffY = 0
+    ZonesMapPanel.customZoneMap = false
+
+    local MapClip = CreateFrame("ScrollFrame", nil, ZonesMapPanel)
+    MapClip:SetPoint("TOPLEFT", ZonesMapPanel, "TOPLEFT", 12, -45)
+    MapClip:SetPoint("BOTTOMRIGHT", ZonesMapPanel, "BOTTOMRIGHT", -12, 12)
+    MapClip:EnableMouse(true)
+    MapClip:EnableMouseWheel(true)
+    ZonesMapPanel.MapClip = MapClip
+
+    local MapCanvas = CreateFrame("Frame", nil, MapClip)
+    MapCanvas:SetSize(480, 360) -- 4:3 Aspect Ratio (default)
+    MapClip:SetScrollChild(MapCanvas)
+    ZonesMapPanel.MapCanvas = MapCanvas
+
+    -- Pools de pins declarados ANTES de RelayoutZonesMap/RefreshZonesMap para que
+    -- esas funciones los capturen como upvalues (no como global nil -> ipairs(nil)).
+    local mapPins, questPinsPool = {}, {}
+    local activePinsCount, activeQuestPinsCount = 0, 0
+
+    -- Resaltado de zona estilo AzerothHub: silueta nativa de WoW bajo el cursor.
+    local zoneHL = MapCanvas:CreateTexture(nil, "OVERLAY")
+    zoneHL:SetBlendMode("ADD")
+    zoneHL:Hide()
+    ZonesMapPanel.zoneHL = zoneHL
+    local hoverZoneId, hoverZoneName, lastHLName
+    local UpdateZoneHighlight  -- forward-declarada; se asigna tras los helpers
+
+    -- Capas de detalle REVELADO de la zona (sub-áreas). Los tiles base son el
+    -- pergamino "sin descubrir"; estas texturas con nombre se dibujan encima para
+    -- mostrar el mapa completo (igual que el visor del detalle de quest, OV.Show).
+    local ATLAS_MAP_W, ATLAS_MAP_H = 1002, 668
+    local atlasOV = { pool = {}, count = 0 }
+    function atlasOV.Get(idx)
+        local t = atlasOV.pool[idx]
+        if not t then
+            t = MapCanvas:CreateTexture(nil, "ARTWORK")
+            atlasOV.pool[idx] = t
+        end
+        return t
+    end
+    function atlasOV.Hide()
+        for _, ov in ipairs(atlasOV.pool) do ov:Hide(); ov.relX = nil end
+        atlasOV.count = 0
+    end
+    function atlasOV.Show(folder)
+        atlasOV.Hide()
+        local zoneData = SKquests_MapData and folder and SKquests_MapData[folder]
+        if not zoneData then return end
+        for texName, packed in pairs(zoneData) do
+            local texW = packed % 1024
+            local texH = math.floor(packed / 1024) % 1024
+            local offX = math.floor(packed / 1048576) % 1024
+            local offY = math.floor(packed / 1073741824) % 1024
+            local numWide = math.ceil(texW / 256)
+            local numTall = math.ceil(texH / 256)
+            local base = "Interface\\WorldMap\\" .. folder .. "\\" .. texName
+            for j = 1, numTall do
+                local pxH, fileH
+                if j < numTall then pxH, fileH = 256, 256
+                else
+                    pxH = texH % 256; if pxH == 0 then pxH = 256 end
+                    fileH = 16; while fileH < pxH do fileH = fileH * 2 end
+                end
+                for k = 1, numWide do
+                    local pxW, fileW
+                    if k < numWide then pxW, fileW = 256, 256
+                    else
+                        pxW = texW % 256; if pxW == 0 then pxW = 256 end
+                        fileW = 16; while fileW < pxW do fileW = fileW * 2 end
+                    end
+                    local idx = atlasOV.count + 1
+                    local ov = atlasOV.Get(idx)
+                    ov:SetTexture(base .. (((j - 1) * numWide) + k))
+                    atlasOV.count = idx
+                    ov:SetTexCoord(0, pxW / fileW, 0, pxH / fileH)
+                    ov.relX = (offX + 256 * (k - 1)) / ATLAS_MAP_W
+                    ov.relY = (offY + 256 * (j - 1)) / ATLAS_MAP_H
+                    ov.relW = pxW / ATLAS_MAP_W
+                    ov.relH = pxH / ATLAS_MAP_H
+                    ov:Show()
+                end
+            end
+        end
+    end
+    ZonesMapPanel.atlasOV = atlasOV
+
+    -- 12 Tiles for map background (4 columns x 3 rows)
+    local MapBGParts = {}
+    for r = 1, 3 do
+        for c = 1, 4 do
+            local idx = (r - 1) * 4 + c
+            local tile = MapCanvas:CreateTexture(nil, "BACKGROUND")
+            MapBGParts[idx] = tile
+        end
+    end
+
+    local continentTabFrame = CreateFrame("Frame", nil, ZonesMapPanel)
+    continentTabFrame:SetPoint("TOPLEFT", ZonesMapPanel, "TOPLEFT", 12, -12)
+    continentTabFrame:SetPoint("TOPRIGHT", ZonesMapPanel, "TOPRIGHT", -12, -12)
+    continentTabFrame:SetHeight(30)
+
+    local currentContinent = 1 -- 1 = Kalimdor, 2 = Eastern Kingdoms
+    addon._zoneContinent = addon._zoneContinent or 1 -- filtro de la LISTA por continente
+
+    local btnKalimdor = CreateFrame("Button", nil, continentTabFrame)
+    btnKalimdor:SetSize(120, 22)
+    btnKalimdor:SetPoint("TOPLEFT", 0, 0)
+    ApplyBD(btnKalimdor, {0,0,0}, {0.5,0.4,0.3}, 8)
+    local lblKalimdor = btnKalimdor:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    lblKalimdor:SetPoint("CENTER", 0, 0)
+    RegLoc(lblKalimdor, "KALIMDOR")
+    btnKalimdor.lbl = lblKalimdor
+
+    local btnEK = CreateFrame("Button", nil, continentTabFrame)
+    btnEK:SetSize(140, 22)
+    btnEK:SetPoint("LEFT", btnKalimdor, "RIGHT", 8, 0)
+    ApplyBD(btnEK, {0,0,0}, {0.5,0.4,0.3}, 8)
+    local lblEK = btnEK:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    lblEK:SetPoint("CENTER", 0, 0)
+    RegLoc(lblEK, "EASTERN_KINGDOMS")
+    btnEK.lbl = lblEK
+
+    -- Back button
+    local backBtn = CreateFrame("Button", nil, ZonesMapPanel)
+    backBtn:SetSize(80, 22)
+    backBtn:SetPoint("TOPLEFT", ZonesMapPanel, "TOPLEFT", 12, -12)
+    ApplyBD(backBtn, {0,0,0}, {0.5,0.4,0.3}, 8)
+    local backLbl = backBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    backLbl:SetPoint("CENTER", 0, 0)
+    backLbl:SetText(IsSpanish() and "Atrás" or "Back")
+    backBtn.lbl = backLbl
+    backBtn:Hide()
+    ZonesMapPanel.backBtn = backBtn
+
+    local function UpdateContinentTabs()
+        if ZonesMapPanel.currentMapMode == "continent" then
+            continentTabFrame:Show()
+            backBtn:Hide()
+            local prefix = (currentContinent == 1) and "Interface\\WorldMap\\Kalimdor\\Kalimdor" or "Interface\\WorldMap\\Azeroth\\Azeroth"
+            ZonesMapPanel.customZoneMap = false
+            for i = 1, 12 do
+                MapBGParts[i]:SetTexture(prefix .. i)
+            end
+            if currentContinent == 1 then
+                btnKalimdor:SetBackdropColor(C.bgSelected[1], C.bgSelected[2], C.bgSelected[3], 0.95)
+                btnEK:SetBackdropColor(0, 0, 0, 0.4)
+            else
+                btnKalimdor:SetBackdropColor(0, 0, 0, 0.4)
+                btnEK:SetBackdropColor(C.bgSelected[1], C.bgSelected[2], C.bgSelected[3], 0.95)
+            end
+        else
+            continentTabFrame:Hide()
+            backBtn:Show()
+        end
+        addon:RefreshZonesMap()
+    end
+    ZonesMapPanel.UpdateContinentTabs = UpdateContinentTabs
+
+    local function SelectContinent(c)
+        currentContinent = c
+        addon._zoneContinent = c
+        ZonesMapPanel.currentMapMode = "continent"
+        UpdateContinentTabs()
+        -- refrescar la LISTA de zonas filtrada por este continente
+        BuildZonesList()
+        if ListPanel.scroll then
+            FauxScrollFrame_SetOffset(ListPanel.scroll, 0)
+            local zbar = _G[ListPanel.scroll:GetName() .. "ScrollBar"]
+            if zbar then zbar:SetValue(0) end
+        end
+        addon:UpdateListRows()
+    end
+
+    btnKalimdor:SetScript("OnClick", function() SelectContinent(1) end)
+    btnEK:SetScript("OnClick", function() SelectContinent(2) end)
+
+    backBtn:SetScript("OnClick", function()
+        ZonesMapPanel.currentMapMode = "continent"
+        ZonesMapPanel.zoneZoom = 1
+        ZonesMapPanel.zoneOffX = 0
+        ZonesMapPanel.zoneOffY = 0
+        UpdateContinentTabs()
+        PlaySound("igMainMenuOption")
+    end)
+
+    -- Dynamic scaling of map canvas on resize (4:3 aspect ratio)
+    ZonesMapPanel:SetScript("OnSizeChanged", function(self)
+        local w = self:GetWidth() or 500
+        local h = self:GetHeight() or 500
+        local maxW = w - 24
+        local maxH = h - 60
+        
+        local baseW = maxW
+        local baseH = maxW * 0.75 -- 3 / 4
+        
+        if baseH > maxH then
+            baseH = maxH
+            baseW = maxH * 1.3333 -- 4 / 3
+        end
+        
+        if baseW < 200 then baseW = 200; baseH = 150 end
+        
+        self.baseW = baseW
+        self.baseH = baseH
+        
+        addon:RelayoutZonesMap()
+    end)
+
+    -- Sizing and layout positioning
+    function addon:RelayoutZonesMap()
+        local baseW = ZonesMapPanel.baseW or 480
+        local baseH = ZonesMapPanel.baseH or 360
+        
+        -- Mismo método que el visor de mapa del detalle de quest (ImgLayout), que
+        -- SÍ renderiza bien: aspecto real 1002x668, tiles de borde 234/156 y recorte
+        -- del relleno con SetTexCoord. Antes el atlas estiraba todos a sizeW/4 x
+        -- sizeH/3 sin recortar -> el mapa nativo salía mal ("sin revelar").
+        local MAP_W, MAP_H = 1002, 668
+        local s = (baseW / MAP_W) * ZonesMapPanel.zoneZoom
+        local sizeW = MAP_W * s
+        local sizeH = MAP_H * s
+        MapCanvas:SetSize(sizeW, sizeH)
+
+        if ZonesMapPanel.customZoneMap then
+            local tile = MapBGParts[1]
+            tile:SetSize(sizeW, sizeH)
+            tile:ClearAllPoints()
+            tile:SetPoint("TOPLEFT", MapCanvas, "TOPLEFT", 0, 0)
+            tile:SetTexCoord(0, 1, 0, 1)
+            tile:Show()
+            for i = 2, 12 do
+                MapBGParts[i]:Hide()
+            end
+        else
+            for i = 1, 12 do
+                local col = (i - 1) % 4
+                local row = math.floor((i - 1) / 4)
+                local tile = MapBGParts[i]
+                local tw = (col == 3) and 234 or 256
+                local th = (row == 2) and 156 or 256
+                tile:SetSize(tw * s, th * s)
+                tile:ClearAllPoints()
+                tile:SetPoint("TOPLEFT", MapCanvas, "TOPLEFT", col * 256 * s, -row * 256 * s)
+                tile:SetTexCoord(0, tw / 256, 0, th / 256)
+                tile:Show()
+            end
+        end
+        
+        -- Enforce scroll boundaries
+        local cw = MapClip:GetWidth() or 480
+        local chh = MapClip:GetHeight() or 360
+        local maxX = math.max(0, sizeW - cw)
+        local maxY = math.max(0, sizeH - chh)
+        if ZonesMapPanel.zoneOffX > maxX then ZonesMapPanel.zoneOffX = maxX end
+        if ZonesMapPanel.zoneOffY > maxY then ZonesMapPanel.zoneOffY = maxY end
+        if ZonesMapPanel.zoneOffX < 0 then ZonesMapPanel.zoneOffX = 0 end
+        if ZonesMapPanel.zoneOffY < 0 then ZonesMapPanel.zoneOffY = 0 end
+        MapClip:SetHorizontalScroll(ZonesMapPanel.zoneOffX)
+        MapClip:SetVerticalScroll(ZonesMapPanel.zoneOffY)
+        
+        -- Position pins
+        if ZonesMapPanel.currentMapMode == "continent" then
+            for _, pin in ipairs(mapPins) do
+                if pin.coords and pin:IsShown() then
+                    pin:ClearAllPoints()
+                    pin:SetPoint("CENTER", MapCanvas, "TOPLEFT", (pin.coords.x / 100) * sizeW, -(pin.coords.y / 100) * sizeH)
+                end
+            end
+        else
+            for _, pin in ipairs(questPinsPool) do
+                if pin.relX and pin:IsShown() then
+                    pin:ClearAllPoints()
+                    pin:SetPoint("CENTER", MapCanvas, "TOPLEFT", pin.relX * sizeW, -pin.relY * sizeH)
+                end
+            end
+        end
+
+        -- Capas de detalle revelado de la zona (sub-áreas), mismo factor de escala
+        for _, ov in ipairs(atlasOV.pool) do
+            if ov.relX and ov:IsShown() then
+                ov:ClearAllPoints()
+                ov:SetPoint("TOPLEFT", MapCanvas, "TOPLEFT", ov.relX * sizeW, -(ov.relY * sizeH))
+                ov:SetSize(ov.relW * sizeW, ov.relH * sizeH)
+            end
+        end
+    end
+
+    -- Scroll / Zoom / Drag events
+    MapClip:SetScript("OnMouseWheel", function(self, delta)
+        local old = ZonesMapPanel.zoneZoom
+        ZonesMapPanel.zoneZoom = math.max(1, math.min(5, ZonesMapPanel.zoneZoom + delta * 0.25))
+        if ZonesMapPanel.zoneZoom ~= old then
+            local cw = MapClip:GetWidth() or 480
+            local chh = MapClip:GetHeight() or 360
+            local fz = ZonesMapPanel.zoneZoom / old
+            ZonesMapPanel.zoneOffX = (ZonesMapPanel.zoneOffX + cw / 2) * fz - cw / 2
+            ZonesMapPanel.zoneOffY = (ZonesMapPanel.zoneOffY + chh / 2) * fz - chh / 2
+            addon:RelayoutZonesMap()
+        end
+    end)
+    
+    local zoneDragging, zoneDragMoved, zoneDragX, zoneDragY
+    MapClip:SetScript("OnMouseDown", function(self, button)
+        if button == "RightButton" then
+            if ZonesMapPanel.currentMapMode == "zone" then
+                ZonesMapPanel.currentMapMode = "continent"
+                ZonesMapPanel.zoneZoom = 1
+                ZonesMapPanel.zoneOffX = 0
+                ZonesMapPanel.zoneOffY = 0
+                UpdateContinentTabs()
+                PlaySound("igMainMenuOption")
+            end
+        else
+            zoneDragging = true
+            zoneDragMoved = false
+            zoneDragX, zoneDragY = GetCursorPosition()
+        end
+    end)
+    
+    MapClip:SetScript("OnMouseUp", function(self, button)
+        if button ~= "RightButton" then
+            local wasDrag = zoneDragMoved
+            zoneDragging = false
+            -- clic sin arrastre sobre el continente => abrir la zona resaltada
+            if not wasDrag and ZonesMapPanel.currentMapMode == "continent" and hoverZoneId then
+                ZonesMapPanel.currentMapMode = "zone"
+                ZonesMapPanel.currentSelectedZoneId = hoverZoneId
+                ZonesMapPanel.currentSelectedZoneName = hoverZoneName or ""
+                ZonesMapPanel.zoneZoom = 1
+                ZonesMapPanel.zoneOffX = 0
+                ZonesMapPanel.zoneOffY = 0
+                zoneHL:Hide(); lastHLName = nil
+                if GameTooltip:IsOwned(MapClip) then GameTooltip:Hide() end
+                UpdateContinentTabs()
+                PlaySound("igMainMenuOption")
+            end
+        end
+    end)
+
+    MapClip:SetScript("OnUpdate", function(self)
+        if zoneDragging then
+            local x, y = GetCursorPosition()
+            local sc = self:GetEffectiveScale() or 1
+            local dx = (x - zoneDragX) / sc
+            local dy = (y - zoneDragY) / sc
+            if math.abs(dx) > 4 or math.abs(dy) > 4 then zoneDragMoved = true end
+            if zoneDragMoved then
+                ZonesMapPanel.zoneOffX = ZonesMapPanel.zoneOffX - dx
+                ZonesMapPanel.zoneOffY = ZonesMapPanel.zoneOffY + dy
+                zoneDragX, zoneDragY = x, y
+                addon:RelayoutZonesMap()
+            end
+        end
+        -- (Detección por cursor en el continente desactivada: UpdateMapHighlight
+        --  devuelve la zona desfasada en este cliente. Las zonas se abren desde
+        --  la lista izquierda, que resuelve el id de forma determinista.)
+    end)
+
+    -- Select and scroll to quest helper
+    function addon:SelectQuestById(questId)
+        selectedQuestId = questId
+        local idx = nil
+        for i, qid in ipairs(filteredQuestIds) do
+            if qid == questId then
+                idx = i
+                break
+            end
+        end
+        if idx then
+            local visibleRows = 18
+            local h = ListPanel.scroll:GetHeight()
+            if h and h > 0 then
+                visibleRows = math.min(MAX_ROWS, math.floor(h / ROW_H))
+                if visibleRows < 1 then visibleRows = 18 end
+            end
+            local offset = math.max(0, idx - math.floor(visibleRows / 2))
+            local maxOffset = math.max(0, #filteredQuestIds - visibleRows)
+            if offset > maxOffset then offset = maxOffset end
+            FauxScrollFrame_SetOffset(ListPanel.scroll, offset)
+            local sbar = _G[ListPanel.scroll:GetName() .. "ScrollBar"]
+            if sbar then sbar:SetValue(offset * ROW_H) end
+        end
+        addon:UpdateListRows()
+        addon:RefreshDetail()
+    end
+
+    -- Collect spawn coords helper
+    local STARTING_PARENT = {
+        [188] = 141, [9] = 12, [154] = 85, [220] = 215, [363] = 14, [132] = 1,
+    }
+    function addon:CollectSpawnCoords(kind, id, zoneId)
+        local out = {}
+        if not id then return out end
+        
+        if BronzebeardQuestChains and BronzebeardQuestChains[id] then
+            local bq = BronzebeardQuestChains[id]
+            local zID = SKquests_DetailDB[id] and SKquests_DetailDB[id].zoneId or 141
+            if zID == zoneId or STARTING_PARENT[zID] == zoneId then
+                table.insert(out, {bq.x, bq.y, zID})
+            end
+            return out
+        end
+        
+        local folder = GetZoneMapFolder(zoneId)
+        local function OnThisMap(z)
+            return z == zoneId or (STARTING_PARENT[z] == zoneId) or (folder and GetZoneMapFolder(z) == folder)
+        end
+        
+        if kind == "object" then
+            local o = GetObjectData(id)
+            if o and o.coords then
+                for _, c in ipairs(o.coords) do
+                    if c[3] and OnThisMap(c[3]) then
+                        table.insert(out, {c[1], c[2], c[3]})
+                    end
+                end
+            end
+            local sd = SKquests_SpawnData and SKquests_SpawnData.objects and SKquests_SpawnData.objects[id]
+            if sd and sd.spawns then
+                for z, sp in pairs(sd.spawns) do
+                    if OnThisMap(z) then
+                        for _, c in ipairs(sp) do
+                            table.insert(out, {c[1], c[2], z})
+                        end
+                    end
+                end
+            end
+        else
+            local u = GetUnitData(id)
+            if u and u.coords then
+                for _, c in ipairs(u.coords) do
+                    if c[3] and OnThisMap(c[3]) then
+                        table.insert(out, {c[1], c[2], c[3]})
+                    end
+                end
+            end
+            local sd = SKquests_SpawnData and SKquests_SpawnData.npcs and SKquests_SpawnData.npcs[id]
+            if sd and sd.spawns then
+                for z, sp in pairs(sd.spawns) do
+                    if OnThisMap(z) then
+                        for _, c in ipairs(sp) do
+                            table.insert(out, {c[1], c[2], z})
+                        end
+                    end
+                end
+            end
+        end
+        return out
+    end
+
+    local function CollectZoneQuests(zoneId)
+        local list = {}
+        if not SKquests_DetailDB then return list end
+        
+        for id, q in pairs(SKquests_DetailDB) do
+            if IsQuestEligible(id, q) then
+                local qZone = q.zoneId
+                if qZone then
+                    if STARTING_PARENT[qZone] then
+                        qZone = STARTING_PARENT[qZone]
+                    end
+                    
+                    if qZone == zoneId then
+                        local fac = GetQuestFaction(id, q)
+                        local matchFaction = false
+                        if selectedZoneFactionFilter == "Both" then
+                            matchFaction = true
+                        elseif selectedZoneFactionFilter == "Alliance" then
+                            matchFaction = (fac == "Alliance" or fac == "Both")
+                        elseif selectedZoneFactionFilter == "Horde" then
+                            matchFaction = (fac == "Horde" or fac == "Both")
+                        end
+                        
+                        if matchFaction then
+                            table.insert(list, { id = id, q = q, faction = fac })
+                        end
+                    end
+                end
+            end
+        end
+        return list
+    end
+
+    -- Resaltado de zona bajo el cursor usando el sistema nativo del WorldMap.
+    -- Devuelve la silueta exacta de la zona (no una caja), la coloca sobre el
+    -- lienzo y resuelve el id por cercanía al centro de la silueta.
+    UpdateZoneHighlight = function()
+        if not MapClip:IsMouseOver() then
+            zoneHL:Hide(); lastHLName = nil; hoverZoneId = nil
+            if GameTooltip:IsOwned(MapClip) then GameTooltip:Hide() end
+            return
+        end
+        -- mantener el WorldMap en el continente correcto para UpdateMapHighlight
+        if GetCurrentMapContinent() ~= currentContinent or (GetCurrentMapZone() or 0) ~= 0 then
+            pcall(SetMapZoom, currentContinent)
+        end
+        local w, h = MapCanvas:GetWidth(), MapCanvas:GetHeight()
+        if not w or w == 0 then return end
+        local cx, cy = GetCursorPosition()
+        local sc = MapCanvas:GetEffectiveScale() or 1
+        cx, cy = cx / sc, cy / sc
+        local nx = (cx - MapCanvas:GetLeft()) / w
+        local ny = (MapCanvas:GetTop() - cy) / h
+        if nx < 0 or nx > 1 or ny < 0 or ny > 1 then
+            zoneHL:Hide(); lastHLName = nil; hoverZoneId = nil
+            if GameTooltip:IsOwned(MapClip) then GameTooltip:Hide() end
+            return
+        end
+        local ok, name, fileName, tpx, tpy, tx, ty = pcall(UpdateMapHighlight, nx, ny)
+        if not ok or not name or not fileName then
+            zoneHL:Hide(); lastHLName = nil; hoverZoneId = nil
+            if GameTooltip:IsOwned(MapClip) then GameTooltip:Hide() end
+            return
+        end
+        if name == lastHLName then return end  -- misma zona; ya está mostrada
+        lastHLName = name
+
+        -- silueta de la zona
+        zoneHL:SetTexture("Interface\\WorldMap\\" .. fileName .. "\\" .. fileName)
+        zoneHL:SetTexCoord(0, tpx, 0, tpy)
+        zoneHL:ClearAllPoints()
+        zoneHL:SetPoint("TOPLEFT", MapCanvas, "TOPLEFT", tx * w, -ty * h)
+        zoneHL:SetWidth(tpx * w)
+        zoneHL:SetHeight(tpy * h)
+
+        -- id de la zona: traducir el nombre LOCALIZADO que devuelve el juego a
+        -- nuestro areaID via pfDB (determinista). Antes fallaba por usar cercanía.
+        if not addon._zoneNameToId then
+            addon._zoneNameToId = {}
+            local L0 = (GetLocale and GetLocale()) or "enUS"
+            local loc = pfDB and pfDB["zones"] and (pfDB["zones"][L0] or pfDB["zones"]["enUS"] or pfDB["zones"]["esES"])
+            if loc then for aid, nm in pairs(loc) do addon._zoneNameToId[nm] = aid end end
+        end
+        local best = addon._zoneNameToId[name]
+        hoverZoneId = best
+        hoverZoneName = name
+
+        local z
+        for _, uz in ipairs(uniqueZones) do if uz.id == best then z = uz; break end end
+        local fr, fg, fb = 1.0, 0.82, 0.2
+        if z then
+            if z.faction == "Alliance" then fr, fg, fb = 0.35, 0.6, 1.0
+            elseif z.faction == "Horde" then fr, fg, fb = 1.0, 0.35, 0.35 end
+        end
+        zoneHL:SetVertexColor(fr, fg, fb, 0.5)
+        zoneHL:Show()
+
+        -- tooltip con la lista de misiones de la zona
+        GameTooltip:SetOwner(MapClip, "ANCHOR_RIGHT")
+        GameTooltip:ClearLines()
+        GameTooltip:AddLine(name, 1, 0.82, 0)
+        if z then
+            local minL, maxL = z.minL or 1, z.maxL or 60
+            GameTooltip:AddLine(L("LEVELS") .. ": " .. minL .. " - " .. maxL, 1, 1, 1)
+        end
+        local zq = best and CollectZoneQuests(best) or {}
+        if #zq > 0 then
+            GameTooltip:AddLine(" ")
+            GameTooltip:AddLine(IsSpanish() and "Misiones disponibles:" or "Available quests:", 1, 0.82, 0)
+            local dc = math.min(15, #zq)
+            for i = 1, dc do
+                local q = zq[i].q
+                local lv = tonumber(q.level) or 0
+                GameTooltip:AddLine("- " .. GetLocalizedQuestName(q) .. (lv > 0 and (" (" .. lv .. ")") or ""), 0.9, 0.9, 0.9)
+            end
+            if #zq > dc then
+                GameTooltip:AddLine(string.format(IsSpanish() and "... y %d más" or "... and %d more", #zq - dc), 0.5, 0.5, 0.5)
+            end
+        end
+        GameTooltip:Show()
+    end
+
+    -- Pin pools (ya declarados arriba como upvalues; aquí solo se reinician)
+    activePinsCount = 0
+    mapPins = {}
+
+    local function GetPinFrame()
+        activePinsCount = activePinsCount + 1
+        if not mapPins[activePinsCount] then
+            local pin = CreateFrame("Button", nil, MapCanvas)
+            pin:SetSize(20, 20)  -- zona de clic alrededor del marcador
+
+            -- Marcador (punto) visible siempre, color por facción (WHITE8X8 = fiable y tintable)
+            local dot = pin:CreateTexture(nil, "ARTWORK")
+            dot:SetTexture("Interface\\Buttons\\WHITE8X8")
+            dot:SetSize(10, 10)
+            dot:SetPoint("CENTER")
+            pin.dot = dot
+
+            -- Borde negro fino del marcador (legibilidad sobre el mapa)
+            local dotEdge = pin:CreateTexture(nil, "BORDER")
+            dotEdge:SetTexture("Interface\\Buttons\\WHITE8X8")
+            dotEdge:SetVertexColor(0, 0, 0, 0.9)
+            dotEdge:SetSize(14, 14)
+            dotEdge:SetPoint("CENTER")
+            pin.dotEdge = dotEdge
+
+            -- Resplandor (solo hover)
+            local bgGlow = pin:CreateTexture(nil, "BACKGROUND")
+            bgGlow:SetTexture("Interface\\Buttons\\WHITE8X8")
+            bgGlow:SetPoint("CENTER")
+            bgGlow:SetSize(26, 26)
+            bgGlow:SetBlendMode("ADD")
+            bgGlow:Hide()
+            pin.bgGlow = bgGlow
+
+            -- Nombre: SOLO al pasar el ratón (mapa limpio por defecto)
+            local txtName = pin:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+            txtName:SetPoint("BOTTOM", pin, "TOP", 0, 2)
+            txtName:SetJustifyH("CENTER")
+            txtName:SetWordWrap(false)
+            txtName:SetShadowColor(0, 0, 0, 1)
+            txtName:SetShadowOffset(1.2, -1.2)
+            txtName:Hide()
+            pin.txtName = txtName
+
+            pin:SetScript("OnEnter", function(self)
+                local r, g, b = 1.0, 0.85, 0.3
+                if self.faction == "Alliance" then r, g, b = 0.45, 0.75, 1.0
+                elseif self.faction == "Horde" then r, g, b = 1.0, 0.45, 0.45 end
+                self.txtName:SetText(self.zoneName)
+                self.txtName:SetTextColor(r, g, b)
+                self.txtName:Show()
+                self.dot:SetSize(14, 14); self.dotEdge:SetSize(18, 18)
+                self.dot:SetVertexColor(r, g, b, 1)
+                self.bgGlow:SetVertexColor(r, g, b, 0.5)
+                self.bgGlow:Show()
+
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                GameTooltip:ClearLines()
+                GameTooltip:AddLine(self.zoneName, 1, 0.82, 0, true)
+                local minL, maxL = self.minL or 1, self.maxL or 60
+                GameTooltip:AddLine(L("LEVELS") .. ": " .. minL .. " - " .. maxL, 1, 1, 1)
+                
+                local qTxt = IsSpanish() and "misiones" or "quests"
+                GameTooltip:AddLine(tostring(self.count or 0) .. " " .. qTxt, 0.8, 0.8, 0.8)
+                
+                local facText = L("CONTESTED")
+                local r, g, b = 0.9, 0.6, 0.1
+                if self.faction == "Alliance" then
+                    facText = L("ALLIANCE")
+                    r, g, b = 0.3, 0.5, 0.9
+                elseif self.faction == "Horde" then
+                    facText = L("HORDE")
+                    r, g, b = 0.9, 0.2, 0.2
+                end
+                GameTooltip:AddLine(facText, r, g, b)
+
+                -- List quests in this zone
+                GameTooltip:AddLine(" ")
+                local zoneQuests = CollectZoneQuests(self.zoneId)
+                if #zoneQuests > 0 then
+                    local displayCount = math.min(15, #zoneQuests)
+                    GameTooltip:AddLine(IsSpanish() and "Misiones disponibles:" or "Available quests:", 1, 0.82, 0)
+                    for idx = 1, displayCount do
+                        local q = zoneQuests[idx].q
+                        local qName = GetLocalizedQuestName(q)
+                        local qLvl = tonumber(q.level) or 0
+                        local lvlStr = qLvl > 0 and (" (" .. qLvl .. ")") or ""
+                        GameTooltip:AddLine("- " .. qName .. lvlStr, 0.9, 0.9, 0.9)
+                    end
+                    if #zoneQuests > displayCount then
+                        local remaining = #zoneQuests - displayCount
+                        local extraTxt = IsSpanish() and ("... y %d misiones más") or ("... and %d more quests")
+                        GameTooltip:AddLine(string.format(extraTxt, remaining), 0.5, 0.5, 0.5)
+                    end
+                else
+                    GameTooltip:AddLine(IsSpanish() and "No hay misiones disponibles" or "No quests available", 0.5, 0.5, 0.5)
+                end
+                
+                GameTooltip:Show()
+            end)
+
+            pin:SetScript("OnLeave", function(self)
+                self.txtName:Hide()
+                self.dot:SetSize(10, 10); self.dotEdge:SetSize(14, 14)
+                if self.baseR then self.dot:SetVertexColor(self.baseR, self.baseG, self.baseB, 1) end
+                self.bgGlow:Hide()
+                GameTooltip:Hide()
+            end)
+
+            pin:SetScript("OnClick", function(self)
+                ZonesMapPanel.currentMapMode = "zone"
+                ZonesMapPanel.currentSelectedZoneId = self.zoneId
+                ZonesMapPanel.currentSelectedZoneName = self.zoneName
+                ZonesMapPanel.zoneZoom = 1
+                ZonesMapPanel.zoneOffX = 0
+                ZonesMapPanel.zoneOffY = 0
+                UpdateContinentTabs()
+                PlaySound("igMainMenuOption")
+            end)
+
+            mapPins[activePinsCount] = pin
+        end
+        return mapPins[activePinsCount]
+    end
+
+    activeQuestPinsCount = 0
+    questPinsPool = {}
+
+    local function GetQuestPinFrame()
+        activeQuestPinsCount = activeQuestPinsCount + 1
+        if not questPinsPool[activeQuestPinsCount] then
+            local pin = CreateFrame("Button", nil, MapCanvas)
+            pin:SetSize(16, 16)
+            
+            local tex = pin:CreateTexture(nil, "OVERLAY")
+            tex:SetAllPoints()
+            pin.tex = tex
+            
+            local glow = pin:CreateTexture(nil, "BACKGROUND")
+            glow:SetTexture("Interface\\AddOns\\SKquests\\Media\\circle.tga")
+            glow:SetPoint("CENTER")
+            glow:SetSize(22, 22)
+            glow:SetBlendMode("ADD")
+            pin.glow = glow
+            
+            local hl = pin:CreateTexture(nil, "HIGHLIGHT")
+            hl:SetAllPoints()
+            hl:SetTexture("Interface\\Buttons\\UI-Common-MouseHilight")
+            hl:SetBlendMode("ADD")
+            
+            pin:SetScript("OnEnter", function(self)
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                GameTooltip:ClearLines()
+                GameTooltip:AddLine(self.questName, 1, 0.82, 0, true)
+                GameTooltip:AddLine(L("LEVEL") .. ": " .. (self.level or "?"), 1, 1, 1)
+                if self.giverName then
+                    GameTooltip:AddLine(L("GIVER") .. ": " .. self.giverName, 0.8, 0.8, 0.8)
+                end
+                
+                local facText = L("CONTESTED")
+                local r, g, b = 0.9, 0.6, 0.1
+                if self.faction == "Alliance" then
+                    facText = L("ALLIANCE")
+                    r, g, b = 0.3, 0.5, 0.9
+                elseif self.faction == "Horde" then
+                    facText = L("HORDE")
+                    r, g, b = 0.9, 0.2, 0.2
+                end
+                GameTooltip:AddLine(facText, r, g, b)
+                GameTooltip:Show()
+            end)
+            
+            pin:SetScript("OnLeave", function(self)
+                GameTooltip:Hide()
+            end)
+            
+            pin:SetScript("OnClick", function(self)
+                selectedQuestId = self.questId
+                addon:SwitchTab("quests")
+                addon:SelectQuestById(self.questId)
+                PlaySound("igMainMenuOption")
+            end)
+            
+            questPinsPool[activeQuestPinsCount] = pin
+        end
+        return questPinsPool[activeQuestPinsCount]
+    end
+
+    function addon:RefreshZonesMap()
+        for _, pin in ipairs(mapPins) do
+            pin:Hide()
+        end
+        for _, pin in ipairs(questPinsPool) do
+            pin:Hide()
+        end
+        activePinsCount = 0
+        activeQuestPinsCount = 0
+
+        if activeTab ~= "zones" then return end
+
+        -- Las texturas NATIVAS del juego SÍ renderizan en este cliente (las
+        -- ciudades lo confirman). Mis .tga propios no. Así que usamos siempre el
+        -- mapa nativo (ruta de 12 tiles), que es lo que funciona.
+        -- Solo unas pocas subzonas/Azshara carecen de mapa nativo propio: para
+        -- esas caemos a su zona padre (CUSTOM_PARENT) y mostramos el mapa padre.
+        -- En este cliente los mapas NATIVOS respetan la niebla (salen sin revelar
+        -- si no exploraste la zona). Nuestros .tga salen SIEMPRE completos y SÍ
+        -- renderizan (Azshara lo confirma; mismo formato que el resto). Por eso
+        -- usamos .tga propio para toda zona que lo tenga, y nativo solo de respaldo.
+        -- Nativo para todas (siempre se ven, con niebla donde no exploraste).
+        -- Solo Azshara usa .tga (no tiene mapa nativo y su .tga sí renderiza).
+        -- Cuando confirmemos por qué los .tga de base_maps no renderizan, se
+        -- vuelven a añadir aquí para mapas completos sin niebla.
+        local CUSTOM_TGA = { Azshara = true }
+        local function LoadZoneMapTextures(folder)
+            ZonesMapPanel.customZoneMap = false
+            if not folder then return false end
+            if CUSTOM_TGA[folder] then
+                MapBGParts[1]:SetTexture("Interface\\AddOns\\SKquests\\Media\\Maps\\" .. folder .. ".tga")
+                ZonesMapPanel.customZoneMap = true
+                return true
+            end
+            local base = "Interface\\WorldMap\\" .. folder .. "\\" .. folder
+            MapBGParts[1]:SetTexture(base .. "1")
+            for i = 2, 12 do
+                MapBGParts[i]:SetTexture(base .. i)
+            end
+            return true
+        end
+
+        if ZonesMapPanel.currentMapMode == "continent" then
+            continentTabFrame:Show()
+            backBtn:Hide()
+            
+            local prefix = (currentContinent == 1) and "Interface\\WorldMap\\Kalimdor\\Kalimdor" or "Interface\\WorldMap\\Azeroth\\Azeroth"
+            ZonesMapPanel.customZoneMap = false
+            for i = 1, 12 do
+                MapBGParts[i]:SetTexture(prefix .. i)
+            end
+            
+            if currentContinent == 1 then
+                btnKalimdor:SetBackdropColor(C.bgSelected[1], C.bgSelected[2], C.bgSelected[3], 0.95)
+                btnEK:SetBackdropColor(0, 0, 0, 0.4)
+            else
+                btnKalimdor:SetBackdropColor(0, 0, 0, 0.4)
+                btnEK:SetBackdropColor(C.bgSelected[1], C.bgSelected[2], C.bgSelected[3], 0.95)
+            end
+            
+            -- Interacción por SILUETA nativa (UpdateZoneHighlight en el OnUpdate),
+            -- usando las coordenadas del propio juego. Fijar el WorldMap al
+            -- continente para que UpdateMapHighlight resuelva la zona bajo el cursor.
+            pcall(SetMapZoom, currentContinent)
+            zoneHL:Hide(); lastHLName = nil; hoverZoneId = nil
+            atlasOV.Hide()  -- el continente no usa capas de sub-área
+        else
+            continentTabFrame:Hide()
+            backBtn:Show()
+
+            local folder = GetZoneMapFolder(ZonesMapPanel.currentSelectedZoneId)
+            local loadedFolder = folder
+            local usedMap = false
+            if folder then
+                usedMap = LoadZoneMapTextures(folder)
+                if not usedMap then
+                    local zd = pfDB and pfDB["zones"] and pfDB["zones"]["data"] and pfDB["zones"]["data"][ZonesMapPanel.currentSelectedZoneId]
+                    local parent = zd and zd[1]
+                    local pf = parent and GetZoneMapFolder(parent)
+                    if pf then
+                        usedMap = LoadZoneMapTextures(pf)
+                        if usedMap then
+                            ZonesMapPanel.currentSelectedZoneId = parent
+                            loadedFolder = pf
+                        end
+                    end
+                end
+            end
+            -- Dibujar las capas de detalle revelado (sub-áreas) sobre el pergamino
+            -- base. Los .tga custom (Azshara) ya son completos -> sin capas.
+            if usedMap and not ZonesMapPanel.customZoneMap then
+                atlasOV.Show(loadedFolder)
+            else
+                atlasOV.Hide()
+            end
+
+            local quests = CollectZoneQuests(ZonesMapPanel.currentSelectedZoneId)
+            for _, entry in ipairs(quests) do
+                local q = entry.q
+                local qid = entry.id
+                local faction = entry.faction
+                
+                local kind = (q.giverType == "GO") and "object" or "npc"
+                local coordsList = addon:CollectSpawnCoords(kind, q.giverId, ZonesMapPanel.currentSelectedZoneId)
+                
+                if coordsList and #coordsList > 0 then
+                    local coord = coordsList[1]
+                    local cx, cy, cz = coord[1], coord[2], coord[3]
+                    
+                    if cz and cz ~= ZonesMapPanel.currentSelectedZoneId then
+                        local czData = pfDB and pfDB["zones"] and pfDB["zones"]["data"] and pfDB["zones"]["data"][cz]
+                        if czData and czData[1] == ZonesMapPanel.currentSelectedZoneId and czData[2] and czData[4] then
+                            local zw, zh, zx, zy = czData[2], czData[3], czData[4], czData[5]
+                            cx = zx + (cx * zw / 100)
+                            cy = zy + (cy * zh / 100)
+                        end
+                    end
+                    
+                    local pin = GetQuestPinFrame()
+                    pin.questId = qid
+                    pin.questName = GetLocalizedQuestName(q)
+                    pin.level = q.level
+                    pin.faction = faction
+                    
+                    if q.giverId then
+                        pin.giverName = (q.giverType == "GO") and ObjectDisplayName(q.giverId) or UnitDisplayName(q.giverId)
+                    else
+                        pin.giverName = nil
+                    end
+                    
+                    local isComplete = false
+                    local isActive, logIdx = addon.Tracker:IsActive(q.name)
+                    if isActive and addon.Tracker:IsComplete(logIdx) then
+                        isComplete = true
+                    end
+                    
+                    if isComplete then
+                        pin.tex:SetTexture("Interface\\GossipFrame\\ActiveQuestIcon")
+                        pin.glow:SetVertexColor(0.2, 0.9, 0.2, 0.8)
+                    elseif isActive then
+                        pin.tex:SetTexture("Interface\\GossipFrame\\IncompleteQuestIcon")
+                        pin.glow:SetVertexColor(0.9, 0.9, 0.2, 0.8)
+                    else
+                        pin.tex:SetTexture("Interface\\GossipFrame\\AvailableQuestIcon")
+                        if faction == "Alliance" then
+                            pin.glow:SetVertexColor(0.2, 0.5, 1.0, 0.8)
+                        elseif faction == "Horde" then
+                            pin.glow:SetVertexColor(1.0, 0.2, 0.2, 0.8)
+                        else
+                            pin.glow:SetVertexColor(1.0, 0.8, 0.2, 0.8)
+                        end
+                    end
+                    
+                    pin.relX = cx / 100
+                    pin.relY = cy / 100
+                    pin:Show()
+                end
+            end
+        end
+        addon:RelayoutZonesMap()
+    end
+    
+    UpdateContinentTabs()
 
     -- ================================================================
     --  PANEL DE SELECCIÓN DE GUÍAS (rejilla de tarjetas, estilo Zonas)
@@ -4342,6 +5514,7 @@ function addon:SwitchTab(tabId)
     if GuideLockPanel then GuideLockPanel:Hide() end
     if addon.GuideCardsPanel then addon.GuideCardsPanel:Hide() end
     if addon.GuideLockPanel then addon.GuideLockPanel:Hide() end
+    if ZonesMapPanel then ZonesMapPanel:Hide() end
 
     -- Gating Pro de la pestaña Guía: candado (bloqueado) o rejilla (sin elegir)
     if tabId == "guide" then
@@ -4349,6 +5522,7 @@ function addon:SwitchTab(tabId)
             SettingsPanel:Hide(); AboutPanel:Hide()
             ListPanel:Hide(); DetailPanel:Hide(); RightSidebar:Hide()
             if ListPanel.guideFiltersFrame then ListPanel.guideFiltersFrame:Hide() end
+            if ListPanel.zoneFiltersFrame then ListPanel.zoneFiltersFrame:Hide() end
             if addon.GuideLockPanel then addon.GuideLockPanel:Show() end
             if MainFrame and MainFrame.titleText then MainFrame.titleText:SetText("Guías (Pro)") end
             addon:ApplyTheme()
@@ -4357,6 +5531,7 @@ function addon:SwitchTab(tabId)
             SettingsPanel:Hide(); AboutPanel:Hide()
             ListPanel:Hide(); DetailPanel:Hide(); RightSidebar:Hide()
             if ListPanel.guideFiltersFrame then ListPanel.guideFiltersFrame:Hide() end
+            if ListPanel.zoneFiltersFrame then ListPanel.zoneFiltersFrame:Hide() end
             if addon.GuideCardsPanel then
                 addon.GuideCardsPanel:Show()
                 addon:RefreshGuideCards()
@@ -4388,7 +5563,25 @@ function addon:SwitchTab(tabId)
         SettingsPanel:Hide()
         AboutPanel:Hide()
         ListPanel:Show()
-        DetailPanel:Show()
+        
+        if tabId == "zones" then
+            DetailPanel:Hide()
+            if ZonesMapPanel then
+                ZonesMapPanel.currentMapMode = "continent"
+                ZonesMapPanel.zoneZoom = 1
+                ZonesMapPanel.zoneOffX = 0
+                ZonesMapPanel.zoneOffY = 0
+                if ZonesMapPanel.UpdateContinentTabs then
+                    ZonesMapPanel.UpdateContinentTabs()
+                end
+                ZonesMapPanel:Show()
+                addon:RefreshZonesMap()
+            end
+        else
+            DetailPanel:Show()
+            if ZonesMapPanel then ZonesMapPanel:Hide() end
+        end
+        
         if ListPanel.scroll then ListPanel.scroll:Show() end  -- el scroll quedaba oculto
 
         local showZonePanel = (tabId == "quests" or tabId == "questlog")
@@ -4406,11 +5599,13 @@ function addon:SwitchTab(tabId)
         if tabId == "quests" or tabId == "questlog" then
             ListPanel.filtersFrame:Show()
             if ListPanel.guideFiltersFrame then ListPanel.guideFiltersFrame:Hide() end
+            if ListPanel.zoneFiltersFrame then ListPanel.zoneFiltersFrame:Hide() end
             ListPanel.scroll:ClearAllPoints()
             ListPanel.scroll:SetPoint("TOPLEFT", ListPanel, "TOPLEFT", 6, -38)
             ListPanel.scroll:SetPoint("BOTTOMRIGHT", ListPanel, "BOTTOMRIGHT", -24, 6)
         elseif tabId == "guide" then
             ListPanel.filtersFrame:Hide()
+            if ListPanel.zoneFiltersFrame then ListPanel.zoneFiltersFrame:Hide() end
             if ListPanel.guideFiltersFrame then 
                 ListPanel.guideFiltersFrame:Show()
                 ListPanel.guideFiltersFrame.facBtn.lbl:SetText(addon.db and addon.db.currentGuide == "Alliance" and L("ALLIANCE") or L("HORDE"))
@@ -4418,9 +5613,20 @@ function addon:SwitchTab(tabId)
             ListPanel.scroll:ClearAllPoints()
             ListPanel.scroll:SetPoint("TOPLEFT", ListPanel, "TOPLEFT", 6, -38)
             ListPanel.scroll:SetPoint("BOTTOMRIGHT", ListPanel, "BOTTOMRIGHT", -24, 6)
+        elseif tabId == "zones" then
+            ListPanel.filtersFrame:Hide()
+            if ListPanel.guideFiltersFrame then ListPanel.guideFiltersFrame:Hide() end
+            if ListPanel.zoneFiltersFrame then 
+                ListPanel.zoneFiltersFrame:Show()
+                if addon.UpdateZoneFactionFilterUI then addon.UpdateZoneFactionFilterUI() end
+            end
+            ListPanel.scroll:ClearAllPoints()
+            ListPanel.scroll:SetPoint("TOPLEFT", ListPanel, "TOPLEFT", 6, -38)
+            ListPanel.scroll:SetPoint("BOTTOMRIGHT", ListPanel, "BOTTOMRIGHT", -24, 6)
         else
             ListPanel.filtersFrame:Hide()
             if ListPanel.guideFiltersFrame then ListPanel.guideFiltersFrame:Hide() end
+            if ListPanel.zoneFiltersFrame then ListPanel.zoneFiltersFrame:Hide() end
             ListPanel.scroll:ClearAllPoints()
             ListPanel.scroll:SetPoint("TOPLEFT", ListPanel, "TOPLEFT", 6, -6)
             ListPanel.scroll:SetPoint("BOTTOMRIGHT", ListPanel, "BOTTOMRIGHT", -24, 6)

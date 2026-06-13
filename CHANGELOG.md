@@ -3,6 +3,120 @@
 All notable changes to SKquests will be documented in this file.
 This project follows [Semantic Versioning](https://semver.org/) and [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.12.0-alpha] - 2026-06-13
+
+### Added
+- **Atlas de Zonas interactivo**: la pestaña Zonas muestra el mapa del continente (Kalimdor / Eastern Kingdoms) y, al elegir una zona en la lista, abre su mapa con los pines de misión. Los pines distinguen disponible (`!`), activa (`?` gris) y completa (`?` dorado), y al hacer clic saltan a la misión en la pestaña Quests.
+- **Capas de detalle revelado en los mapas de zona**: los tiles base de WoW son el pergamino "sin descubrir"; ahora se dibujan encima las texturas de sub-área (desde `SKquests_MapData`) para mostrar el mapa completo, igual que el visor del detalle de misión. Renderizado con aspecto real 1002×668, tiles de borde 234/156 y recorte por `SetTexCoord`.
+- **Marco temático pintado (9-slice)**: los temas Pro aplican un marco ornamentado alrededor de la ventana mediante texturas BLP recortadas en 9 segmentos (esquinas + bordes), con el contenido insertado para no tapar pestañas ni el botón de cerrar.
+- **Filtros de la pestaña Zonas**: los botones Alianza / Horda / Ambos y las pestañas Kalimdor / Eastern Kingdoms ahora filtran la lista de zonas.
+
+### Fixed
+- **El mapa de Zonas no se dibujaba**: `RelayoutZonesMap` usaba `mapPins`/`questPinsPool` antes de su declaración (resolvían a global `nil` → `ipairs(nil)`), abortando el dibujado. Se declaran ahora como upvalues antes de las funciones que los usan.
+- **Mapas de zona "sin revelar"**: el atlas dibujaba los 12 tiles estirados y sin recortar; ahora usa el mismo método del detalle de misión, incluyendo las capas de sub-área reveladas.
+- **Apertura de zona fiable**: clic en la zona desde la lista abre su mapa de forma determinista (se descartó la detección por cursor, que devolvía la zona desfasada en este cliente).
+- **Mazmorras/cuevas y subzonas iniciales sin mapa**: al clickearlas en la lista, redirigen a la pestaña Quests filtrada por la zona, en vez de mostrar una pantalla vacía.
+
+
+
+### Added
+- **Mejora del tema Blizzard Classic**: se procesó e integró una nueva textura de fondo de pergamino clara, suave y limpia (sin marcas de agua ni ruidos visuales molestos).
+- **Tarjetas de selección de guías integradas**: ahora el fondo de las tarjetas de Alianza y Horda se adapta dinámicamente al tema, usando transparencias suaves (15% de opacidad) al usar fondos personalizados y respondiendo al hover dinámicamente.
+
+### Fixed
+- **Superposición de paneles en la interfaz**: corregido un error de renderizado donde las tarjetas de selección de guía se superponían con otras pestañas (como Acerca de) al cambiar de pestaña.
+- **Sincronización del tema**: corregido un problema donde los cambios del tema no se aplicaban al panel de selección de guías debido a early returns y scripts OnLeave que forzaban colores sólidos.
+
+## [0.11.0-alpha] - 2026-06-13
+
+### Added
+- **Base de datos de Experiencia completa**: se reemplazó la base de datos parcial de vanilla por una extracción completa desde los archivos internos de *Questie*. El archivo `SKquests_Rewards.lua` ahora cuenta con más de 9,400 valores exactos de experiencia base para todas las misiones (incluyendo las custom y WotLK).
+- **Multiplicadores Dinámicos de XP**: integración nativa con la API de Questie (`QuestXP:GetQuestLogRewardXP`) para calcular en tiempo real los modificadores de experiencia por nivel, reliquias y Joyous Journeys.
+- **Auras Custom de Ascension**: escáner automático de buffs del jugador en la interfaz para aplicar los bonos de experiencia propios de Ascension (Aura de Experiencia +50%, Pociones +25%, Aura de Prestigio +200%).
+- **Visualización de Multiplicador**: la interfaz ahora desglosa la experiencia si tienes bonos, mostrando el total final junto a la base y el multiplicador exacto (ej. `334 XP (Base: 215 XP, x1.55)`).
+
+### Fixed
+- **Crashes por API faltante en 3.3.5**: la llamada nativa a `GetQuestLogRewardXP()` rompía silenciosamente la pestaña del *Quest Log* porque dicha función es de Cataclysm. Ahora se envuelve de forma segura y se calcula desde Questie.
+- **Iconos invisibles en el Quest Log**: al ver una recompensa por primera vez, el icono salía como interrogación porque el servidor aún no la cacheaba. Se cambió el uso asíncrono de `GetItemInfo` por la lectura síncrona `GetItemIcon` desde los archivos locales.
+- **Eliminación de misiones corruptas**: se borraron del código y la base de datos las misiones de prueba residuales ("The 'Chow' Quest (123)aa COPY").
+
+## [0.10.17-alpha] - 2026-06-12
+
+### Added
+- **Menú desplegable de quests en líneas con varias**: al hacer clic en una línea de guía con varias quests, se abre un menú con cada una; al elegir, abre su ficha. Para líneas de una sola quest, el clic abre directamente. Robusto a redimensionar e idioma (no calcula posiciones).
+
+### Fixed
+- **Elementos de la guía colándose en el detalle de quest**: al ir de la guía a una quest, el encabezado de circuito ("circuit 4") y el mapa del circuito quedaban visibles detrás del detalle, y los botones de link colgaban interceptando clics. `RefreshDetail` ahora oculta también encabezados de circuito, cajas de mapa y botones de link de la guía.
+- **Links de quest que no resolvían (p. ej. "Wanted: Hogger")**: la DB de pfQuest guarda algunos nombres con comillas o espacios dobles (`Wanted:  "Hogger"`), así que el nombre del texto no coincidía. Ahora `GetQuestIdByName` normaliza (minúsculas, sin comillas, espacios colapsados), por lo que el clic en cada quest de su línea (Aceptar/Hacer/Entregar) abre su ficha correctamente.
+
+## [0.10.16-alpha] - 2026-06-12
+
+### Fixed
+- **Circuitos de guía ordenados por nivel**: dentro de cada zona los circuitos estaban desordenados (5-10, 5-11, 5-9, 5-8…). Ahora se ordenan por nivel inicial y final, conservando título/texto/imagen de cada uno (los mapas siguen coincidiendo).
+- **Comillas mal anidadas (p. ej. "Wanted: Hogger")**: el texto traía comillas dentro de comillas que partían el nombre de la quest ("[Wanted: ]Hogger[]"). Corregido a un nombre limpio y enlazable.
+- **Quest falsa "Wabbit Pelts" eliminada** de la guía Alianza.
+- **Circuito duplicado de "Kobold Camp Cleanup" (Northshire) eliminado** (su quest ya estaba en el circuito completo).
+
+## [0.10.15-alpha] - 2026-06-12
+
+### Fixed
+- **Mapas de quest restaurados**: se revirtió el ocultado de la caja de mapa en quests vanilla. Ahora las quests custom muestran su mapa azerothhub y las vanilla muestran su mapa WorldMap de zona con los pines de pfQuest. La lista blanca de `TryCustomMap` se mantiene para no intentar mapas custom inexistentes.
+
+## [0.10.14-alpha] - 2026-06-12
+
+### Fixed
+- **Texto de pasos cortado con "..."**: las líneas largas de la guía se truncaban en vez de envolverse. Ahora el texto baja a la siguiente línea (ancho explícito + word wrap), aprovechando que el panel es scrolleable.
+- **Mapa azerothhub en el detalle de quests vanilla**: la lista blanca mostraba el mapa de zona azerothhub (parecía "mapa de guía") en quests normales. Ahora la caja de mapa del detalle solo aparece para quests custom (con `bqCoord`); las vanilla ocultan la caja.
+- **Mapas de zonas iniciales (Northshire / Valley of Trials) en negro**: sus mapas base no se descargaban desde la fuente original, dejando esos 5 circuitos sin imagen. Regenerados desde mapas base alternativos con marcadores reducidos.
+- **Marcadores de circuito demasiado grandes**: reducido el tamaño de HUB/objetivos/entregas en el render para que no tapen el mapa.
+- **Quest Log en blanco**: en WoW 3.3.5a `FauxScrollFrame_Update` oculta el frame del scroll cuando los ítems caben sin barra (p. ej. 1 misión activa); como las filas son hijas de ese frame, desaparecían todas. Se restauró `ListPanel.scroll:Show()` protegido por una guarda anti-recursión (`_inListUpdate`) para no reintroducir el stack overflow que motivó su eliminación en 0.10.5.
+- **Mapas de circuito en negro**: las 436 imágenes de circuito estaban en TGA de 32 bits, formato que el cliente 3.3.5a suele renderizar en negro. Reconvertidas a TGA de 24 bits sin canal alfa (las imágenes son opacas), compatibles con el cliente.
+
+- **Enlaces de quest repetidos en la guía**: cada nombre entrecomillado de una línea se resaltaba con el nombre del PRIMERO (ej. "[A Threat Within] and [A Threat Within]..."). Ahora cada quest usa su propio nombre localizado y el enlace apunta a la primera quest válida de la línea.
+- **Título de circuito cortado a la izquierda**: el encabezado del circuito se anclaba a -20 px (fuera del borde). Ahora se alinea con "OBJECTIVES".
+- **Cuadro negro en cada misión**: el cliente devuelve `true` en `SetTexture()` aunque el archivo no exista, así que la caja de mapa se mostraba en negro para zonas con textura WorldMap inexistente. Ahora se usa una lista blanca determinista de los mapas custom que sí existen (las 6 zonas iniciales); el resto oculta la caja en vez de mostrar un recuadro negro.
+
+### Removed
+- **Misión custom "Archmage Xylem"** (Azshara) eliminada de `BronzebeardQuestChains`.
+
+## [0.10.5-alpha] - 2026-06-12
+
+### Added
+- **Hipervínculos en la guía**: el texto de misiones en la pestaña Guía detecta el nombre, lo localiza (`GetLocalizedQuestName`), lo resalta en azul y añade un botón invisible que redirige al detalle en Quests.
+- **Conversión de assets**: procesamiento de imágenes PNG de circuitos a TGA potencia de 2 (512x512) para los pasos de la guía.
+
+### Fixed
+- Stack overflow por recursión en `RefreshList` (eliminado `scroll:Show()` — ver corrección en 0.10.6).
+- Cuadros negros en detalles de misión (validación de `TryFolder` en `questImgBox:SetQuest`).
+- Iconos `?` en botones de cadena: `◄`/`►` reemplazados por `Prev:`/`(Next)`.
+- Traducciones de la guía vía `GetLocalizedQuestName` + filtrado de quests vacías/corruptas en `IsQuestEligible`.
+
+## [0.9.0-alpha] - 2026-06-12
+
+### Added
+- Guías de leveo como función Pro: rejilla de tarjetas (autodetectadas desde `SKquests_Guides`) estilo Zonas; al elegir una se abre el panel de capítulos/pasos con imágenes.
+- Pantalla de candado en la pestaña Guía hasta introducir un código Pro válido.
+
+### Removed
+- Selector de temas y editor de temas eliminados del build (solo paleta oscura).
+
+### Changed
+- El gating Pro ahora protege las guías (antes los temas). Stub público de `IsProUnlocked` devuelve `false` por defecto.
+
+
+## [0.8.5-alpha] - 2026-06-12
+
+### Added
+- **Custom quest map support (azerothhub)**: custom quests from `BronzebeardQuestChains` now render their dedicated azerothhub starting-zone maps (Shadowglen, Northshire, Deathknell, Camp Narache, Valley of Trials, Coldridge Valley) with spawn pins placed directly from azerothhub coordinates.
+- **Starting-zone pin alignment**: vanilla starting subzones (Shadowglen→Teldrassil, Northshire→Elwynn, Deathknell→Tirisfal, Camp Narache→Mulgore, Valley of Trials→Durotar, Coldridge→Dun Morogh) now project their pins onto the parent map using exact pfQuest coordinates, fixing previously misaligned spawn dots.
+
+### Fixed
+- **Duplicate "(Custom)" quests removed**: custom chain quests were being injected twice — once with a `(Custom)` name suffix and once clean — producing duplicate list entries. There is now a single, clean injection (synthetic ids `990000+`, normalized-name dedup against the main quest DB) with no suffix.
+- **Event/junk quests hidden**: quests with no real level (`level <= 0`, e.g. event or class-trainer quests) and placeholder/test entries (`<TEST>`, `<UNUSED>`, `<NYI>`, Designer Island zone) are now hidden from the list unless they are custom or currently active in the tracker.
+
+### Changed
+- `_G.SKquests_CustomMapOffsets` is now populated from the bundled pfQuest `zones.data` (subzone bounding boxes) instead of hardcoded values, so map projection stays consistent across starting zones.
+
 ## [0.8.4-alpha] - 2026-06-11
 
 ### Added
