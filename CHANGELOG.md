@@ -3,6 +3,35 @@
 All notable changes to SKquests will be documented in this file.
 This project follows [Semantic Versioning](https://semver.org/) and [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.10.14-alpha] - 2026-06-12
+
+### Fixed
+- **Texto de pasos cortado con "..."**: las líneas largas de la guía se truncaban en vez de envolverse. Ahora el texto baja a la siguiente línea (ancho explícito + word wrap), aprovechando que el panel es scrolleable.
+- **Mapa azerothhub en el detalle de quests vanilla**: la lista blanca mostraba el mapa de zona azerothhub (parecía "mapa de guía") en quests normales. Ahora la caja de mapa del detalle solo aparece para quests custom (con `bqCoord`); las vanilla ocultan la caja.
+- **Mapas de zonas iniciales (Northshire / Valley of Trials) en negro**: sus mapas base no se descargaban desde la fuente original, dejando esos 5 circuitos sin imagen. Regenerados desde mapas base alternativos con marcadores reducidos.
+- **Marcadores de circuito demasiado grandes**: reducido el tamaño de HUB/objetivos/entregas en el render para que no tapen el mapa.
+- **Quest Log en blanco**: en WoW 3.3.5a `FauxScrollFrame_Update` oculta el frame del scroll cuando los ítems caben sin barra (p. ej. 1 misión activa); como las filas son hijas de ese frame, desaparecían todas. Se restauró `ListPanel.scroll:Show()` protegido por una guarda anti-recursión (`_inListUpdate`) para no reintroducir el stack overflow que motivó su eliminación en 0.10.5.
+- **Mapas de circuito en negro**: las 436 imágenes de circuito estaban en TGA de 32 bits, formato que el cliente 3.3.5a suele renderizar en negro. Reconvertidas a TGA de 24 bits sin canal alfa (las imágenes son opacas), compatibles con el cliente.
+
+- **Enlaces de quest repetidos en la guía**: cada nombre entrecomillado de una línea se resaltaba con el nombre del PRIMERO (ej. "[A Threat Within] and [A Threat Within]..."). Ahora cada quest usa su propio nombre localizado y el enlace apunta a la primera quest válida de la línea.
+- **Título de circuito cortado a la izquierda**: el encabezado del circuito se anclaba a -20 px (fuera del borde). Ahora se alinea con "OBJECTIVES".
+- **Cuadro negro en cada misión**: el cliente devuelve `true` en `SetTexture()` aunque el archivo no exista, así que la caja de mapa se mostraba en negro para zonas con textura WorldMap inexistente. Ahora se usa una lista blanca determinista de los mapas custom que sí existen (las 6 zonas iniciales); el resto oculta la caja en vez de mostrar un recuadro negro.
+
+### Removed
+- **Misión custom "Archmage Xylem"** (Azshara) eliminada de `BronzebeardQuestChains`.
+
+## [0.10.5-alpha] - 2026-06-12
+
+### Added
+- **Hipervínculos en la guía**: el texto de misiones en la pestaña Guía detecta el nombre, lo localiza (`GetLocalizedQuestName`), lo resalta en azul y añade un botón invisible que redirige al detalle en Quests.
+- **Conversión de assets**: procesamiento de imágenes PNG de circuitos a TGA potencia de 2 (512x512) para los pasos de la guía.
+
+### Fixed
+- Stack overflow por recursión en `RefreshList` (eliminado `scroll:Show()` — ver corrección en 0.10.6).
+- Cuadros negros en detalles de misión (validación de `TryFolder` en `questImgBox:SetQuest`).
+- Iconos `?` en botones de cadena: `◄`/`►` reemplazados por `Prev:`/`(Next)`.
+- Traducciones de la guía vía `GetLocalizedQuestName` + filtrado de quests vacías/corruptas en `IsQuestEligible`.
+
 ## [0.9.0-alpha] - 2026-06-12
 
 ### Added

@@ -245,6 +245,31 @@ local function GetQuestLoc(id)
     end
 end
 
+local function GetLocalizedQuestName(quest)
+    if not quest then return "" end
+    if IsSpanish() then
+        local loc = GetQuestLoc(quest.id)
+        return (loc and loc.T) or quest.name_loc or quest.name
+    else
+        return quest.name
+    end
+end
+
+local function GetQuestIdByName(name)
+    if not name or name == "" then return nil end
+    local lowerName = name:lower()
+    for id, q in pairs(SKquests_DetailDB) do
+        local qName = q.name and q.name:lower() or ""
+        local qNameLoc = q.name_loc and q.name_loc:lower() or ""
+        local loc = GetQuestLoc(id)
+        local locT = loc and loc.T and loc.T:lower() or ""
+        if qName == lowerName or qNameLoc == lowerName or locT == lowerName then
+            return id
+        end
+    end
+    return nil
+end
+
 local function PfText(s)
     if not s then return s end
     s = s:gsub("%$[Bb]", "\n")
@@ -581,11 +606,13 @@ local function IsQuestEligible(id, q)
     -- basura del cliente: <TEST ...>, <UNUSED 1>, <NYI>, <TXT>, [UNUSED], etc.
     if title:find("<TEST") or title:find("<UNUSED") or title:find("<NYI")
        or title:find("<TXT") or title:find("%[UNUSED") or title:find("%[NYI")
-       or title:find("%[TEST") then
+       or title:find("%[TEST") or title:find("<DEPRECATED>") then
         return false
     end
     -- Designer Island (151): zona de pruebas de desarrollo, no es del juego
     if q.zoneId == 151 then return false end
+    if q.desc == "No information available" then return false end
+    if title:find("FLAG") or title:find("BLIZZARD ACCOUNT:") or title:find("COLLECTOR'S EDITION:") then return false end
     local l1 = tonumber(q.level) or 0
     local l2 = tonumber(q.lvl) or 0
     local l3 = tonumber(q.minLevel) or 0
@@ -742,7 +769,15 @@ local function BuildGuideChapters()
     
     for i, step in ipairs(guide) do
         local ges = GetGuideES(i)
-        local t = (ges and ges.title) or step.title or "Paso " .. i
+        local rawTitle = (ges and ges.title) or step.title or "Paso " .. i
+        local t = rawTitle
+        -- Parse title like "1-5 Northshire Valley — Circuit 1"
+        -- Also supports "1-5 Northshire Valley ? Circuit 1" or hyphen
+        local zoneMatch = rawTitle:match("^(?:%d+%-%d+%s+)?(.+?)%s*[%-—%?]%s*Circui[to]+")
+        if zoneMatch then
+            t = zoneMatch:gsub("^%s+", ""):gsub("%s+$", "")
+        end
+
         if t ~= currentTitle then
             if currentTitle ~= "" then
                 table.insert(guideChapters, { title = currentTitle, startIndex = chapterStartIndex, endIndex = i - 1 })
@@ -857,7 +892,7 @@ local function LayoutDetailSections(ch)
         ch.objSec:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", 0, -6)
         ch.objSec:SetPoint("TOPRIGHT", ch.header, "BOTTOMRIGHT", 0, -6)
         if activeTab == "guide" then
-            ch.objSec:SetHeight(320)
+            -- Let RefreshDetail handle the height dynamically based on contents
         else
             ch.objSec:SetHeight(120)
         end
@@ -1884,16 +1919,19 @@ function addon:CreateModernUI()
 
         local usedMap = false
         customMap = false
-        -- Intenta textura custom de un solo archivo
+        -- Mapas custom que SÍ existen en Media\Maps (lista blanca determinista).
+        -- En este cliente SetTexture() devuelve verdadero aunque el archivo no
+        -- exista, así que no podemos confiar en su retorno: usamos la lista.
+        local CUSTOM_MAP_FILES = {
+            Shadowglen = true, Northshire = true, Deathknell = true,
+            CampNarache = true, ValleyOfTrials = true, ColdridgeValley = true,
+        }
         local function TryCustomMap(fld)
-            if not fld then return false end
+            if not fld or not CUSTOM_MAP_FILES[fld] then return false end
             local basePath = "Interface\\AddOns\\SKquests\\Media\\Maps\\" .. fld
-            -- Intentamos .tga y .blp
-            if mapTiles[1]:SetTexture(basePath .. ".tga") or mapTiles[1]:SetTexture(basePath .. ".blp") then
-                customMap = true
-                return true
-            end
-            return false
+            mapTiles[1]:SetTexture(basePath .. ".tga")
+            customMap = true
+            return true
         end
 
         -- Intenta la carpeta de la zona (estándar de WoW)
@@ -2212,8 +2250,17 @@ function addon:CreateModernUI()
             flatTex:SetTexture(GetQuestTexture(q and q.image))
             flatTex:Show()
         end
-        self:Show()
-        self.needsLayout = true
+                -- Solo mostramos la caja para quests CUSTOM (BronzebeardQuestChains,
+        -- con bqCoord) que tienen su mapa azerothhub propio. Las quests vanilla
+        -- dependen de texturas WorldMap que se ven negras en este cliente, y el
+        -- mapa azerothhub de la zona no corresponde a ellas (parecía "mapa de guía"),
+        -- así que ocultamos la caja.
+        if usedMap and customMap and q and q.bqCoord then
+            self:Show()
+            self.needsLayout = true
+        else
+            self:Hide()
+        end
         ImgLayout()
     end
 
@@ -2861,6 +2908,8 @@ end
 -- ============================================================
 function addon:UpdateListRows()
     if not ListPanel or not ListPanel.scroll then return end
+    if addon._inListUpdate then return end   -- guarda anti-recursion (OnShow -> UpdateListRows)
+    addon._inListUpdate = true
     local h = ListPanel.scroll:GetHeight()
     
     -- Fallback si el motor de WoW aún no ha dibujado y da altura 0
@@ -2904,7 +2953,11 @@ function addon:UpdateListRows()
         if bar then bar:SetValue(0) end
     end
     FauxScrollFrame_Update(ListPanel.scroll, totalItems, visibleRows, ROW_H)
+    -- FauxScrollFrame_Update oculta el frame si los items caben sin scroll;
+    -- re-mostrarlo aqui (la guarda evita la recursion del OnShow).
+    ListPanel.scroll:Show()
     addon:RefreshList()
+    addon._inListUpdate = false
 end
 
 -- ============================================================
@@ -2912,8 +2965,9 @@ end
 -- ============================================================
 function addon:RefreshList()
     if not ListPanel or not ListPanel.scroll then return end
-    -- El scroll quedaba oculto en algunos tabs; forzar que se muestre
-    if not ListPanel.scroll:IsShown() then ListPanel.scroll:Show() end
+    -- Re-mostrar el frame por si FauxScrollFrame_Update lo ocultó (pocos items).
+    -- Es seguro: UpdateListRows tiene guarda anti-recursión (_inListUpdate).
+    ListPanel.scroll:Show()
 
     local offset = FauxScrollFrame_GetOffset(ListPanel.scroll)
     local h = ListPanel.scroll:GetHeight()
@@ -3342,7 +3396,7 @@ function addon:RefreshDetail()
         local prevQ = q.prevId and SKquests_DetailDB[q.prevId]
         if prevQ then
             RightSidebar.chain.prevBtn:Show()
-            RightSidebar.chain.prevBtn:SetText("◄ " .. (prevQ.name_loc or prevQ.name))
+            RightSidebar.chain.prevBtn:SetText("Prev: " .. GetLocalizedQuestName(prevQ))
             RightSidebar.chain.prevBtn:SetScript("OnClick", function()
                 selectedQuestId = q.prevId
                 addon:RefreshDetail()
@@ -3355,7 +3409,7 @@ function addon:RefreshDetail()
         local nextQ = (q.nextId and SKquests_DetailDB[q.nextId]) or (q.rewardNextId and SKquests_DetailDB[q.rewardNextId])
         if nextQ then
             RightSidebar.chain.nextBtn:Show()
-            RightSidebar.chain.nextBtn:SetText((nextQ.name_loc or nextQ.name) .. " ►")
+            RightSidebar.chain.nextBtn:SetText(GetLocalizedQuestName(nextQ) .. " (Next)")
             RightSidebar.chain.nextBtn:SetScript("OnClick", function()
                 selectedQuestId = nextQ.id
                 addon:RefreshDetail()
@@ -3522,7 +3576,7 @@ function addon:RefreshDetail()
             local prevQ = q.prevId and SKquests_DetailDB[q.prevId]
             if prevQ then
                 RightSidebar.chain.prevBtn:Show()
-                RightSidebar.chain.prevBtn:SetText("◄ " .. (prevQ.name_loc or prevQ.name))
+                RightSidebar.chain.prevBtn:SetText("Prev: " .. GetLocalizedQuestName(prevQ))
                 RightSidebar.chain.prevBtn:SetScript("OnClick", function()
                     selectedQuestId = q.prevId
                     addon:SwitchTab("quests")
@@ -3534,7 +3588,7 @@ function addon:RefreshDetail()
             local nextQ = (q.nextId and SKquests_DetailDB[q.nextId]) or (q.rewardNextId and SKquests_DetailDB[q.rewardNextId])
             if nextQ then
                 RightSidebar.chain.nextBtn:Show()
-                RightSidebar.chain.nextBtn:SetText((nextQ.name_loc or nextQ.name) .. " ►")
+                RightSidebar.chain.nextBtn:SetText(GetLocalizedQuestName(nextQ) .. " (Next)")
                 RightSidebar.chain.nextBtn:SetScript("OnClick", function()
                     selectedQuestId = nextQ.id
                     addon:SwitchTab("quests")
@@ -3568,8 +3622,7 @@ function addon:RefreshDetail()
         ch.questImgBox:Hide()
 
         local guide = addon:GetGuideTable()
-        local step = guide and guide[selectedStepIdx]
-        if not step then
+        if not guide or not guideChapters or not guideChapters[selectedGuideChapter] then
             ch.header.title:SetText("No hay pasos de guía cargados")
             ch.header.meta:SetText("Elige otra facción en Ajustes si es necesario.")
             ch.header.level:SetText("")
@@ -3577,99 +3630,209 @@ function addon:RefreshDetail()
             ch.mapBox:Hide()
             ch.objSec.tomtomBtn:Hide()
             ch.objSec.box:Show()
+            ch.objSec:SetHeight(320)
             LayoutDetailSections(ch)
             return
         end
 
-        local ges = GetGuideES(selectedStepIdx)
-        ch.header.title:SetText((ges and ges.title) or step.title)
-        ch.header.level:SetText(L("STEP") .. " " .. selectedStepIdx)
-        ch.header.meta:SetText(L("STEP_OBJECTIVE"))
+        local chapterData = guideChapters[selectedGuideChapter]
+        ch.header.title:SetText(chapterData.title)
+        ch.header.level:SetText("")
+        ch.header.meta:SetText("Progreso de Zona")
 
-        -- Separar por líneas el texto de la guía
-        local lines = {}
-        local rawText = (ges and ges.text) or step.text or step.objectives or ""
-        for line in rawText:gmatch("[^\r\n]+") do
-            line = line:gsub("^%s+", ""):gsub("%s+$", "")
-            if line ~= "" then
-                table.insert(lines, line)
-            end
-        end
+        ch.objSec.box:Hide()
+        ch.mapBox:Hide()
+        ch.objSec.tomtomBtn:Hide()
 
-        ch.objSec.box:Hide() -- Ocultar bloque único de texto
+        -- Configurar pools dinámicos
+        ch.objSec.checkbuttons = ch.objSec.checkbuttons or {}
+        ch.objSec.circuitHeaders = ch.objSec.circuitHeaders or {}
+        ch.objSec.mapBoxes = ch.objSec.mapBoxes or {}
 
-        -- Crear o reusar pool de checkbuttons
-        if not ch.objSec.checkbuttons then
-            ch.objSec.checkbuttons = {}
-            for i = 1, 25 do
-                local cbName = "SKquests_GuideCB_" .. i
-                local cb = CreateFrame("CheckButton", cbName, ch.objSec, "UICheckButtonTemplate")
-                cb:SetSize(20, 20)
-                
-                local lbl = cb:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-                lbl:SetPoint("LEFT", cb, "RIGHT", 6, 0)
-                lbl:SetPoint("RIGHT", ch.objSec, "RIGHT", -10, 0)
-                lbl:SetJustifyH("LEFT")
-                lbl:SetWordWrap(true)
-                cb.lbl = lbl
-
-                cb:SetScript("OnClick", function(self)
-                    if not SKquestsDB.profile.guideProgress then
-                        SKquestsDB.profile.guideProgress = {}
-                    end
-                    local key = selectedStepIdx .. "_" .. self.lineIdx
-                    SKquestsDB.profile.guideProgress[key] = self:GetChecked()
-                end)
-
-                ch.objSec.checkbuttons[i] = cb
-            end
-        end
-
-        -- Posicionar y mostrar los checkboxes
-        local prev = ch.objSec.lbl
-        for i = 1, 25 do
-            local cb = ch.objSec.checkbuttons[i]
-            if i <= #lines then
-                cb:ClearAllPoints()
-                if i == 1 then
-                    cb:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", 0, -8)
-                else
-                    cb:SetPoint("TOPLEFT", ch.objSec.checkbuttons[i-1].lbl, "BOTTOMLEFT", -26, -6)
-                end
-                
-                cb.lineIdx = i
-                cb.lbl:SetText(lines[i])
-                cb.lbl:SetTextColor(C.white[1], C.white[2], C.white[3])
-                
-                local key = selectedStepIdx .. "_" .. i
-                local checked = SKquestsDB.profile.guideProgress and SKquestsDB.profile.guideProgress[key] or false
-                cb:SetChecked(checked)
-                
-                cb:Show()
-            else
-                cb:Hide()
-            end
-        end
+        -- Ocultar todo el pool primero
+        for _, cb in ipairs(ch.objSec.checkbuttons) do cb:Hide() end
+        for _, h in ipairs(ch.objSec.circuitHeaders) do h:Hide() end
+        for _, m in ipairs(ch.objSec.mapBoxes) do m:Hide() end
 
         local showMap = SKquestsDB and SKquestsDB.config and SKquestsDB.config.showImage ~= false
-        local mapPath = GetGuideMapTexture(step.image)
-        if showMap and mapPath then
-            ch.mapBox.tex:SetTexture(mapPath)
-            ch.mapBox:Show()
-            if #lines > 0 then
-                ch.mapBox:ClearAllPoints()
-                ch.mapBox:SetPoint("TOPLEFT", ch.objSec.checkbuttons[#lines].lbl, "BOTTOMLEFT", -26, -50)
-                ch.mapBox:SetPoint("TOPRIGHT", ch.objSec, "TOPRIGHT", -8, 0)
-            else
-                ch.mapBox:ClearAllPoints()
-                ch.mapBox:SetPoint("TOPLEFT", ch.objSec.lbl, "BOTTOMLEFT", 0, -50)
+        local prevAnchor = ch.objSec.lbl
+        local cbIndex = 1
+        local headerIndex = 1
+        local mapIndex = 1
+
+        for stepIdx = chapterData.startIndex, chapterData.endIndex do
+            local step = guide[stepIdx]
+            local ges = GetGuideES(stepIdx)
+            if step then
+                -- Título del Circuito
+                local hd = ch.objSec.circuitHeaders[headerIndex]
+                if not hd then
+                    hd = ch.objSec:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+                    hd:SetJustifyH("LEFT")
+                    hd:SetTextColor(1, 0.82, 0)
+                    ch.objSec.circuitHeaders[headerIndex] = hd
+                end
+                
+                -- Usa el título traducido si existe (y saca solo la parte del Circuito)
+                local fullTitle = (ges and ges.title) or step.title
+                local circMatch = fullTitle:match("Circui[to]+.*")
+                if circMatch then
+                    hd:SetText(circMatch)
+                else
+                    hd:SetText(fullTitle)
+                end
+                
+                hd:ClearAllPoints()
+                if headerIndex == 1 then
+                    hd:SetPoint("TOPLEFT", prevAnchor, "BOTTOMLEFT", 0, -15)
+                else
+                    hd:SetPoint("TOPLEFT", prevAnchor, "BOTTOMLEFT", 0, -35)
+                end
+                hd:Show()
+                prevAnchor = hd
+                headerIndex = headerIndex + 1
+
+                -- Líneas del circuito
+                local rawText = (ges and ges.text) or step.text or step.objectives or ""
+                local lineCount = 1
+                for line in rawText:gmatch("[^\r\n]+") do
+                    line = line:gsub("^%s+", ""):gsub("%s+$", "")
+                    if line ~= "" then
+                        local cb = ch.objSec.checkbuttons[cbIndex]
+                        if not cb then
+                            cb = CreateFrame("CheckButton", "SKquests_GuideCB_"..cbIndex, ch.objSec, "UICheckButtonTemplate")
+                            cb:SetSize(20, 20)
+                            local lbl = cb:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+                            lbl:SetPoint("TOPLEFT", cb, "RIGHT", 6, 6)
+                            lbl:SetJustifyH("LEFT")
+                            lbl:SetJustifyV("TOP")
+                            lbl:SetWordWrap(true)
+                            lbl:SetNonSpaceWrap(true)
+                            cb.lbl = lbl
+                            ch.objSec.checkbuttons[cbIndex] = cb
+                        end
+
+                                                cb.stepIdx = stepIdx
+                        cb.lineIdx = lineCount
+                        
+                        cb:ClearAllPoints()
+                        if lineCount == 1 then
+                            cb:SetPoint("TOPLEFT", prevAnchor, "BOTTOMLEFT", 20, -10)
+                        else
+                            cb:SetPoint("TOPLEFT", prevAnchor, "BOTTOMLEFT", -26, -6)
+                        end
+                        
+                        -- Resaltar CADA nombre de quest entrecomillado con su propia
+                        -- traducción. (Antes se tomaba solo el primero y se reemplazaban
+                        -- todos por ese mismo, causando "[A Threat Within] and [A Threat Within]...")
+                        local firstQid = nil
+                        line = line:gsub('"(.-)"', function(name)
+                            local qid = GetQuestIdByName(name)
+                            if qid then
+                                if not firstQid then firstQid = qid end
+                                local q = SKquests_DetailDB[qid]
+                                local locName = (q and GetLocalizedQuestName(q)) or name
+                                return '|cff00ccff[' .. locName .. ']|r'
+                            end
+                            return '|cff00ccff[' .. name .. ']|r'
+                        end)
+                        cb.questIdLink = firstQid
+
+                        -- Ancho explícito para que el texto envuelva (multilínea) en
+                        -- lugar de truncarse con "...". Se recalcula por si el panel
+                        -- cambió de tamaño.
+                        local availW = ch.objSec:GetWidth()
+                        if not availW or availW < 60 then availW = 470 end
+                        cb.lbl:SetWidth(availW - 44)
+                        cb.lbl:SetText(line)
+                        cb.lbl:SetTextColor(C.white[1], C.white[2], C.white[3])
+                        
+                        if not cb.linkBtn then
+                            cb.linkBtn = CreateFrame("Button", nil, ch.objSec)
+                            cb.linkBtn:SetScript("OnClick", function()
+                                if cb.questIdLink then
+                                    selectedQuestId = cb.questIdLink
+                                    addon:SwitchTab("quests")
+                                end
+                            end)
+                        end
+                        cb.linkBtn:ClearAllPoints()
+                        cb.linkBtn:SetPoint("TOPLEFT", cb.lbl, "TOPLEFT")
+                        cb.linkBtn:SetPoint("BOTTOMRIGHT", cb.lbl, "BOTTOMRIGHT")
+                        if cb.questIdLink then
+                            cb.linkBtn:Show()
+                        else
+                            cb.linkBtn:Hide()
+                        end
+
+                        local key = stepIdx .. "_" .. lineCount
+                        local checked = SKquestsDB.profile.guideProgress and SKquestsDB.profile.guideProgress[key] or false
+                        cb:SetChecked(checked)
+                        
+                        cb:SetScript("OnClick", function(self)
+                            if not SKquestsDB.profile.guideProgress then
+                                SKquestsDB.profile.guideProgress = {}
+                            end
+                            local key = self.stepIdx .. "_" .. self.lineIdx
+                            SKquestsDB.profile.guideProgress[key] = self:GetChecked()
+                        end)
+                        
+                        cb:Show()
+
+                        prevAnchor = cb.lbl
+                        cbIndex = cbIndex + 1
+                        lineCount = lineCount + 1
+                    end
+                end
+
+                -- Imagen del circuito
+                local mapPath = GetGuideMapTexture(step.image)
+                if showMap and mapPath then
+                    local mb = ch.objSec.mapBoxes[mapIndex]
+                    if not mb then
+                        mb = CreateFrame("Frame", nil, ch.objSec)
+                        mb:SetBackdrop({
+                            bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+                            edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+                            edgeSize = 8, insets = {left=2, right=2, top=2, bottom=2}
+                        })
+                        mb:SetBackdropColor(0,0,0,0.5)
+                        mb:SetBackdropBorderColor(0.5,0.4,0.3,0.5)
+                        local tex = mb:CreateTexture(nil, "ARTWORK")
+                        tex:SetPoint("TOPLEFT", 4, -4)
+                        tex:SetPoint("BOTTOMRIGHT", -4, 4)
+                        tex:SetTexCoord(0, 1, 0, 1)
+                        mb.tex = tex
+                        ch.objSec.mapBoxes[mapIndex] = mb
+                    end
+                    
+                    mb.tex:SetTexture(mapPath)
+                    mb:ClearAllPoints()
+                    mb:SetPoint("TOPLEFT", prevAnchor, "BOTTOMLEFT", -26, -15)
+                    mb:SetPoint("TOPRIGHT", ch.objSec, "TOPRIGHT", -8, 0)
+                    
+                    mb:SetHeight(320)
+                    mb:Show()
+                    prevAnchor = mb
+                    mapIndex = mapIndex + 1
+                end
             end
-        else
-            ch.mapBox:Hide()
         end
 
-        ch.objSec.tomtomBtn:Hide()
         LayoutDetailSections(ch)
+
+        -- Calculate total height of the content dynamically
+        local totalHeight = 40
+        if prevAnchor and prevAnchor.GetBottom and ch.objSec:GetTop() then
+            totalHeight = ch.objSec:GetTop() - prevAnchor:GetBottom() + 20
+        end
+        ch.objSec:SetHeight(math.max(320, totalHeight))
+        
+        local dHeight = 0
+        if ch.header:GetTop() and ch.objSec:GetBottom() then
+             dHeight = ch.header:GetTop() - ch.objSec:GetBottom() + 20
+        end
+        ch:SetHeight(math.max(DetailPanel.scroll:GetHeight() or 320, dHeight))
 
     else
         ch.header:Hide()

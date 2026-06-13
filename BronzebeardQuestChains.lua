@@ -575,18 +575,6 @@ BronzebeardQuestChains = {
         next = "bb-wet-q3",
     },
 
-    ["marker-1765406063327-ddik8zl"] = {
-        id = "marker-1765406063327-ddik8zl",
-        name = "Archmage Xylem",
-        description = "New questline from archmage Xylem for the polymorph: pig glyph",
-        zoneId = "azshara",
-        x = 29.877591551494888,
-        y = 40.51232238139,
-        faction = nil,
-        prev = nil,
-        next = nil,
-    },
-
 }
 
 -- (La inyección a SKquests_DetailDB se hace en SKquests_UI.lua, con nombres
