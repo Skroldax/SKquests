@@ -52,12 +52,22 @@ addon.Themes.BlizzardClassic = {
     isEditable = true,
     textures = { bg = "Interface\\AddOns\\SKquests\\Media\\blizzard_bg.tga", border = "Interface\\AddOns\\SKquests\\Media\\blizzardclassic_border.blp" },
     colors = {
-        bgPanel    = {0.12, 0.08, 0.04, 0.98},
-        bgHover    = {0.20, 0.14, 0.08, 0.5},
-        border     = {0.40, 0.30, 0.15, 1.0},
-        textNormal = {0.80, 0.70, 0.50},
-        textTitle  = {0.90, 0.75, 0.30},
-        accent     = {0.90, 0.75, 0.30},
+        bgPanel    = {0.95, 0.92, 0.84},
+        bgSide     = {0.90, 0.86, 0.76},
+        bgList     = {0.88, 0.83, 0.72},
+        bgDetail   = {0.93, 0.89, 0.80},
+        bgSelected = {0.78, 0.70, 0.52},
+        bgHover    = {0.84, 0.78, 0.64},
+        border     = {0.50, 0.43, 0.28},
+        borderDim  = {0.62, 0.55, 0.40},
+        gold       = {0.35, 0.22, 0.05},
+        white      = {0.18, 0.14, 0.06},
+        dim        = {0.40, 0.35, 0.25},
+        sectionLbl = {0.48, 0.40, 0.28},
+        -- Fallbacks para el editor
+        textNormal = {0.18, 0.14, 0.06},
+        textTitle  = {0.35, 0.22, 0.05},
+        accent     = {0.35, 0.22, 0.05},
     },
     metrics = { borderSize = 32, padding = 8 },
 }
@@ -182,27 +192,54 @@ function addon:GetCustomPalette(themeKey)
     for k, v in pairs(t.colors) do c[k] = v end
     local ov = SKquestsDB and SKquestsDB.config and SKquestsDB.config.themeOverrides
     ov = ov and ov[themeKey]
+    
+    -- Reset old dark overrides for Blizzard Classic if they exist
+    if themeKey == "blizzardclassic" and ov and ov.bgPanel and ov.bgPanel[1] < 0.5 then
+        SKquestsDB.config.themeOverrides.blizzardclassic = nil
+        ov = nil
+        -- Re-copy base colors
+        c = {}
+        for k, v in pairs(t.colors) do c[k] = v end
+    end
+    
     if ov then
         for k, v in pairs(ov) do c[k] = v end
     end
 
+    local bgVal = c.bg or { c.bgPanel[1], c.bgPanel[2], c.bgPanel[3] }
+    local bgSideVal = c.bgSide or mul(c.bgPanel, 1.18)
+    local bgListVal = c.bgList or mul(c.bgPanel, 1.10)
+    local bgDetailVal = c.bgDetail or mul(c.bgPanel, 1.25)
+    local bgSelectedVal = c.bgSelected or { c.accent[1] * 0.45, c.accent[2] * 0.45, c.accent[3] * 0.45 }
+    local bgHoverVal = c.bgHover or { c.bgHover[1], c.bgHover[2], c.bgHover[3] }
+    local borderVal = c.border or { c.border[1], c.border[2], c.border[3] }
+    local borderDimVal = c.borderDim or mul(c.border, 0.75)
+    local goldVal = c.gold or { c.textTitle[1], c.textTitle[2], c.textTitle[3] }
+    local whiteVal = c.white or { c.textNormal[1], c.textNormal[2], c.textNormal[3] }
+    local dimVal = c.dim or mul(c.textNormal, 0.75)
+    local sectionLblVal = c.sectionLbl or mul(c.textNormal, 0.85)
+    local greenVal = c.green or { 0.2, 0.85, 0.2 }
+    local objDoneVal = c.objDone or { c.accent[1], c.accent[2], c.accent[3] }
+    local objPendingVal = c.objPending or { c.textNormal[1], c.textNormal[2], c.textNormal[3] }
+    local wowBlueVal = c.wowBlue or { c.accent[1], c.accent[2], c.accent[3] }
+
     return {
-        bg         = { c.bgPanel[1], c.bgPanel[2], c.bgPanel[3] },
-        bgSide     = mul(c.bgPanel, 1.18),
-        bgList     = mul(c.bgPanel, 1.10),
-        bgDetail   = mul(c.bgPanel, 1.25),
-        bgSelected = { c.accent[1] * 0.45, c.accent[2] * 0.45, c.accent[3] * 0.45 },
-        bgHover    = { c.bgHover[1], c.bgHover[2], c.bgHover[3] },
-        border     = { c.border[1], c.border[2], c.border[3] },
-        borderDim  = mul(c.border, 0.75),
-        gold       = { c.textTitle[1], c.textTitle[2], c.textTitle[3] },
-        white      = { c.textNormal[1], c.textNormal[2], c.textNormal[3] },
-        dim        = mul(c.textNormal, 0.75),
-        sectionLbl = mul(c.textNormal, 0.85),
-        green      = { 0.2, 0.85, 0.2 },
-        objDone    = { c.accent[1], c.accent[2], c.accent[3] },
-        objPending = { c.textNormal[1], c.textNormal[2], c.textNormal[3] },
-        wowBlue    = { c.accent[1], c.accent[2], c.accent[3] },
+        bg         = bgVal,
+        bgSide     = bgSideVal,
+        bgList     = bgListVal,
+        bgDetail   = bgDetailVal,
+        bgSelected = bgSelectedVal,
+        bgHover    = bgHoverVal,
+        border     = borderVal,
+        borderDim  = borderDimVal,
+        gold       = goldVal,
+        white      = whiteVal,
+        dim        = dimVal,
+        sectionLbl = sectionLblVal,
+        green      = greenVal,
+        objDone    = objDoneVal,
+        objPending = objPendingVal,
+        wowBlue    = wowBlueVal,
         
         textures   = t.textures,
         metrics    = t.metrics

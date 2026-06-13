@@ -544,40 +544,117 @@ end
 
 function addon:ApplyTheme()
     local theme = SKquestsDB and SKquestsDB.config and SKquestsDB.config.theme or "dark"
+    if theme == "claro" then theme = "light" end
+    if theme == "oscuro" then theme = "dark" end
     C = Themes[theme] or (addon.GetCustomPalette and addon:GetCustomPalette(theme)) or Themes.dark
 
     if not MainFrame then return end
 
+    -- Marco temático pintado (9-slice) + inset del contenido (o inset normal)
+    do
+        local tkey = SKquestsDB and SKquestsDB.config and SKquestsDB.config.theme or "dark"
+        if tkey == "claro" then tkey = "light" end
+        if tkey == "oscuro" then tkey = "dark" end
+        local bt = addon.ApplyThemeFrameBorder and addon:ApplyThemeFrameBorder(tkey)
+        if addon.SetPanelInset then addon:SetPanelInset(bt or 10) end
+    end
+
     local function UpdateBD(frame, alpha)
+        -- IMPORTANTE: no usar el marco pintado como edgeFile (rompe el borde) ni
+        -- tilear el bg como fondo de cada panel. Borde estándar + color de paleta.
         frame:SetBackdrop({
-            bgFile   = C.textures and C.textures.bg or "Interface\\ChatFrame\\ChatFrameBackground",
-            edgeFile = C.textures and C.textures.border or "Interface\\Tooltips\\UI-Tooltip-Border",
-            tile = true, tileSize = 256, 
-            edgeSize = C.metrics and C.metrics.borderSize or 16,
-            insets = {left=4, right=4, top=4, bottom=4},
+            bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
+            edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+            tile = true, tileSize = 16,
+            edgeSize = 14,
+            insets = {left=3, right=3, top=3, bottom=3},
         })
         frame:SetBackdropBorderColor(C.border[1], C.border[2], C.border[3], 1.0)
     end
 
     -- Aplicar texturas, fondos y bordes
-    UpdateBD(MainFrame, 0.98)
-    MainFrame:SetBackdropColor(C.bg[1], C.bg[2], C.bg[3], 0.98)
+    local isCustomBG = C.textures and C.textures.bg and (C.textures.bg:find("SKquests") or C.textures.bg:find("Media"))
+    local panelAlpha = isCustomBG and 0.0 or 0.98
+
+    if isCustomBG then
+        MainFrame:SetBackdrop({
+            bgFile   = C.textures.bg,
+            edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+            tile = false,
+            edgeSize = 14,
+            insets = {left=3, right=3, top=3, bottom=3},
+        })
+        MainFrame:SetBackdropColor(1, 1, 1, 0.98)
+        MainFrame:SetBackdropBorderColor(C.border[1], C.border[2], C.border[3], 0)
+    else
+        UpdateBD(MainFrame, 0.98)
+        MainFrame:SetBackdropColor(C.bg[1], C.bg[2], C.bg[3], 0.98)
+    end
     
     UpdateBD(Sidenav, 0.98)
-    Sidenav:SetBackdropColor(C.bgSide[1], C.bgSide[2], C.bgSide[3], 0.98)
-    Sidenav:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], 0.8)
+    Sidenav:SetBackdropColor(C.bgSide[1], C.bgSide[2], C.bgSide[3], panelAlpha)
+    Sidenav:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustomBG and 0.25 or 0.8)
     
     UpdateBD(ListPanel, 0.98)
-    ListPanel:SetBackdropColor(C.bgList[1], C.bgList[2], C.bgList[3], 0.98)
-    ListPanel:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], 0.8)
+    ListPanel:SetBackdropColor(C.bgList[1], C.bgList[2], C.bgList[3], panelAlpha)
+    ListPanel:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustomBG and 0.25 or 0.8)
     
     UpdateBD(DetailPanel, 0.98)
-    DetailPanel:SetBackdropColor(C.bgDetail[1], C.bgDetail[2], C.bgDetail[3], 0.98)
-    DetailPanel:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], 0.8)
+    DetailPanel:SetBackdropColor(C.bgDetail[1], C.bgDetail[2], C.bgDetail[3], panelAlpha)
+    DetailPanel:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustomBG and 0.25 or 0.8)
     
     UpdateBD(RightSidebar, 0.98)
-    RightSidebar:SetBackdropColor(C.bgSide[1], C.bgSide[2], C.bgSide[3], 0.98)
-    RightSidebar:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], 0.8)
+    RightSidebar:SetBackdropColor(C.bgSide[1], C.bgSide[2], C.bgSide[3], panelAlpha)
+    RightSidebar:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustomBG and 0.25 or 0.8)
+
+    if SettingsPanel then
+        UpdateBD(SettingsPanel, 0.98)
+        SettingsPanel:SetBackdropColor(C.bgSide[1], C.bgSide[2], C.bgSide[3], panelAlpha)
+        SettingsPanel:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustomBG and 0.25 or 0.8)
+    end
+    if AboutPanel then
+        UpdateBD(AboutPanel, 0.98)
+        AboutPanel:SetBackdropColor(C.bgSide[1], C.bgSide[2], C.bgSide[3], panelAlpha)
+        AboutPanel:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustomBG and 0.25 or 0.8)
+    end
+    if GuideCardsPanel then
+        UpdateBD(GuideCardsPanel, 0.98)
+        GuideCardsPanel:SetBackdropColor(C.bgList[1], C.bgList[2], C.bgList[3], panelAlpha)
+        GuideCardsPanel:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustomBG and 0.25 or 0.8)
+        if GuideCardsPanel.titleFS then
+            GuideCardsPanel.titleFS:SetTextColor(C.gold[1], C.gold[2], C.gold[3])
+        end
+        if GuideCardsPanel.cards then
+            for _, card in ipairs(GuideCardsPanel.cards) do
+                card:SetBackdrop({
+                    bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
+                    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+                    tile = true, tileSize = 16,
+                    edgeSize = 12,
+                    insets = {left=3, right=3, top=3, bottom=3},
+                })
+                card:SetBackdropColor(C.bgDetail[1], C.bgDetail[2], C.bgDetail[3], isCustomBG and 0.15 or 0.98)
+                card:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustomBG and 0.4 or 0.8)
+                if card.title then
+                    card.title:SetTextColor(C.white[1], C.white[2], C.white[3])
+                end
+                if card.sub then
+                    card.sub:SetTextColor(C.dim[1], C.dim[2], C.dim[3])
+                end
+            end
+        end
+    end
+    if GuideLockPanel then
+        UpdateBD(GuideLockPanel, 0.98)
+        GuideLockPanel:SetBackdropColor(C.bgList[1], C.bgList[2], C.bgList[3], panelAlpha)
+        GuideLockPanel:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustomBG and 0.25 or 0.8)
+        if GuideLockPanel.title then
+            GuideLockPanel.title:SetTextColor(C.gold[1], C.gold[2], C.gold[3])
+        end
+        if GuideLockPanel.sub then
+            GuideLockPanel.sub:SetTextColor(C.white[1], C.white[2], C.white[3])
+        end
+    end
 
     -- Aplicar colores de texto de la barra de título
     MainFrame.titleText:SetTextColor(C.gold[1], C.gold[2], C.gold[3])
@@ -939,8 +1016,84 @@ local function UpdateDetailPanelAnchors()
         DetailPanel:SetPoint("BOTTOMRIGHT", RightSidebar, "BOTTOMLEFT", -6, 0)
     else
         RightSidebar:Hide()
-        DetailPanel:SetPoint("BOTTOMRIGHT", MainFrame, "BOTTOMRIGHT", -10, 10)
+        local ins = addon._inset or 10
+        DetailPanel:SetPoint("BOTTOMRIGHT", MainFrame, "BOTTOMRIGHT", -ins, ins)
     end
+end
+
+-- ============================================================
+--  MARCO TEMÁTICO 9-SLICE (texturas pintadas vía SetTexCoord)
+--  Recorta esquinas/bordes de una sola textura de marco y mete
+--  el contenido hacia adentro para que no se tape nada.
+-- ============================================================
+-- Fracción del marco que ocupa la esquina (x,y), por tema.
+local THEME_FRAC = {
+    blizzardclassic = {0.134, 0.371}, wrathclassic = {0.147, 0.396},
+    dragonflight = {0.114, 0.331}, modern = {0.109, 0.316},
+    warcraftlogs = {0.095, 0.293}, ascensionwow = {0.117, 0.320},
+}
+local THEME_BT = 44   -- grosor del marco en pantalla = inset del contenido
+
+function addon:SetPanelInset(inset)
+    addon._inset = inset
+    local f = MainFrame
+    if not f then return end
+    if f.titlebar then
+        f.titlebar:ClearAllPoints()
+        f.titlebar:SetPoint("TOPLEFT", f, "TOPLEFT", inset, -(inset + 2))
+        f.titlebar:SetPoint("TOPRIGHT", f, "TOPRIGHT", -inset, -(inset + 2))
+    end
+    if Sidenav then
+        Sidenav:ClearAllPoints()
+        Sidenav:SetPoint("TOPLEFT", f, "TOPLEFT", inset, -(inset + 28))
+        Sidenav:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", inset, inset)
+    end
+    for _, p in ipairs({ GuideCardsPanel, GuideLockPanel }) do
+        if p then
+            p:ClearAllPoints()
+            p:SetPoint("TOPLEFT", ListPanel, "TOPLEFT", 0, 0)
+            p:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -inset, inset)
+        end
+    end
+    UpdateDetailPanelAnchors()
+end
+
+function addon:ApplyThemeFrameBorder(key)
+    local f = MainFrame
+    if not f then return end
+    local fr = THEME_FRAC[key]
+    if not fr then
+        if f._themeBorder then f._themeBorder:Hide() end
+        return
+    end
+    local fx, fy = fr[1], fr[2]
+    local BT = THEME_BT
+    local tex = "Interface\\AddOns\\SKquests\\Media\\" .. key .. "_border"
+    local tb = f._themeBorder
+    if not tb then
+        tb = CreateFrame("Frame", nil, f)
+        tb:SetAllPoints(f); tb:EnableMouse(false)
+        tb:SetFrameLevel(f:GetFrameLevel() + 30)
+        tb._t = {}
+        for _, k in ipairs({ "tl","tr","bl","br","et","eb","el","er" }) do
+            tb._t[k] = tb:CreateTexture(nil, "ARTWORK")
+        end
+        f._themeBorder = tb
+    end
+    tb:Show()
+    local T = tb._t
+    for _, k in ipairs({ "tl","tr","bl","br","et","eb","el","er" }) do
+        T[k]:SetTexture(tex); T[k]:ClearAllPoints()
+    end
+    T.tl:SetTexCoord(0, fx, 0, fy);       T.tl:SetPoint("TOPLEFT", 0, 0);        T.tl:SetSize(BT, BT)
+    T.tr:SetTexCoord(1-fx, 1, 0, fy);     T.tr:SetPoint("TOPRIGHT", 0, 0);       T.tr:SetSize(BT, BT)
+    T.bl:SetTexCoord(0, fx, 1-fy, 1);     T.bl:SetPoint("BOTTOMLEFT", 0, 0);     T.bl:SetSize(BT, BT)
+    T.br:SetTexCoord(1-fx, 1, 1-fy, 1);   T.br:SetPoint("BOTTOMRIGHT", 0, 0);    T.br:SetSize(BT, BT)
+    T.et:SetTexCoord(fx, 1-fx, 0, fy);    T.et:SetPoint("TOPLEFT", BT, 0);   T.et:SetPoint("TOPRIGHT", -BT, 0);   T.et:SetHeight(BT)
+    T.eb:SetTexCoord(fx, 1-fx, 1-fy, 1);  T.eb:SetPoint("BOTTOMLEFT", BT, 0);T.eb:SetPoint("BOTTOMRIGHT", -BT, 0);T.eb:SetHeight(BT)
+    T.el:SetTexCoord(0, fx, fy, 1-fy);    T.el:SetPoint("TOPLEFT", 0, -BT);  T.el:SetPoint("BOTTOMLEFT", 0, BT);  T.el:SetWidth(BT)
+    T.er:SetTexCoord(1-fx, 1, fy, 1-fy);  T.er:SetPoint("TOPRIGHT", 0, -BT); T.er:SetPoint("BOTTOMRIGHT", 0, BT); T.er:SetWidth(BT)
+    return BT
 end
 
 -- ============================================================
@@ -1136,6 +1289,7 @@ function addon:CreateModernUI()
     titlebar:SetPoint("TOPLEFT", f, "TOPLEFT", 10, -8)
     titlebar:SetPoint("TOPRIGHT", f, "TOPRIGHT", -10, -8)
     titlebar:SetHeight(24)
+    f.titlebar = titlebar
 
     -- Logotipo de WoW en textura circular
     local logo = titlebar:CreateTexture(nil, "OVERLAY")
@@ -1620,15 +1774,24 @@ function addon:CreateModernUI()
             if not card then
                 card = CreateFrame("Button", nil, panel)
                 card:SetSize(CW, CH)
+                local isCustom = C.textures and C.textures.bg and (C.textures.bg:find("SKquests") or C.textures.bg:find("Media"))
                 ApplyBD(card, C.bgDetail, C.borderDim, 6)
+                card:SetBackdropColor(C.bgDetail[1], C.bgDetail[2], C.bgDetail[3], isCustom and 0.15 or 0.98)
+                card:SetBackdropBorderColor(C.borderDim[1], C.borderDim[2], C.borderDim[3], isCustom and 0.4 or 0.8)
                 card.title = card:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
                 card.title:SetPoint("TOPLEFT", 14, -12)
                 card.fac = card:CreateFontString(nil, "OVERLAY", "GameFontNormal")
                 card.fac:SetPoint("TOPLEFT", 14, -36)
                 card.sub = card:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
                 card.sub:SetPoint("BOTTOMLEFT", 14, 12)
-                card:SetScript("OnEnter", function(self) self:SetBackdropColor(C.bgHover[1], C.bgHover[2], C.bgHover[3], 1) end)
-                card:SetScript("OnLeave", function(self) self:SetBackdropColor(C.bgDetail[1], C.bgDetail[2], C.bgDetail[3], 1) end)
+                card:SetScript("OnEnter", function(self)
+                    local isCustom = C.textures and C.textures.bg and (C.textures.bg:find("SKquests") or C.textures.bg:find("Media"))
+                    self:SetBackdropColor(C.bgHover[1], C.bgHover[2], C.bgHover[3], isCustom and 0.35 or 1.0)
+                end)
+                card:SetScript("OnLeave", function(self)
+                    local isCustom = C.textures and C.textures.bg and (C.textures.bg:find("SKquests") or C.textures.bg:find("Media"))
+                    self:SetBackdropColor(C.bgDetail[1], C.bgDetail[2], C.bgDetail[3], isCustom and 0.15 or 0.98)
+                end)
                 panel.cards[i] = card
             end
             local row = math.floor((i - 1) / COLS)
@@ -1682,10 +1845,12 @@ function addon:CreateModernUI()
     lockText:SetPoint("TOP", lockIcon, "BOTTOM", 0, -14)
     lockText:SetText("Guías Pro bloqueadas")
     lockText:SetTextColor(C.gold[1], C.gold[2], C.gold[3])
+    GuideLockPanel.title = lockText
 
     local lockSub = GuideLockPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     lockSub:SetPoint("TOP", lockText, "BOTTOM", 0, -8)
     lockSub:SetText("Introduce tu código Pro para desbloquear las guías de leveo.")
+    GuideLockPanel.sub = lockSub
 
     local unlockBtn = CreateFrame("Button", nil, GuideLockPanel, "UIPanelButtonTemplate")
     unlockBtn:SetSize(170, 26)
@@ -4246,6 +4411,8 @@ function addon:SwitchTab(tabId)
     activeTab = tabId
 
     -- Paneles de guía Pro: ocultos salvo que la pestaña "guide" los active
+    if GuideCardsPanel then GuideCardsPanel:Hide() end
+    if GuideLockPanel then GuideLockPanel:Hide() end
     if addon.GuideCardsPanel then addon.GuideCardsPanel:Hide() end
     if addon.GuideLockPanel then addon.GuideLockPanel:Hide() end
 
@@ -4257,6 +4424,7 @@ function addon:SwitchTab(tabId)
             if ListPanel.guideFiltersFrame then ListPanel.guideFiltersFrame:Hide() end
             if addon.GuideLockPanel then addon.GuideLockPanel:Show() end
             if MainFrame and MainFrame.titleText then MainFrame.titleText:SetText("Guías (Pro)") end
+            addon:ApplyTheme()
             return
         elseif not addon.selectedGuideKey then
             SettingsPanel:Hide(); AboutPanel:Hide()
@@ -4267,6 +4435,7 @@ function addon:SwitchTab(tabId)
                 addon:RefreshGuideCards()
             end
             if MainFrame and MainFrame.titleText then MainFrame.titleText:SetText("Elige tu guía de leveo") end
+            addon:ApplyTheme()
             return
         end
         -- Pro desbloqueado + guía elegida: cae al flujo normal (panel de pasos)
