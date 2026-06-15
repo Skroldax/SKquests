@@ -55,7 +55,6 @@ Quest, NPC, and reward data are built from:
 - [pfQuest](https://github.com/shagu/pfQuest) — classic quest database client (included in `Media/db/`)
 - [AzerothCore](https://www.azerothcore.org/) — `quest_template` and 3.3.5a world databases
 - [Wowhead](https://www.wowhead.com/wotlk/) — chain, level, and reward validation (WotLK Classic version)
-- [Ascension Database](https://db.ascension.gg/) — custom quests and items from Project Ascension
 
 ## Changelog
 
@@ -63,8 +62,8 @@ See [CHANGELOG.md](CHANGELOG.md). This project follows [Semantic Versioning](htt
 
 ## Author
 
-**Skroldax** — Bronzebeard, Warcraft Reborn (Project Ascension).
+**Skroldax** 
 
 ## License
 
-Personal project in development. Leveling guides are based on public community classic routes; quest databases are sourced from the public repositories listed in [Data Sources](#data-sources).
+Personal project in development. Quest databases are sourced from the public repositories listed in [Data Sources](#data-sources).
