@@ -28,12 +28,7 @@ Leveling guide and quest database explorer addon for **World of Warcraft 3.3.5a*
 | Command | Action |
 |---|---|
 | `/skq` | Toggle UI window |
-| `/skq show` / `hide` | Show / Hide window |
-| `/skq next` / `prev` | Move to next / previous guide step |
-| `/skq step N` | Jump to step N |
-| `/skq guide Alliance\|Horde` | Switch guide faction |
 | `/skq lang enUS\|esES` | Switch language |
-| `/skq export` | Export progress |
 | `/skq help` | Show help |
 
 Settings (theme, opacity, language, window size) can be configured directly in the **Settings** tab within the UI.
