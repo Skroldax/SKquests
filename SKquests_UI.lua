@@ -4705,8 +4705,8 @@ function addon:RefreshList()
                 local act, lIdx = addon.Tracker:IsActive(q.name)
                 if act then
                     if addon.Tracker:IsComplete(lIdx) then
-                        btn.dot:SetText("+")
-                        btn.dot:SetTextColor(0.2, 0.9, 0.2)
+                        btn.dot:SetText("|TInterface\\Buttons\\UI-CheckBox-Check:14|t")
+                        btn.dot:SetTextColor(1, 1, 1)
                     else
                         btn.dot:SetText("-")
                         btn.dot:SetTextColor(0.9, 0.9, 0.2)
@@ -4754,8 +4754,8 @@ function addon:RefreshList()
                 btn.lvl:SetText(lvl > 0 and lvl or "")
                 
                 if entry.isComplete then
-                    btn.dot:SetText("+")
-                    btn.dot:SetTextColor(0.2, 0.9, 0.2)
+                    btn.dot:SetText("|TInterface\\Buttons\\UI-CheckBox-Check:14|t")
+                    btn.dot:SetTextColor(1, 1, 1)
                 else
                     btn.dot:SetText("-")
                     btn.dot:SetTextColor(0.9, 0.9, 0.2)
@@ -4989,7 +4989,7 @@ function addon:RefreshDetail()
                 local str = ""
                 for _, obj in ipairs(objs) do
                     local color = obj.done and "|cff00ff00" or "|cffffffff"
-                    local mark = "- "
+                    local mark = obj.done and "|TInterface\\Buttons\\UI-CheckBox-Check:14|t " or "- "
                     str = str .. color .. mark .. obj.text .. "|r\n"
                 end
                 ch.objSec.box.text:SetText(str)
@@ -5274,7 +5274,7 @@ function addon:RefreshDetail()
             local str = ""
             for _, obj in ipairs(objs) do
                 local color = obj.done and "|cff00ff00" or "|cffffffff"
-                local mark = "- "
+                local mark = obj.done and "|TInterface\\Buttons\\UI-CheckBox-Check:14|t " or "- "
                 str = str .. color .. mark .. obj.text .. "|r\n"
             end
             ch.objSec.box.text:SetText(str)
@@ -6388,8 +6388,8 @@ function addon:RefreshMiniTracker()
                     local color = obj.done and C.green or C.white
                     fs:SetTextColor(color[1], color[2], color[3])
                     
-                    -- Sin corchetes ni caracteres especiales propensos a fallar (estilo pfQuest limpio)
-                    local mark = "  "
+                    -- Usar la textura de checkmark oficial de WoW dentro del texto para evitar fallos de fuente
+                    local mark = obj.done and "|TInterface\\Buttons\\UI-CheckBox-Check:14|t " or "- "
                     fs:SetText("  " .. mark .. (obj.text or ""))
                     fs:SetPoint("TOPLEFT", content, "TOPLEFT", 18, yOffset)
                     fs:Show()

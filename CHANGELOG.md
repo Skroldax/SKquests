@@ -12,7 +12,8 @@ This project follows [Semantic Versioning](https://semver.org/) and [Keep a Chan
 - **New Themes:** Added several highly polished modern themes (ElvUI Clone, ElvUI Transparent, Discord Dark, Midnight Blue, Shadowlands) with curated colors, fonts, and dark mode aesthetics.
 
 ### Fixed
-- **Unicode Font Rendering:** Removed conflicting Unicode characters (like `✔`, `•`, `►`, `▼`) from the tracker and main UI detail panels that caused them to render as question marks (`?`) on some game clients lacking font support. Replaced them with clean spacing and safe ASCII characters (`+`, `-`, `>`, `v`).
+- **Unicode Font Rendering:** Removed conflicting Unicode characters (like `✔`, `•`, `►`, `▼`) from the tracker and main UI detail panels that caused them to render as question marks (`?`) on some game clients lacking font support. Replaced arrows with clean spacing and safe ASCII characters (`>`, `v`).
+- **Official Texture Integration:** Objectives and quest lists now use the official WoW golden checkmark graphic (`UI-CheckBox-Check`) rendered natively inside the text strings, completely eliminating missing font bugs for the completed ticket symbols while maintaining a premium look.
 - **Batch Copy Script:** Enhanced the `copy_addons.bat` script to use robust `xcopy` commands and proper error handling to ensure successful syncing to the game directory.
 
 ## [0.0.1-beta] - 2026-06-14
