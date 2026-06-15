@@ -28,12 +28,7 @@ Addon de guía de leveo y explorador de misiones para **World of Warcraft 3.3.5a
 | Comando | Acción |
 |---|---|
 | `/skq` | Abrir/cerrar la ventana |
-| `/skq show` / `hide` | Mostrar / ocultar |
-| `/skq next` / `prev` | Paso siguiente / anterior de la guía |
-| `/skq step N` | Ir al paso N |
-| `/skq guide Alliance\|Horde` | Cambiar facción de la guía |
 | `/skq lang enUS\|esES` | Cambiar idioma |
-| `/skq export` | Exportar progreso |
 | `/skq help` | Ayuda |
 
 Los ajustes (tema, opacidad, idioma, tamaño de ventana) están en la pestaña **Ajustes** de la propia interfaz.
