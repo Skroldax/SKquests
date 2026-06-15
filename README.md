@@ -1,76 +1,76 @@
 # SKquests
 
-Addon de guía de leveo y explorador de misiones para **World of Warcraft 3.3.5a** (WotLK), desarrollado para [Project Ascension](https://ascension.gg/) y compatible con cualquier servidor 3.3.5a.
+Leveling guide and quest database explorer addon for **World of Warcraft 3.3.5a** (WotLK), developed for [Project Ascension](https://ascension.gg/) and compatible with any 3.3.5a server.
 
-![Versión](https://img.shields.io/github/v/release/Skroldax/SKquests?include_prereleases&label=versi%C3%B3n&color=orange)
-![Interfaz](https://img.shields.io/badge/interfaz-30300-blue)
+![Version](https://img.shields.io/github/v/release/Skroldax/SKquests?include_prereleases&label=version&color=orange)
+![Interface](https://img.shields.io/badge/interface-30300-blue)
 
-## Características
+## Features
 
-- **Guía de leveo 1–60** paso a paso para Alianza y Horda, con objetivos detallados, coordenadas y mapa por paso.
-- **Explorador de misiones** con más de 5.000 quests: búsqueda por nombre, NPC o zona, filtros por nivel y zona.
-- **Visor de mapa interactivo** en el detalle de cada quest: zoom con la rueda (1x–3x), arrastre para desplazarse y clic para restablecer, sin desplazar el resto de la información.
-- **Pestaña de Zonas** con etiqueta de expansión (Vanilla/Custom), rango de niveles y conteo de quests por zona.
-- **Quest Log integrado** con seguimiento de objetivos en tiempo real.
-- **Recompensas** fijas y a elección por quest, con datos integrados también en la base de datos pfQuest incluida (`["rew"]` / `["rewc"]`).
-- **Cadenas de quests** (anterior/siguiente) y enlace directo a Wowhead.
-- **Interfaz bilingüe** español/inglés con cambio en vivo desde Ajustes.
-- **Temas** oscuro y claro (pergamino), ventana redimensionable y bloqueable.
+- **Leveling guide 1–60**: Step-by-step leveling routes for Alliance and Horde, complete with detailed objectives, coordinates, and custom maps per step.
+- **Quest database explorer**: Explore over 5,000 quests with name, NPC, or zone search, alongside level and zone filters.
+- **Interactive map viewer**: Seamless map preview inside the quest details panel, supporting wheel zoom (1x–3x), drag to pan, and click to reset, keeping the layout static.
+- **Zones tab**: Displaying expansion labels (Vanilla/Custom), level ranges, and total quests per zone.
+- **Integrated Tracker (Quest Log)**: Real-time quest objective tracking.
+- **Rewards**: Shows fixed and choice rewards per quest, with integrated items directly supported in the bundled pfQuest database (`["rew"]` / `["rewc"]`).
+- **Quest chains**: Links to previous/next quests in the chain and direct links to Wowhead.
+- **Bilingual Interface**: Seamlessly switch between Spanish and English in real-time from the Settings tab.
+- **Themes**: Elegant Dark and Light (parchment) themes, with a resizable and lockable window.
 
-## Instalación
+## Installation
 
-1. Descarga la última versión desde [Releases](../../releases).
-2. Extrae la carpeta `SKquests` en `Interface\AddOns\` de tu cliente 3.3.5a.
-3. Reinicia el cliente o ejecuta `/reload`.
+1. Download the latest release from [Releases](../../releases).
+2. Extract the `SKquests` folder into the `Interface\AddOns\` directory of your 3.3.5a client.
+3. Restart the client or run `/reload`.
 
-## Uso
+## Usage
 
-| Comando | Acción |
+| Command | Action |
 |---|---|
-| `/skq` | Abrir/cerrar la ventana |
-| `/skq show` / `hide` | Mostrar / ocultar |
-| `/skq next` / `prev` | Paso siguiente / anterior de la guía |
-| `/skq step N` | Ir al paso N |
-| `/skq guide Alliance\|Horde` | Cambiar facción de la guía |
-| `/skq lang enUS\|esES` | Cambiar idioma |
-| `/skq export` | Exportar progreso |
-| `/skq help` | Ayuda |
+| `/skq` | Toggle UI window |
+| `/skq show` / `hide` | Show / Hide window |
+| `/skq next` / `prev` | Move to next / previous guide step |
+| `/skq step N` | Jump to step N |
+| `/skq guide Alliance\|Horde` | Switch guide faction |
+| `/skq lang enUS\|esES` | Switch language |
+| `/skq export` | Export progress |
+| `/skq help` | Show help |
 
-Los ajustes (tema, opacidad, idioma, tamaño de ventana) están en la pestaña **Ajustes** de la propia interfaz.
+Settings (theme, opacity, language, window size) can be configured directly in the **Settings** tab within the UI.
 
-## Estructura del proyecto
+## Project Structure
 
 ```
 SKquests/
-├── SKquests.lua              # Núcleo: eventos, slash commands, estado
-├── SKquests_UI.lua           # Interfaz principal (ventana, tabs, visor de mapa)
-├── SKquests_Tracker.lua      # Seguimiento de quests activas
-├── SKquests_Config.lua       # Panel de configuración legado
-├── SKquests_Localization.lua # Textos EN/ES
-├── SKquests_DetailDB.lua     # Base de datos de quests (autogenerada)
-├── Alliance_1_60.lua         # Guía de leveo Alianza
-├── Horde_1_60.lua            # Guía de leveo Horda
-├── quest_origin_pfquest.lua  # Origen de cada quest (classic/tbc)
-└── Media/                    # Imágenes, logos y DB pfQuest
+├── SKquests.lua              # Core: events, slash commands, state
+├── SKquests_UI.lua           # Main UI window (tabs, layouts, interactive map)
+├── SKquests_Tracker.lua      # Active quest tracker
+├── SKquests_Config.lua       # Legacy config panel
+├── SKquests_Localization.lua # EN/ES translation strings
+├── SKquests_DetailDB.lua     # Quest database (auto-generated)
+├── Alliance_1_60.lua         # Alliance leveling guide
+├── Horde_1_60.lua            # Horde leveling guide
+├── quest_origin_pfquest.lua  # Quest expansion source (classic/tbc)
+└── Media/                    # Images, logos, and pfQuest DB
 ```
 
-## Fuentes de datos
+## Data Sources
 
-Los datos de misiones, NPCs y recompensas se construyen a partir de:
+Quest, NPC, and reward data are built from:
 
-- [pfQuest](https://github.com/shagu/pfQuest) — base de datos de quests para clientes clásicos (incluida en `Media/db/`)
-- [AzerothCore](https://www.azerothcore.org/) — `quest_template` y datos del mundo 3.3.5a
-- [Wowhead](https://www.wowhead.com/wotlk/) — verificación de cadenas, niveles y recompensas (versión WotLK Classic)
-- [Ascension Database](https://db.ascension.gg/) — quests e items custom de Project Ascension
+- [pfQuest](https://github.com/shagu/pfQuest) — classic quest database client (included in `Media/db/`)
+- [AzerothCore](https://www.azerothcore.org/) — `quest_template` and 3.3.5a world databases
+- [Wowhead](https://www.wowhead.com/wotlk/) — chain, level, and reward validation (WotLK Classic version)
+- [Ascension Database](https://db.ascension.gg/) — custom quests and items from Project Ascension
 
 ## Changelog
 
-Ver [CHANGELOG.md](CHANGELOG.md). El proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
+See [CHANGELOG.md](CHANGELOG.md). This project follows [Semantic Versioning](https://semver.org/).
 
-## Autor
+## Author
 
 **Skroldax** — Bronzebeard, Warcraft Reborn (Project Ascension).
 
-## Licencia
+## License
 
-Proyecto personal en desarrollo. Las guías de leveo se basan en rutas clásicas de la comunidad; los datos de quests provienen de las bases de datos públicas listadas en [Fuentes de datos](#fuentes-de-datos).
+Personal project in development. Leveling guides are based on public community classic routes; quest databases are sourced from the public repositories listed in [Data Sources](#data-sources).
