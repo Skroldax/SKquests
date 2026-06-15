@@ -236,8 +236,8 @@ local ZoneMapFolder = {
     [357]="Feralas",[361]="Felwood",[363]="ValleyOfTrials",[393]="Durotar",
     [400]="ThousandNeedles",[405]="Desolace",[406]="StonetalonMountains",
     [440]="Tanaris",[490]="UngoroCrater",[493]="Moonglade",[618]="Winterspring",
-    [702]="Teldrassil",[1377]="Silithus",[1497]="Undercity",[1519]="Stormwind",
-    [1537]="Ironforge",[1637]="Orgrimmar",[1638]="ThunderBluff",[1657]="Darnassus",
+    [702]="Teldrassil",[1377]="Silithus",[1497]="Undercity",[1519]="StormwindCity",
+    [1537]="Ironforge",[1637]="Ogrimmar",[1638]="ThunderBluff",[1657]="Darnassis",
     [2079]="Dustwallow",[2257]="StormwindCity",[2597]="AlteracValley",
     [2839]="AlteracValley",[3277]="WarsongGulch",[3358]="ArathiBasin",
 }
@@ -1461,7 +1461,7 @@ function addon:CreateModernUI()
     local logo = titlebar:CreateTexture(nil, "OVERLAY")
     logo:SetPoint("LEFT", 4, 0)
     logo:SetSize(22, 22)
-    logo:Hide()  -- logo solo en boton de minimapa, no en la barra
+    logo:SetTexture("Interface\\AddOns\\SKquests\\Media\\Logo.tga")
 
     local titleText = titlebar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     titleText:SetPoint("LEFT", logo, "RIGHT", 8, -1)
@@ -2764,8 +2764,6 @@ function addon:CreateModernUI()
             
             pin:SetScript("OnClick", function(self)
                 selectedQuestId = self.questId
-                local _zn = ZonesMapPanel and ZonesMapPanel.currentSelectedZoneId and GetZoneName(ZonesMapPanel.currentSelectedZoneId)
-                if _zn then selectedZoneFilter = _zn; BuildFilteredQuestIds() end
                 addon:SwitchTab("quests")
                 addon:SelectQuestById(self.questId)
                 PlaySound("igMainMenuOption")
@@ -2801,7 +2799,7 @@ function addon:CreateModernUI()
         -- Solo Azshara usa .tga (no tiene mapa nativo y su .tga sí renderiza).
         -- Cuando confirmemos por qué los .tga de base_maps no renderizan, se
         -- vuelven a añadir aquí para mapas completos sin niebla.
-        local CUSTOM_TGA = { Azshara = true }  -- Azshara usa su .tga restaurado
+        local CUSTOM_TGA = { }  -- Azshara: mapa nativo (su .tga se perdio)
         local function LoadZoneMapTextures(folder)
             ZonesMapPanel.customZoneMap = false
             if not folder then return false end
@@ -2873,97 +2871,65 @@ function addon:CreateModernUI()
             end
 
             local quests = CollectZoneQuests(ZonesMapPanel.currentSelectedZoneId)
-            local selZone = ZonesMapPanel.currentSelectedZoneId
-            local function PlaceQuestPin(qid, q, faction, cx, cy)
-                local pin = GetQuestPinFrame()
-                pin.questId = qid
-                pin.questName = GetLocalizedQuestName(q)
-                pin.level = q.level
-                pin.faction = faction
-                if q.giverId then
-                    pin.giverName = (q.giverType == "GO") and ObjectDisplayName(q.giverId) or UnitDisplayName(q.giverId)
-                else
-                    pin.giverName = nil
-                end
-                local isComplete = false
-                local isActive, logIdx = addon.Tracker:IsActive(q.name)
-                if isActive and addon.Tracker:IsComplete(logIdx) then
-                    isComplete = true
-                end
-                if isComplete then
-                    pin.tex:SetTexture("Interface\\GossipFrame\\ActiveQuestIcon")
-                    pin.glow:SetVertexColor(0.2, 0.9, 0.2, 0.8)
-                elseif isActive then
-                    pin.tex:SetTexture("Interface\\GossipFrame\\IncompleteQuestIcon")
-                    pin.glow:SetVertexColor(0.9, 0.9, 0.2, 0.8)
-                else
-                    pin.tex:SetTexture("Interface\\GossipFrame\\AvailableQuestIcon")
-                    if faction == "Alliance" then
-                        pin.glow:SetVertexColor(0.2, 0.5, 1.0, 0.8)
-                    elseif faction == "Horde" then
-                        pin.glow:SetVertexColor(1.0, 0.2, 0.2, 0.8)
-                    else
-                        pin.glow:SetVertexColor(1.0, 0.8, 0.2, 0.8)
-                    end
-                end
-                pin.relX = cx / 100
-                pin.relY = cy / 100
-                pin:Show()
-            end
-            local calibPts, pinnedQ = {}, {}
             for _, entry in ipairs(quests) do
                 local q = entry.q
+                local qid = entry.id
+                local faction = entry.faction
+                
                 local kind = (q.giverType == "GO") and "object" or "npc"
-                local coordsList = addon:CollectSpawnCoords(kind, q.giverId, selZone)
+                local coordsList = addon:CollectSpawnCoords(kind, q.giverId, ZonesMapPanel.currentSelectedZoneId)
+                
                 if coordsList and #coordsList > 0 then
                     local coord = coordsList[1]
                     local cx, cy, cz = coord[1], coord[2], coord[3]
-                    if cz and cz ~= selZone then
+                    
+                    if cz and cz ~= ZonesMapPanel.currentSelectedZoneId then
                         local czData = pfDB and pfDB["zones"] and pfDB["zones"]["data"] and pfDB["zones"]["data"][cz]
-                        if czData and czData[1] == selZone and czData[2] and czData[4] then
+                        if czData and czData[1] == ZonesMapPanel.currentSelectedZoneId and czData[2] and czData[4] then
                             local zw, zh, zx, zy = czData[2], czData[3], czData[4], czData[5]
                             cx = zx + (cx * zw / 100)
                             cy = zy + (cy * zh / 100)
                         end
                     end
-                    PlaceQuestPin(entry.id, q, entry.faction, cx, cy)
-                    pinnedQ[entry.id] = true
-                    if q.poiX and q.poiY then
-                        calibPts[#calibPts + 1] = { q.poiX, q.poiY, cx, cy }
+                    
+                    local pin = GetQuestPinFrame()
+                    pin.questId = qid
+                    pin.questName = GetLocalizedQuestName(q)
+                    pin.level = q.level
+                    pin.faction = faction
+                    
+                    if q.giverId then
+                        pin.giverName = (q.giverType == "GO") and ObjectDisplayName(q.giverId) or UnitDisplayName(q.giverId)
+                    else
+                        pin.giverName = nil
                     end
-                end
-            end
-            local ca, cb, cc, cd
-            local nC = #calibPts
-            if nC >= 2 then
-                local sY, smX, sYmX, sYY = 0, 0, 0, 0
-                local sX, smY, sXmY, sXX = 0, 0, 0, 0
-                for _, t in ipairs(calibPts) do
-                    local pX, pY, mX, mY = t[1], t[2], t[3], t[4]
-                    sY = sY + pY; smX = smX + mX; sYmX = sYmX + pY * mX; sYY = sYY + pY * pY
-                    sX = sX + pX; smY = smY + mY; sXmY = sXmY + pX * mY; sXX = sXX + pX * pX
-                end
-                local denY = nC * sYY - sY * sY
-                local denX = nC * sXX - sX * sX
-                if denY > 1e-6 or denY < -1e-6 then
-                    ca = (nC * sYmX - sY * smX) / denY
-                    cb = (smX - ca * sY) / nC
-                end
-                if denX > 1e-6 or denX < -1e-6 then
-                    cc = (nC * sXmY - sX * smY) / denX
-                    cd = (smY - cc * sX) / nC
-                end
-            end
-            if ca and cc then
-                for _, entry in ipairs(quests) do
-                    local q = entry.q
-                    if not pinnedQ[entry.id] and q.poiX and q.poiY then
-                        local px = ca * q.poiY + cb
-                        local py = cc * q.poiX + cd
-                        if px >= 0 and px <= 100 and py >= 0 and py <= 100 then
-                            PlaceQuestPin(entry.id, q, entry.faction, px, py)
+                    
+                    local isComplete = false
+                    local isActive, logIdx = addon.Tracker:IsActive(q.name)
+                    if isActive and addon.Tracker:IsComplete(logIdx) then
+                        isComplete = true
+                    end
+                    
+                    if isComplete then
+                        pin.tex:SetTexture("Interface\\GossipFrame\\ActiveQuestIcon")
+                        pin.glow:SetVertexColor(0.2, 0.9, 0.2, 0.8)
+                    elseif isActive then
+                        pin.tex:SetTexture("Interface\\GossipFrame\\IncompleteQuestIcon")
+                        pin.glow:SetVertexColor(0.9, 0.9, 0.2, 0.8)
+                    else
+                        pin.tex:SetTexture("Interface\\GossipFrame\\AvailableQuestIcon")
+                        if faction == "Alliance" then
+                            pin.glow:SetVertexColor(0.2, 0.5, 1.0, 0.8)
+                        elseif faction == "Horde" then
+                            pin.glow:SetVertexColor(1.0, 0.2, 0.2, 0.8)
+                        else
+                            pin.glow:SetVertexColor(1.0, 0.8, 0.2, 0.8)
                         end
                     end
+                    
+                    pin.relX = cx / 100
+                    pin.relY = cy / 100
+                    pin:Show()
                 end
             end
         end
@@ -3157,27 +3123,6 @@ function addon:CreateModernUI()
     questImgBox:SetBackdropBorderColor(0.5,0.4,0.3,0.5)
     questImgBox:EnableMouse(true)
     questImgBox:EnableMouseWheel(true)
-
-    -- Boton Inicio/Fin: alterna el mapa entre zona de inicio (giver) y fin (ender)
-    local seBtn = CreateFrame("Button", nil, dChild)
-    seBtn:SetFrameLevel(questImgBox:GetFrameLevel() + 40)
-    seBtn:SetSize(210, 22)
-    seBtn:SetPoint("TOPLEFT", questImgBox, "TOPLEFT", 6, -6)
-    seBtn:SetBackdrop({ bgFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 8, insets = {left=2,right=2,top=2,bottom=2} })
-    seBtn:SetBackdropColor(0, 0, 0, 0.75)
-    seBtn:SetBackdropBorderColor(1, 0.82, 0, 0.7)
-    seBtn:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight")
-    local seTxt = seBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    seTxt:SetPoint("LEFT", seBtn, "LEFT", 6, 0)
-    seTxt:SetTextColor(1, 0.82, 0)
-    seBtn.txt = seTxt
-    seBtn:Hide()
-    questImgBox.startEndArrow = seBtn
-    questImgBox.startEndLbl = seTxt
-    seBtn:SetScript("OnClick", function()
-        questImgBox.showEnd = not questImgBox.showEnd
-        if questImgBox.currentQuest then questImgBox:SetQuest(questImgBox.currentQuest) end
-    end)
 
     local imgClip = CreateFrame("ScrollFrame", nil, questImgBox)
     imgClip:SetPoint("TOPLEFT", 3, -3)
@@ -3418,7 +3363,6 @@ function addon:CreateModernUI()
     function questImgBox:SetQuest(q)
         if questImgBox.currentQuest ~= q then
             imgZoom = 1; imgOffX = 0; imgOffY = 0
-            questImgBox.showEnd = false
         end
         questImgBox.currentQuest = q
         for _, pin in ipairs(pinPool) do pin:Hide(); pin.relX = nil; pin.category = nil end
@@ -3429,51 +3373,28 @@ function addon:CreateModernUI()
             return c and c[3]
         end
 
+        local mapZone = q and q.zoneId
+        -- Subzonas de inicio -> usar el mapa PADRE (Teldrassil, Elwynn, etc.).
+        -- Los spawns de pfQuest ya están en coords del padre, así que se colocan
+        -- directos sin proyección (Shadowglen queda arriba-izquierda, etc.).
         local STARTING_PARENT = {
             [188] = 141, [9] = 12, [154] = 85, [220] = 215, [363] = 14, [132] = 1,
         }
-        -- Obtener la zona de inicio (usando la del Giver NPC si es posible, o cayendo al zoneId de la quest)
-        local mapZone = (q and q.giverId) and NpcZone(q.giverId) or nil
+        -- Solo las quests VANILLA usan el mapa padre (coords pfQuest directas).
+        -- Las custom (BronzebeardQuestChains) mantienen su subzona para cargar la
+        -- imagen de azerothhub y colocar el pin con sus coords directas.
         if mapZone and STARTING_PARENT[mapZone] and not (q and q.bqCoord) then
             mapZone = STARTING_PARENT[mapZone]
         end
-        local folder = mapZone and GetZoneMapFolder(mapZone)
-        if not folder then
-            mapZone = q and q.zoneId
-            if mapZone and STARTING_PARENT[mapZone] and not (q and q.bqCoord) then
-                mapZone = STARTING_PARENT[mapZone]
-            end
-            folder = mapZone and GetZoneMapFolder(mapZone)
-        end
-        if not folder then
-            mapZone = (q and q.enderId) and NpcZone(q.enderId) or nil
-            if mapZone and STARTING_PARENT[mapZone] then
-                mapZone = STARTING_PARENT[mapZone]
-            end
-            folder = mapZone and GetZoneMapFolder(mapZone)
-        end
         local originalMapZone = mapZone
+        local folder = mapZone and GetZoneMapFolder(mapZone)
+        if q and not folder then
+            -- la quest no tiene mapa propio: usar la zona del NPC de inicio/entrega
+            mapZone = NpcZone(q.giverId) or NpcZone(q.enderId)
+            originalMapZone = mapZone
+            folder = mapZone and GetZoneMapFolder(mapZone)
+        end
         _G.SKquests_UI_CurrentMapZone = mapZone
-        -- Inicio/Fin: alternar a la zona del ender si se apreto la flecha
-        local _endZone = (q and q.enderId) and NpcZone(q.enderId) or nil
-        if _endZone and STARTING_PARENT[_endZone] then _endZone = STARTING_PARENT[_endZone] end
-        local _hasTwo = mapZone and _endZone and _endZone ~= mapZone and GetZoneMapFolder(_endZone)
-        if _hasTwo and questImgBox.showEnd then
-            mapZone = _endZone
-            originalMapZone = _endZone
-            folder = GetZoneMapFolder(_endZone)
-            _G.SKquests_UI_CurrentMapZone = mapZone
-        end
-        if questImgBox.startEndArrow then
-            if _hasTwo then
-                questImgBox.startEndArrow:Show()
-                questImgBox.startEndLbl:Show()
-                questImgBox.startEndLbl:SetText((questImgBox.showEnd and (IsSpanish() and "Fin: " or "End: ") or (IsSpanish() and "Inicio: " or "Start: ")) .. (GetZoneName(mapZone) or "") .. (IsSpanish() and "  (clic: cambiar)" or "  (click: switch)"))
-            else
-                questImgBox.startEndArrow:Hide()
-                questImgBox.startEndLbl:Hide()
-            end
-        end
 
         local usedMap = false
         customMap = false
@@ -3685,9 +3606,9 @@ function addon:CreateModernUI()
             end
 
             local Palette = {
-                kill = { {1.0, 0.2, 0.2}, {0.9, 0.1, 0.3}, {1.0, 0.3, 0.0}, {0.8, 0.0, 0.0}, {1.0, 0.1, 0.6}, {0.9, 0.4, 0.4} },
+                kill = { {0.2, 1.0, 0.2}, {0.1, 0.8, 0.4}, {0.3, 0.9, 0.6}, {0.0, 0.7, 0.3}, {0.4, 1.0, 0.5}, {0.2, 0.6, 0.1} },
                 interact = { {1.0, 0.8, 0.1}, {1.0, 0.6, 0.0}, {0.9, 0.9, 0.3}, {1.0, 0.5, 0.1}, {1.0, 0.9, 0.5}, {0.8, 0.6, 0.1} },
-                gather = { {0.2, 1.0, 0.2}, {0.1, 0.8, 0.4}, {0.3, 0.9, 0.6}, {0.0, 0.7, 0.3}, {0.4, 1.0, 0.5}, {0.2, 0.6, 0.1} }
+                gather = { {1.0, 0.2, 0.2}, {0.9, 0.1, 0.3}, {1.0, 0.3, 0.0}, {0.8, 0.0, 0.0}, {1.0, 0.1, 0.6}, {0.9, 0.4, 0.4} }
             }
 
             local function AddObjectivePins(list, kind, category, roleTxt)
@@ -4924,7 +4845,7 @@ function addon:RefreshDetail()
         end
         ch.npcSec.grid.endCard.name:SetText(enderName)
 
-        ch.linkSec.box:SetText("https://db.ascension.gg/?quest=" .. q.id)
+        ch.linkSec.box:SetText(q.wowhead or "https://www.wowhead.com/wotlk/quest=" .. q.id)
 
         RightSidebar.rows.questId.val:SetText(q.id)
         local ml = tonumber(q.minLevel) or 0
@@ -4976,7 +4897,6 @@ function addon:RefreshDetail()
                 rwParts[#rwParts + 1] = "|cffffd200" .. finalXP .. " XP|r"
             end
         end
-        if SKquests_Marks and SKquests_Marks[q.id] then rwParts[#rwParts + 1] = "|cff66ccff" .. SKquests_Marks[q.id] .. " " .. (IsSpanish() and "Marcas de Ascension" or "Marks of Ascension") .. "|r" end
         local moneyStr = table.concat(rwParts, "   ")
         ch.rewardSec.moneyLbl:SetText(moneyStr)
 
@@ -5192,7 +5112,7 @@ function addon:RefreshDetail()
             end
             ch.npcSec.grid.endCard.name:SetText(enderName)
 
-            ch.linkSec.box:SetText("https://db.ascension.gg/?quest=" .. q.id)
+            ch.linkSec.box:SetText(q.wowhead or "https://www.wowhead.com/wotlk/quest=" .. q.id)
 
             RightSidebar.rows.questId.val:SetText(q.id)
             local ml = tonumber(q.minLevel) or 0
@@ -5250,7 +5170,6 @@ function addon:RefreshDetail()
                 end
             end
             
-            if SKquests_Marks and SKquests_Marks[q.id] then rwParts[#rwParts + 1] = "|cff66ccff" .. SKquests_Marks[q.id] .. " " .. (IsSpanish() and "Marcas de Ascension" or "Marks of Ascension") .. "|r" end
             local moneyStr = table.concat(rwParts, "   ")
             if ch.rewardSec.moneyLbl then
                 ch.rewardSec.moneyLbl:SetText(moneyStr)
@@ -5594,35 +5513,35 @@ function addon:SwitchTab(tabId)
     -- Paneles de guía Pro: ocultos salvo que la pestaña "guide" los active
     if GuideCardsPanel then GuideCardsPanel:Hide() end
     if GuideLockPanel then GuideLockPanel:Hide() end
-    if addon.GuideSoonPanel then addon.GuideSoonPanel:Hide() end
     if addon.GuideCardsPanel then addon.GuideCardsPanel:Hide() end
     if addon.GuideLockPanel then addon.GuideLockPanel:Hide() end
     if ZonesMapPanel then ZonesMapPanel:Hide() end
 
     -- Gating Pro de la pestaña Guía: candado (bloqueado) o rejilla (sin elegir)
     if tabId == "guide" then
-        SettingsPanel:Hide(); AboutPanel:Hide()
-        ListPanel:Hide(); DetailPanel:Hide(); RightSidebar:Hide()
-        if ListPanel.guideFiltersFrame then ListPanel.guideFiltersFrame:Hide() end
-        if ListPanel.zoneFiltersFrame then ListPanel.zoneFiltersFrame:Hide() end
-        
-        if not addon.GuideSoonPanel then
-            local gSoon = CreateFrame("Frame", nil, MainFrame)
-            gSoon:SetPoint("TOPLEFT", ListPanel, "TOPLEFT", 0, 0)
-            gSoon:SetPoint("BOTTOMRIGHT", MainFrame, "BOTTOMRIGHT", -10, 10)
-            ApplyBD(gSoon, C.bgList, C.borderDim, 8)
-            
-            local soonText = gSoon:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
-            soonText:SetPoint("CENTER", 0, 0)
-            soonText:SetText(IsSpanish() and "Próximamente en futuras actualizaciones" or "Coming soon in future updates")
-            soonText:SetTextColor(C.gold[1], C.gold[2], C.gold[3])
-            
-            addon.GuideSoonPanel = gSoon
+        if not addon:IsProUnlocked() then
+            SettingsPanel:Hide(); AboutPanel:Hide()
+            ListPanel:Hide(); DetailPanel:Hide(); RightSidebar:Hide()
+            if ListPanel.guideFiltersFrame then ListPanel.guideFiltersFrame:Hide() end
+            if ListPanel.zoneFiltersFrame then ListPanel.zoneFiltersFrame:Hide() end
+            if addon.GuideLockPanel then addon.GuideLockPanel:Show() end
+            if MainFrame and MainFrame.titleText then MainFrame.titleText:SetText("Guías (Pro)") end
+            addon:ApplyTheme()
+            return
+        elseif not addon.selectedGuideKey then
+            SettingsPanel:Hide(); AboutPanel:Hide()
+            ListPanel:Hide(); DetailPanel:Hide(); RightSidebar:Hide()
+            if ListPanel.guideFiltersFrame then ListPanel.guideFiltersFrame:Hide() end
+            if ListPanel.zoneFiltersFrame then ListPanel.zoneFiltersFrame:Hide() end
+            if addon.GuideCardsPanel then
+                addon.GuideCardsPanel:Show()
+                addon:RefreshGuideCards()
+            end
+            if MainFrame and MainFrame.titleText then MainFrame.titleText:SetText("Elige tu guía de leveo") end
+            addon:ApplyTheme()
+            return
         end
-        addon.GuideSoonPanel:Show()
-        if MainFrame and MainFrame.titleText then MainFrame.titleText:SetText(IsSpanish() and "Guías" or "Guides") end
-        addon:ApplyTheme()
-        return
+        -- Pro desbloqueado + guía elegida: cae al flujo normal (panel de pasos)
     end
 
     if tabId == "settings" then

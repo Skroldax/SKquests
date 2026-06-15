@@ -3,6 +3,20 @@
 All notable changes to SKquests will be documented in this file.
 This project follows [Semantic Versioning](https://semver.org/) and [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.0.1-beta] - 2026-06-14
+
+### Added
+- **Mensaje temporal en pestaña Guías**: Se implementó una pantalla con el mensaje "Próximamente en futuras actualizaciones" en la pestaña de Guías.
+- **Backups automáticos**: Creación de respaldos locales `.zip` de los archivos en funcionamiento.
+
+### Fixed
+- **Botón de inicio/fin de mapa superpuesto**: Se solucionó un problema de capas (strata/frame level) donde el botón de alternar mapa inicial/final se renderizaba por debajo de las texturas del mapa, haciéndose invisible. Ahora se asocia a `dChild` (hermano del mapa) y se dibuja correctamente al frente.
+- **Rutas de mapas de capitales**: Se corrigieron errores de escritura en los nombres de las carpetas de mapas de capitales (`StormwindCity` -> `Stormwind`, `Ogrimmar` -> `Orgrimmar`, `Darnassis` -> `Darnassus`) en `ZoneMapFolder` que causaban que los mapas salieran en blanco al alternar el destino.
+- **Detección de mapa de inicio por NPC Giver**: Se mejoró la lógica de detección del mapa inicial para usar la zona del NPC que entrega la misión en lugar del zoneId general, permitiendo que el botón de alternar mapa se muestre correctamente en misiones que inician y terminan en zonas distintas (ej. inicio en Ventormenta y entrega en Crestagrana).
+
+### Removed
+- **Limpieza de archivos innecesarios**: Eliminación de archivos residuales del repositorio (`.bak`, `.bak2`, `*_fixed.lua`, carpetas duplicadas de desarrollo y pruebas) para optimizar el tamaño de carga del Addon.
+
 ## [0.12.0-alpha] - 2026-06-13
 
 ### Added

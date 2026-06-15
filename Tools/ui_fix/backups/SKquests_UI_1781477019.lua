@@ -236,8 +236,8 @@ local ZoneMapFolder = {
     [357]="Feralas",[361]="Felwood",[363]="ValleyOfTrials",[393]="Durotar",
     [400]="ThousandNeedles",[405]="Desolace",[406]="StonetalonMountains",
     [440]="Tanaris",[490]="UngoroCrater",[493]="Moonglade",[618]="Winterspring",
-    [702]="Teldrassil",[1377]="Silithus",[1497]="Undercity",[1519]="Stormwind",
-    [1537]="Ironforge",[1637]="Orgrimmar",[1638]="ThunderBluff",[1657]="Darnassus",
+    [702]="Teldrassil",[1377]="Silithus",[1497]="Undercity",[1519]="StormwindCity",
+    [1537]="Ironforge",[1637]="Ogrimmar",[1638]="ThunderBluff",[1657]="Darnassis",
     [2079]="Dustwallow",[2257]="StormwindCity",[2597]="AlteracValley",
     [2839]="AlteracValley",[3277]="WarsongGulch",[3358]="ArathiBasin",
 }
@@ -2764,8 +2764,6 @@ function addon:CreateModernUI()
             
             pin:SetScript("OnClick", function(self)
                 selectedQuestId = self.questId
-                local _zn = ZonesMapPanel and ZonesMapPanel.currentSelectedZoneId and GetZoneName(ZonesMapPanel.currentSelectedZoneId)
-                if _zn then selectedZoneFilter = _zn; BuildFilteredQuestIds() end
                 addon:SwitchTab("quests")
                 addon:SelectQuestById(self.questId)
                 PlaySound("igMainMenuOption")
@@ -3158,27 +3156,6 @@ function addon:CreateModernUI()
     questImgBox:EnableMouse(true)
     questImgBox:EnableMouseWheel(true)
 
-    -- Boton Inicio/Fin: alterna el mapa entre zona de inicio (giver) y fin (ender)
-    local seBtn = CreateFrame("Button", nil, dChild)
-    seBtn:SetFrameLevel(questImgBox:GetFrameLevel() + 40)
-    seBtn:SetSize(210, 22)
-    seBtn:SetPoint("TOPLEFT", questImgBox, "TOPLEFT", 6, -6)
-    seBtn:SetBackdrop({ bgFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 8, insets = {left=2,right=2,top=2,bottom=2} })
-    seBtn:SetBackdropColor(0, 0, 0, 0.75)
-    seBtn:SetBackdropBorderColor(1, 0.82, 0, 0.7)
-    seBtn:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight")
-    local seTxt = seBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    seTxt:SetPoint("LEFT", seBtn, "LEFT", 6, 0)
-    seTxt:SetTextColor(1, 0.82, 0)
-    seBtn.txt = seTxt
-    seBtn:Hide()
-    questImgBox.startEndArrow = seBtn
-    questImgBox.startEndLbl = seTxt
-    seBtn:SetScript("OnClick", function()
-        questImgBox.showEnd = not questImgBox.showEnd
-        if questImgBox.currentQuest then questImgBox:SetQuest(questImgBox.currentQuest) end
-    end)
-
     local imgClip = CreateFrame("ScrollFrame", nil, questImgBox)
     imgClip:SetPoint("TOPLEFT", 3, -3)
     imgClip:SetPoint("BOTTOMRIGHT", -3, 3)
@@ -3418,7 +3395,6 @@ function addon:CreateModernUI()
     function questImgBox:SetQuest(q)
         if questImgBox.currentQuest ~= q then
             imgZoom = 1; imgOffX = 0; imgOffY = 0
-            questImgBox.showEnd = false
         end
         questImgBox.currentQuest = q
         for _, pin in ipairs(pinPool) do pin:Hide(); pin.relX = nil; pin.category = nil end
@@ -3429,51 +3405,28 @@ function addon:CreateModernUI()
             return c and c[3]
         end
 
+        local mapZone = q and q.zoneId
+        -- Subzonas de inicio -> usar el mapa PADRE (Teldrassil, Elwynn, etc.).
+        -- Los spawns de pfQuest ya están en coords del padre, así que se colocan
+        -- directos sin proyección (Shadowglen queda arriba-izquierda, etc.).
         local STARTING_PARENT = {
             [188] = 141, [9] = 12, [154] = 85, [220] = 215, [363] = 14, [132] = 1,
         }
-        -- Obtener la zona de inicio (usando la del Giver NPC si es posible, o cayendo al zoneId de la quest)
-        local mapZone = (q and q.giverId) and NpcZone(q.giverId) or nil
+        -- Solo las quests VANILLA usan el mapa padre (coords pfQuest directas).
+        -- Las custom (BronzebeardQuestChains) mantienen su subzona para cargar la
+        -- imagen de azerothhub y colocar el pin con sus coords directas.
         if mapZone and STARTING_PARENT[mapZone] and not (q and q.bqCoord) then
             mapZone = STARTING_PARENT[mapZone]
         end
-        local folder = mapZone and GetZoneMapFolder(mapZone)
-        if not folder then
-            mapZone = q and q.zoneId
-            if mapZone and STARTING_PARENT[mapZone] and not (q and q.bqCoord) then
-                mapZone = STARTING_PARENT[mapZone]
-            end
-            folder = mapZone and GetZoneMapFolder(mapZone)
-        end
-        if not folder then
-            mapZone = (q and q.enderId) and NpcZone(q.enderId) or nil
-            if mapZone and STARTING_PARENT[mapZone] then
-                mapZone = STARTING_PARENT[mapZone]
-            end
-            folder = mapZone and GetZoneMapFolder(mapZone)
-        end
         local originalMapZone = mapZone
+        local folder = mapZone and GetZoneMapFolder(mapZone)
+        if q and not folder then
+            -- la quest no tiene mapa propio: usar la zona del NPC de inicio/entrega
+            mapZone = NpcZone(q.giverId) or NpcZone(q.enderId)
+            originalMapZone = mapZone
+            folder = mapZone and GetZoneMapFolder(mapZone)
+        end
         _G.SKquests_UI_CurrentMapZone = mapZone
-        -- Inicio/Fin: alternar a la zona del ender si se apreto la flecha
-        local _endZone = (q and q.enderId) and NpcZone(q.enderId) or nil
-        if _endZone and STARTING_PARENT[_endZone] then _endZone = STARTING_PARENT[_endZone] end
-        local _hasTwo = mapZone and _endZone and _endZone ~= mapZone and GetZoneMapFolder(_endZone)
-        if _hasTwo and questImgBox.showEnd then
-            mapZone = _endZone
-            originalMapZone = _endZone
-            folder = GetZoneMapFolder(_endZone)
-            _G.SKquests_UI_CurrentMapZone = mapZone
-        end
-        if questImgBox.startEndArrow then
-            if _hasTwo then
-                questImgBox.startEndArrow:Show()
-                questImgBox.startEndLbl:Show()
-                questImgBox.startEndLbl:SetText((questImgBox.showEnd and (IsSpanish() and "Fin: " or "End: ") or (IsSpanish() and "Inicio: " or "Start: ")) .. (GetZoneName(mapZone) or "") .. (IsSpanish() and "  (clic: cambiar)" or "  (click: switch)"))
-            else
-                questImgBox.startEndArrow:Hide()
-                questImgBox.startEndLbl:Hide()
-            end
-        end
 
         local usedMap = false
         customMap = false
@@ -5594,35 +5547,35 @@ function addon:SwitchTab(tabId)
     -- Paneles de guía Pro: ocultos salvo que la pestaña "guide" los active
     if GuideCardsPanel then GuideCardsPanel:Hide() end
     if GuideLockPanel then GuideLockPanel:Hide() end
-    if addon.GuideSoonPanel then addon.GuideSoonPanel:Hide() end
     if addon.GuideCardsPanel then addon.GuideCardsPanel:Hide() end
     if addon.GuideLockPanel then addon.GuideLockPanel:Hide() end
     if ZonesMapPanel then ZonesMapPanel:Hide() end
 
     -- Gating Pro de la pestaña Guía: candado (bloqueado) o rejilla (sin elegir)
     if tabId == "guide" then
-        SettingsPanel:Hide(); AboutPanel:Hide()
-        ListPanel:Hide(); DetailPanel:Hide(); RightSidebar:Hide()
-        if ListPanel.guideFiltersFrame then ListPanel.guideFiltersFrame:Hide() end
-        if ListPanel.zoneFiltersFrame then ListPanel.zoneFiltersFrame:Hide() end
-        
-        if not addon.GuideSoonPanel then
-            local gSoon = CreateFrame("Frame", nil, MainFrame)
-            gSoon:SetPoint("TOPLEFT", ListPanel, "TOPLEFT", 0, 0)
-            gSoon:SetPoint("BOTTOMRIGHT", MainFrame, "BOTTOMRIGHT", -10, 10)
-            ApplyBD(gSoon, C.bgList, C.borderDim, 8)
-            
-            local soonText = gSoon:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
-            soonText:SetPoint("CENTER", 0, 0)
-            soonText:SetText(IsSpanish() and "Próximamente en futuras actualizaciones" or "Coming soon in future updates")
-            soonText:SetTextColor(C.gold[1], C.gold[2], C.gold[3])
-            
-            addon.GuideSoonPanel = gSoon
+        if not addon:IsProUnlocked() then
+            SettingsPanel:Hide(); AboutPanel:Hide()
+            ListPanel:Hide(); DetailPanel:Hide(); RightSidebar:Hide()
+            if ListPanel.guideFiltersFrame then ListPanel.guideFiltersFrame:Hide() end
+            if ListPanel.zoneFiltersFrame then ListPanel.zoneFiltersFrame:Hide() end
+            if addon.GuideLockPanel then addon.GuideLockPanel:Show() end
+            if MainFrame and MainFrame.titleText then MainFrame.titleText:SetText("Guías (Pro)") end
+            addon:ApplyTheme()
+            return
+        elseif not addon.selectedGuideKey then
+            SettingsPanel:Hide(); AboutPanel:Hide()
+            ListPanel:Hide(); DetailPanel:Hide(); RightSidebar:Hide()
+            if ListPanel.guideFiltersFrame then ListPanel.guideFiltersFrame:Hide() end
+            if ListPanel.zoneFiltersFrame then ListPanel.zoneFiltersFrame:Hide() end
+            if addon.GuideCardsPanel then
+                addon.GuideCardsPanel:Show()
+                addon:RefreshGuideCards()
+            end
+            if MainFrame and MainFrame.titleText then MainFrame.titleText:SetText("Elige tu guía de leveo") end
+            addon:ApplyTheme()
+            return
         end
-        addon.GuideSoonPanel:Show()
-        if MainFrame and MainFrame.titleText then MainFrame.titleText:SetText(IsSpanish() and "Guías" or "Guides") end
-        addon:ApplyTheme()
-        return
+        -- Pro desbloqueado + guía elegida: cae al flujo normal (panel de pasos)
     end
 
     if tabId == "settings" then

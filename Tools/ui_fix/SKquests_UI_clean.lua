@@ -236,8 +236,8 @@ local ZoneMapFolder = {
     [357]="Feralas",[361]="Felwood",[363]="ValleyOfTrials",[393]="Durotar",
     [400]="ThousandNeedles",[405]="Desolace",[406]="StonetalonMountains",
     [440]="Tanaris",[490]="UngoroCrater",[493]="Moonglade",[618]="Winterspring",
-    [702]="Teldrassil",[1377]="Silithus",[1497]="Undercity",[1519]="Stormwind",
-    [1537]="Ironforge",[1637]="Orgrimmar",[1638]="ThunderBluff",[1657]="Darnassus",
+    [702]="Teldrassil",[1377]="Silithus",[1497]="Undercity",[1519]="StormwindCity",
+    [1537]="Ironforge",[1637]="Ogrimmar",[1638]="ThunderBluff",[1657]="Darnassis",
     [2079]="Dustwallow",[2257]="StormwindCity",[2597]="AlteracValley",
     [2839]="AlteracValley",[3277]="WarsongGulch",[3358]="ArathiBasin",
 }
@@ -3159,7 +3159,8 @@ function addon:CreateModernUI()
     questImgBox:EnableMouseWheel(true)
 
     -- Boton Inicio/Fin: alterna el mapa entre zona de inicio (giver) y fin (ender)
-    local seBtn = CreateFrame("Button", nil, dChild)
+    local seBtn = CreateFrame("Button", nil, questImgBox)
+    seBtn:SetFrameStrata("HIGH")
     seBtn:SetFrameLevel(questImgBox:GetFrameLevel() + 40)
     seBtn:SetSize(210, 22)
     seBtn:SetPoint("TOPLEFT", questImgBox, "TOPLEFT", 6, -6)
@@ -3429,30 +3430,27 @@ function addon:CreateModernUI()
             return c and c[3]
         end
 
+        local mapZone = q and q.zoneId
+        -- Subzonas de inicio -> usar el mapa PADRE (Teldrassil, Elwynn, etc.).
+        -- Los spawns de pfQuest ya están en coords del padre, así que se colocan
+        -- directos sin proyección (Shadowglen queda arriba-izquierda, etc.).
         local STARTING_PARENT = {
             [188] = 141, [9] = 12, [154] = 85, [220] = 215, [363] = 14, [132] = 1,
         }
-        -- Obtener la zona de inicio (usando la del Giver NPC si es posible, o cayendo al zoneId de la quest)
-        local mapZone = (q and q.giverId) and NpcZone(q.giverId) or nil
+        -- Solo las quests VANILLA usan el mapa padre (coords pfQuest directas).
+        -- Las custom (BronzebeardQuestChains) mantienen su subzona para cargar la
+        -- imagen de azerothhub y colocar el pin con sus coords directas.
         if mapZone and STARTING_PARENT[mapZone] and not (q and q.bqCoord) then
             mapZone = STARTING_PARENT[mapZone]
         end
-        local folder = mapZone and GetZoneMapFolder(mapZone)
-        if not folder then
-            mapZone = q and q.zoneId
-            if mapZone and STARTING_PARENT[mapZone] and not (q and q.bqCoord) then
-                mapZone = STARTING_PARENT[mapZone]
-            end
-            folder = mapZone and GetZoneMapFolder(mapZone)
-        end
-        if not folder then
-            mapZone = (q and q.enderId) and NpcZone(q.enderId) or nil
-            if mapZone and STARTING_PARENT[mapZone] then
-                mapZone = STARTING_PARENT[mapZone]
-            end
-            folder = mapZone and GetZoneMapFolder(mapZone)
-        end
         local originalMapZone = mapZone
+        local folder = mapZone and GetZoneMapFolder(mapZone)
+        if q and not folder then
+            -- la quest no tiene mapa propio: usar la zona del NPC de inicio/entrega
+            mapZone = NpcZone(q.giverId) or NpcZone(q.enderId)
+            originalMapZone = mapZone
+            folder = mapZone and GetZoneMapFolder(mapZone)
+        end
         _G.SKquests_UI_CurrentMapZone = mapZone
         -- Inicio/Fin: alternar a la zona del ender si se apreto la flecha
         local _endZone = (q and q.enderId) and NpcZone(q.enderId) or nil
@@ -5594,35 +5592,35 @@ function addon:SwitchTab(tabId)
     -- Paneles de guía Pro: ocultos salvo que la pestaña "guide" los active
     if GuideCardsPanel then GuideCardsPanel:Hide() end
     if GuideLockPanel then GuideLockPanel:Hide() end
-    if addon.GuideSoonPanel then addon.GuideSoonPanel:Hide() end
     if addon.GuideCardsPanel then addon.GuideCardsPanel:Hide() end
     if addon.GuideLockPanel then addon.GuideLockPanel:Hide() end
     if ZonesMapPanel then ZonesMapPanel:Hide() end
 
     -- Gating Pro de la pestaña Guía: candado (bloqueado) o rejilla (sin elegir)
     if tabId == "guide" then
-        SettingsPanel:Hide(); AboutPanel:Hide()
-        ListPanel:Hide(); DetailPanel:Hide(); RightSidebar:Hide()
-        if ListPanel.guideFiltersFrame then ListPanel.guideFiltersFrame:Hide() end
-        if ListPanel.zoneFiltersFrame then ListPanel.zoneFiltersFrame:Hide() end
-        
-        if not addon.GuideSoonPanel then
-            local gSoon = CreateFrame("Frame", nil, MainFrame)
-            gSoon:SetPoint("TOPLEFT", ListPanel, "TOPLEFT", 0, 0)
-            gSoon:SetPoint("BOTTOMRIGHT", MainFrame, "BOTTOMRIGHT", -10, 10)
-            ApplyBD(gSoon, C.bgList, C.borderDim, 8)
-            
-            local soonText = gSoon:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
-            soonText:SetPoint("CENTER", 0, 0)
-            soonText:SetText(IsSpanish() and "Próximamente en futuras actualizaciones" or "Coming soon in future updates")
-            soonText:SetTextColor(C.gold[1], C.gold[2], C.gold[3])
-            
-            addon.GuideSoonPanel = gSoon
+        if not addon:IsProUnlocked() then
+            SettingsPanel:Hide(); AboutPanel:Hide()
+            ListPanel:Hide(); DetailPanel:Hide(); RightSidebar:Hide()
+            if ListPanel.guideFiltersFrame then ListPanel.guideFiltersFrame:Hide() end
+            if ListPanel.zoneFiltersFrame then ListPanel.zoneFiltersFrame:Hide() end
+            if addon.GuideLockPanel then addon.GuideLockPanel:Show() end
+            if MainFrame and MainFrame.titleText then MainFrame.titleText:SetText("Guías (Pro)") end
+            addon:ApplyTheme()
+            return
+        elseif not addon.selectedGuideKey then
+            SettingsPanel:Hide(); AboutPanel:Hide()
+            ListPanel:Hide(); DetailPanel:Hide(); RightSidebar:Hide()
+            if ListPanel.guideFiltersFrame then ListPanel.guideFiltersFrame:Hide() end
+            if ListPanel.zoneFiltersFrame then ListPanel.zoneFiltersFrame:Hide() end
+            if addon.GuideCardsPanel then
+                addon.GuideCardsPanel:Show()
+                addon:RefreshGuideCards()
+            end
+            if MainFrame and MainFrame.titleText then MainFrame.titleText:SetText("Elige tu guía de leveo") end
+            addon:ApplyTheme()
+            return
         end
-        addon.GuideSoonPanel:Show()
-        if MainFrame and MainFrame.titleText then MainFrame.titleText:SetText(IsSpanish() and "Guías" or "Guides") end
-        addon:ApplyTheme()
-        return
+        -- Pro desbloqueado + guía elegida: cae al flujo normal (panel de pasos)
     end
 
     if tabId == "settings" then

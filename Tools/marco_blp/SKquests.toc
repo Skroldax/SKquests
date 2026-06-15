@@ -1,7 +1,7 @@
 ## Interface: 30300
 ## Title: SKquests
 ## Author: Skroldax
-## Version: Beta 0.0.1
+## Version: Alpha 0.12.0
 ## SavedVariables: SKquestsDB
 
 SKquests_Localization.lua
@@ -25,4 +25,5 @@ SKquests_MinimapButton.lua
 SKquests_Rewards.lua
 SKquests_Themes.lua
 SKquests_ThemeEditor.lua
+SKquests_Marks.lua
 SKquests_UI.lua
