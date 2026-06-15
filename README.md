@@ -1,6 +1,6 @@
 # SKquests
 
-Leveling guide and quest database explorer addon for **World of Warcraft 3.3.5a** (WotLK), developed for [Project Ascension](https://ascension.gg/) and compatible with any 3.3.5a server.
+Quest database explorer addon for **World of Warcraft 3.3.5a** (WotLK), developed for [Project Ascension](https://ascension.gg/) and compatible with any 3.3.5a server.
 
 ![Version](https://img.shields.io/github/v/release/Skroldax/SKquests?include_prereleases&label=version&color=orange)
 ![Interface](https://img.shields.io/badge/interface-30300-blue)
