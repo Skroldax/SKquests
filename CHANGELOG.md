@@ -2,6 +2,18 @@
 
 All notable changes to SKquests will be documented in this file.
 This project follows [Semantic Versioning](https://semver.org/) and [Keep a Changelog](https://keepachangelog.com/).
+## [0.1.1-beta] - 2026-06-15
+
+### Added
+- **Interactive Mini-Tracker:** A new resizable, movable overlay tracker that displays active quests and objectives on your screen. Includes a corner drag handle for free resizing with dimensions that persist between sessions.
+- **Collapsible Objectives:** Individual quests in the tracker can be collapsed or expanded using the `>` and `v` toggle arrows to save screen space.
+- **Hover-to-Unlock Tracker:** The tracker's title bar and buttons auto-hide when locked for a fully immersive look, but reveal themselves temporarily when the mouse hovers over the top edge to easily allow unlocking or minimizing.
+- **Tracker Settings:** Added new configuration options in the main settings tab to limit the maximum number of tracked quests (slider) and a global toggle to show or hide all objectives.
+- **New Themes:** Added several highly polished modern themes (ElvUI Clone, ElvUI Transparent, Discord Dark, Midnight Blue, Shadowlands) with curated colors, fonts, and dark mode aesthetics.
+
+### Fixed
+- **Unicode Font Rendering:** Removed conflicting Unicode characters (like `✔`, `•`, `►`, `▼`) from the tracker and main UI detail panels that caused them to render as question marks (`?`) on some game clients lacking font support. Replaced them with clean spacing and safe ASCII characters (`+`, `-`, `>`, `v`).
+- **Batch Copy Script:** Enhanced the `copy_addons.bat` script to use robust `xcopy` commands and proper error handling to ensure successful syncing to the game directory.
 
 ## [0.0.1-beta] - 2026-06-14
 
