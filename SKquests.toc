@@ -2,7 +2,12 @@
 ## Title: SKquests
 ## Author: Skroldax
 ## Version: Beta 0.0.1
+## Notes: Leveling Guide & Quest Explorer Addon
+## Notes-esES: Addon de Guía de Leveo y Explorador de Misiones
+## Copyright: Copyright (c) 2026 Skroldax. All rights reserved.
+## License: GNU GPL v3
 ## SavedVariables: SKquestsDB
+
 
 SKquests_Localization.lua
 quest_origin_pfquest.lua
