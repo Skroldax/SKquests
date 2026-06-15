@@ -91,7 +91,7 @@ addon.Themes.Dragonflight = {
     name = "Dragonflight",
     key = "dragonflight",
     isEditable = true,
-    textures = { bg = "Interface\\AddOns\\SKquests\\Media\\dragonflight_bg.tga", border = "Interface\\AddOns\\SKquests\\Media\\dragonflight_border.blp" },
+    textures = { bg = Textures.Solid, border = "Interface\\AddOns\\SKquests\\Media\\dragonflight_border.blp" },
     colors = {
         bgPanel    = {0.20, 0.05, 0.05, 0.95},
         bgHover    = {0.30, 0.10, 0.10, 0.8},
@@ -107,7 +107,7 @@ addon.Themes.WrathClassic = {
     name = "Wrath Classic",
     key = "wrathclassic",
     isEditable = true,
-    textures = { bg = "Interface\\AddOns\\SKquests\\Media\\wrath_bg.tga", border = "Interface\\AddOns\\SKquests\\Media\\wrathclassic_border.blp" },
+    textures = { bg = Textures.Solid, border = "Interface\\AddOns\\SKquests\\Media\\wrathclassic_border.blp" },
     colors = {
         bgPanel    = {0.05, 0.10, 0.15, 0.95},
         bgHover    = {0.10, 0.20, 0.30, 0.6},

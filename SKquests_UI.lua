@@ -808,6 +808,19 @@ function addon:ApplyTheme()
         end
     end
 
+    -- Actualizar colores del Mini-Tracker (Estilo transparente sin bordes ni fondo, como pfQuest)
+    if SKquests_MiniTracker then
+        SKquests_MiniTracker:SetBackdrop(nil)
+        local header = SKquests_MiniTracker.header
+        if header then
+            header:SetBackdrop(nil)
+        end
+        if SKquests_MiniTracker.titleFS then
+            SKquests_MiniTracker.titleFS:SetTextColor(C.gold[1], C.gold[2], C.gold[3])
+        end
+        addon:RefreshMiniTracker()
+    end
+
     -- Forzar refresco visual
     addon:UpdateListRows()
     addon:RefreshDetail()
@@ -4222,19 +4235,94 @@ function addon:CreateModernUI()
         addon:UpdateResizeHandles()
     end)
 
+    -- ---- MINI-TRACKER CHECKBOX ----
+    local trackerBtn = CreateFrame("CheckButton", "SKquests_CB_showTracker", SettingsPanel, "UICheckButtonTemplate")
+    trackerBtn:SetPoint("TOPLEFT", 20, -110)
+    local trackerLabel = _G["SKquests_CB_showTrackerText"]
+    if trackerLabel then
+        RegLoc(trackerLabel, "SHOW_TRACKER")
+        table.insert(SettingsPanel.labels, trackerLabel)
+    end
+    trackerBtn:SetChecked(SKquestsDB and SKquestsDB.config and SKquestsDB.config.showTracker ~= false)
+    trackerBtn:SetScript("OnClick", function(self)
+        local show = self:GetChecked()
+        SKquests.config.showTracker = show
+        SKquestsDB.config.showTracker = show
+        if show then
+            if not SKquests_MiniTracker then
+                addon:CreateMiniTracker()
+            end
+            SKquests_MiniTracker:Show()
+            addon:RefreshMiniTracker()
+        else
+            if SKquests_MiniTracker then
+                SKquests_MiniTracker:Hide()
+            end
+        end
+    end)
+
     -- ---- SELECTOR DE TEMA Y EDITOR PRO ELIMINADOS (v0.9.0) ----
     -- Esta build usa solo la paleta oscura. El Modo Pro ahora protege
     -- las GUÍAS de leveo (no los temas). Se conserva un no-op por si
     -- alguna ruta antigua llama a RefreshThemeDropdown.
     function addon:RefreshThemeDropdown() end
 
+    -- ---- CONFIGURACIONES ADICIONALES DEL MINI-TRACKER ----
+    local trackerObjsBtn = CreateFrame("CheckButton", "SKquests_CB_trackerShowObjectives", SettingsPanel, "UICheckButtonTemplate")
+    trackerObjsBtn:SetPoint("TOPLEFT", 20, -140)
+    local trackerObjsLabel = _G["SKquests_CB_trackerShowObjectivesText"]
+    if trackerObjsLabel then
+        RegLoc(trackerObjsLabel, "TRACKER_SHOW_OBJS")
+        table.insert(SettingsPanel.labels, trackerObjsLabel)
+    end
+    trackerObjsBtn:SetChecked(SKquestsDB and SKquestsDB.config and SKquestsDB.config.trackerShowObjectives ~= false)
+    trackerObjsBtn:SetScript("OnClick", function(self)
+        local show = self:GetChecked()
+        SKquests.config.trackerShowObjectives = show
+        SKquestsDB.config.trackerShowObjectives = show
+        addon:RefreshMiniTracker()
+    end)
+
+    local limitLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    limitLbl:SetPoint("TOPLEFT", 20, -170)
+    RegLoc(limitLbl, "TRACKER_LIMIT")
+    table.insert(SettingsPanel.labels, limitLbl)
+
+    local limitSlider = CreateFrame("Slider", "SKquestsTrackerLimitSliderUI", SettingsPanel, "OptionsSliderTemplate")
+    limitSlider:SetPoint("TOPLEFT", 20, -195)
+    limitSlider:SetWidth(220)
+    limitSlider:SetMinMaxValues(1, 20)
+    local limitVal = SKquestsDB and SKquestsDB.config and SKquestsDB.config.trackerQuestLimit or 10
+    limitSlider:SetValue(limitVal)
+    limitSlider:SetValueStep(1)
+    
+    local limitLow = _G["SKquestsTrackerLimitSliderUILow"]
+    if limitLow then limitLow:SetText("1") end
+    local limitHigh = _G["SKquestsTrackerLimitSliderUIHigh"]
+    if limitHigh then limitHigh:SetText("20") end
+    local limitText = _G["SKquestsTrackerLimitSliderUIText"]
+    if limitText then
+        limitText:SetText(L("TRACKER_LIMIT") .. ": " .. limitVal)
+    end
+
+    limitSlider:SetScript("OnValueChanged", function(self, val)
+        val = math.floor(val)
+        SKquests.config.trackerQuestLimit = val
+        SKquestsDB.config.trackerQuestLimit = val
+        local sliderText = _G[self:GetName() .. "Text"]
+        if sliderText then
+            sliderText:SetText(L("TRACKER_LIMIT") .. ": " .. val)
+        end
+        addon:RefreshMiniTracker()
+    end)
+
     local opLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    opLbl:SetPoint("TOPLEFT", 20, -120)
+    opLbl:SetPoint("TOPLEFT", 20, -240)
     RegLoc(opLbl, "OPACITY_LBL")
     table.insert(SettingsPanel.labels, opLbl)
 
     local opSlider = CreateFrame("Slider", "SKquestsOpacitySliderUI", SettingsPanel, "OptionsSliderTemplate")
-    opSlider:SetPoint("TOPLEFT", 20, -145)
+    opSlider:SetPoint("TOPLEFT", 20, -265)
     opSlider:SetWidth(220)
     opSlider:SetMinMaxValues(20, 100)
     opSlider:SetValue((SKquestsDB and SKquestsDB.config and SKquestsDB.config.opacity or 0.9) * 100)
@@ -4260,7 +4348,7 @@ function addon:CreateModernUI()
 
     -- ---- IDIOMA ----
     local langLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    langLbl:SetPoint("TOPLEFT", 20, -190)
+    langLbl:SetPoint("TOPLEFT", 20, -310)
     RegLoc(langLbl, "LANGUAGE")
     table.insert(SettingsPanel.labels, langLbl)
 
@@ -4283,7 +4371,7 @@ function addon:CreateModernUI()
 
     -- ---- TEMA ----
     local themeLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    themeLbl:SetPoint("TOPLEFT", 20, -230)
+    themeLbl:SetPoint("TOPLEFT", 20, -350)
     RegLoc(themeLbl, "THEME_LBL")
     table.insert(SettingsPanel.labels, themeLbl)
 
@@ -4493,6 +4581,9 @@ function addon:CreateModernUI()
                 addon:UpdateListRows()
                 addon:RefreshDetail()
             end
+            if SKquests_MiniTracker and SKquests_MiniTracker:IsShown() then
+                addon:RefreshMiniTracker()
+            end
         end
     end
 
@@ -4504,6 +4595,11 @@ function addon:CreateModernUI()
             addon:RefreshDetail()
         end
     end)
+
+    -- Inicializar el Mini-Tracker si está habilitado en la configuración
+    if SKquestsDB and SKquestsDB.config and SKquestsDB.config.showTracker ~= false then
+        addon:CreateMiniTracker()
+    end
 end
 
 -- ============================================================
@@ -4609,10 +4705,10 @@ function addon:RefreshList()
                 local act, lIdx = addon.Tracker:IsActive(q.name)
                 if act then
                     if addon.Tracker:IsComplete(lIdx) then
-                        btn.dot:SetText("✔")
+                        btn.dot:SetText("+")
                         btn.dot:SetTextColor(0.2, 0.9, 0.2)
                     else
-                        btn.dot:SetText("●")
+                        btn.dot:SetText("-")
                         btn.dot:SetTextColor(0.9, 0.9, 0.2)
                     end
                 else
@@ -4658,10 +4754,10 @@ function addon:RefreshList()
                 btn.lvl:SetText(lvl > 0 and lvl or "")
                 
                 if entry.isComplete then
-                    btn.dot:SetText("✔")
+                    btn.dot:SetText("+")
                     btn.dot:SetTextColor(0.2, 0.9, 0.2)
                 else
-                    btn.dot:SetText("●")
+                    btn.dot:SetText("-")
                     btn.dot:SetTextColor(0.9, 0.9, 0.2)
                 end
 
@@ -4893,7 +4989,7 @@ function addon:RefreshDetail()
                 local str = ""
                 for _, obj in ipairs(objs) do
                     local color = obj.done and "|cff00ff00" or "|cffffffff"
-                    local mark = obj.done and "[✔] " or "[ ] "
+                    local mark = "- "
                     str = str .. color .. mark .. obj.text .. "|r\n"
                 end
                 ch.objSec.box.text:SetText(str)
@@ -5178,7 +5274,7 @@ function addon:RefreshDetail()
             local str = ""
             for _, obj in ipairs(objs) do
                 local color = obj.done and "|cff00ff00" or "|cffffffff"
-                local mark = obj.done and "[✔] " or "[ ] "
+                local mark = "- "
                 str = str .. color .. mark .. obj.text .. "|r\n"
             end
             ch.objSec.box.text:SetText(str)
@@ -5794,4 +5890,533 @@ SlashCmdList["SKQCALIB"] = function(msg)
     print(string.format("|cff00ff00Calibracion [%d]:|r w=%.2f, h=%.2f, x=%.2f, y=%.2f", mapZone, calib[1], calib[2], calib[3], calib[4]))
     if SKquests.RefreshMap then SKquests:RefreshMap() end
 end
+
+-- ============================================================
+--  INTERACTIVE MINI-TRACKER FEATURE IMPLEMENTATION
+-- ============================================================
+local titleButtons = {}
+local objectiveStrings = {}
+local expandButtons = {}
+
+function addon:ShowQuest(questId)
+    -- 1. Asegurar/mostrar ventana principal
+    addon:ShowFrame()
+    
+    -- 2. Buscar la quest en el quest log activo
+    local activeQuests = addon.Tracker and addon.Tracker:GetActiveQuests() or {}
+    local logIndex = nil
+    
+    -- Buscar por ID
+    for idx, entry in pairs(activeQuests) do
+        if entry.id == questId then
+            logIndex = idx
+            break
+        end
+    end
+    
+    -- Fallback: buscar por nombre coincidente
+    if not logIndex and SKquests_DetailDB then
+        local q = SKquests_DetailDB[questId]
+        local qTitle = q and q.name
+        if qTitle then
+            for idx, entry in pairs(activeQuests) do
+                if entry.title:lower() == qTitle:lower() then
+                    logIndex = idx
+                    break
+                end
+            end
+        end
+    end
+    
+    -- 3. Cambiar a la pestaña del Quest Log
+    addon:SwitchTab("questlog")
+    
+    if logIndex then
+        selectedQuestLogIdx = logIndex
+        selectedQuestId = nil
+        
+        -- Obtener lista ordenada alfabéticamente tal como se renderiza en la UI
+        local activeQuestsList = {}
+        for idx, entry in pairs(activeQuests) do
+            table.insert(activeQuestsList, { idx = idx, entry = entry })
+        end
+        table.sort(activeQuestsList, function(a, b)
+            local ta = a.entry.title or ""
+            local tb = b.entry.title or ""
+            return ta < tb
+        end)
+        
+        -- Buscar la posición en la lista ordenada
+        local listIndex = nil
+        for i, item in ipairs(activeQuestsList) do
+            if item.idx == logIndex then
+                listIndex = i
+                break
+            end
+        end
+        
+        -- Hacer scroll hasta la posición seleccionada
+        if listIndex and ListPanel and ListPanel.scroll then
+            local visibleRows = 18
+            local h = ListPanel.scroll:GetHeight()
+            if h and h > 0 then
+                visibleRows = math.min(MAX_ROWS, math.floor(h / ROW_H))
+                if visibleRows < 1 then visibleRows = 18 end
+            end
+            local offset = math.max(0, listIndex - math.floor(visibleRows / 2))
+            local maxOffset = math.max(0, #activeQuestsList - visibleRows)
+            if offset > maxOffset then offset = maxOffset end
+            FauxScrollFrame_SetOffset(ListPanel.scroll, offset)
+            local sbar = _G[ListPanel.scroll:GetName() .. "ScrollBar"]
+            if sbar then sbar:SetValue(offset * ROW_H) end
+        end
+    end
+    
+    -- 4. Actualizar filas y detalles
+    addon:UpdateListRows()
+    addon:RefreshDetail()
+end
+
+function addon:CreateMiniTracker()
+    if SKquests_MiniTracker then return end
+
+    local mt = CreateFrame("Frame", "SKquests_MiniTracker", UIParent)
+    mt:SetSize(SKquests.config.trackerWidth or 260, SKquests.config.trackerHeight or 300)
+    mt:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -200, -200)
+    mt:SetMovable(true)
+    mt:EnableMouse(true)
+    mt:SetClampedToScreen(true)
+    mt:RegisterForDrag("LeftButton")
+    mt:SetScript("OnDragStart", function(self)
+        if not SKquests.config.locked then
+            self:StartMoving()
+        end
+    end)
+    mt:SetScript("OnDragStop", function(self)
+        self:StopMovingOrSizing()
+        self:SetUserPlaced(true)
+    end)
+    
+    mt:SetResizable(true)
+    mt:SetMinResize(180, 80)
+    mt:SetMaxResize(400, 600)
+    mt:SetScript("OnSizeChanged", function(self, w, h)
+        if w and h and w > 0 and h > 0 then
+            SKquests.config.trackerWidth = w
+            SKquests.config.trackerHeight = h
+            SKquestsDB.config.trackerWidth = w
+            SKquestsDB.config.trackerHeight = h
+        end
+    end)
+    
+    -- Barra de cabecera (Header/Title bar) - Ajustado a todo el ancho (0, 0)
+    local header = CreateFrame("Frame", nil, mt)
+    header:SetHeight(24)
+    header:SetPoint("TOPLEFT", mt, "TOPLEFT", 0, 0)
+    header:SetPoint("TOPRIGHT", mt, "TOPRIGHT", 0, 0)
+    header:EnableMouse(true)
+    header:RegisterForDrag("LeftButton")
+    header:SetScript("OnDragStart", function(self)
+        if not SKquests.config.locked then
+            mt:StartMoving()
+        end
+    end)
+    header:SetScript("OnDragStop", function(self)
+        mt:StopMovingOrSizing()
+        mt:SetUserPlaced(true)
+    end)
+    mt.header = header
+    
+    local titleFS = header:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    titleFS:SetPoint("LEFT", header, "LEFT", 8, 0)
+    titleFS:SetText(L("TRACKER_TITLE"))
+    titleFS:SetShadowColor(0, 0, 0, 1)
+    titleFS:SetShadowOffset(1, -1)
+    mt.titleFS = titleFS
+    
+    -- Botón de minimizar
+    local minBtn = CreateFrame("Button", nil, header)
+    minBtn:SetSize(16, 16)
+    minBtn:SetPoint("RIGHT", header, "RIGHT", -6, 0)
+    
+    local minBtnTxt = minBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    minBtnTxt:SetAllPoints()
+    minBtnTxt:SetJustifyH("CENTER")
+    minBtnTxt:SetJustifyV("MIDDLE")
+    minBtn.txt = minBtnTxt
+    
+    minBtn:SetScript("OnClick", function()
+        local min = not SKquests.config.trackerMinimized
+        SKquests.config.trackerMinimized = min
+        SKquestsDB.config.trackerMinimized = min
+        addon:RefreshMiniTracker()
+    end)
+    mt.minBtn = minBtn
+
+    -- Botón de lock (Bloquear) - Texto "lock" o "unlock"
+    local lockBtn = CreateFrame("Button", nil, header)
+    lockBtn:SetSize(36, 16)
+    lockBtn:SetPoint("RIGHT", minBtn, "LEFT", -6, 0)
+    
+    local lockBtnTxt = lockBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    lockBtnTxt:SetAllPoints()
+    lockBtnTxt:SetJustifyH("RIGHT")
+    lockBtnTxt:SetJustifyV("MIDDLE")
+    lockBtn.txt = lockBtnTxt
+    
+    lockBtn:SetScript("OnClick", function()
+        local nextLockState = not SKquests.config.locked
+        SKquests.config.locked = nextLockState
+        SKquestsDB.config.locked = nextLockState
+        if SKquests_CB_lock then
+            SKquests_CB_lock:SetChecked(nextLockState)
+        end
+        if MainFrame then
+            MainFrame:SetMovable(not nextLockState)
+            MainFrame:SetResizable(not nextLockState)
+            addon:UpdateResizeHandles()
+        end
+        header:SetScript("OnUpdate", nil)
+        addon:RefreshMiniTracker()
+        if nextLockState then
+            SKquests:Print(IsSpanish() and "Tracker fijado. Pasa el cursor por arriba para desbloquear." or "Tracker locked. Hover top area to unlock.")
+        else
+            SKquests:Print(IsSpanish() and "Tracker desbloqueado." or "Tracker unlocked.")
+        end
+    end)
+    mt.lockBtn = lockBtn
+    
+    -- Efecto de hover inteligente cuando la ventana está bloqueada
+    header:SetScript("OnEnter", function(self)
+        if SKquests.config.locked then
+            self:SetScript("OnUpdate", function(sf, elapsed)
+                local mouseOver = sf:IsMouseOver() or (minBtn and minBtn:IsMouseOver()) or (lockBtn and lockBtn:IsMouseOver())
+                if mouseOver then
+                    -- Mostrar cabecera y controles
+                    sf:SetBackdrop({
+                        bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
+                        tile = true, tileSize = 16,
+                        insets = {left=0, right=0, top=0, bottom=0},
+                    })
+                    sf:SetBackdropColor(0, 0, 0, 0.7)
+                    if lockBtn then
+                        lockBtn.txt:SetText("unlock")
+                        lockBtn:Show()
+                    end
+                    if minBtn then minBtn:Show() end
+                    if mt.titleFS then mt.titleFS:Show() end
+                else
+                    -- Ocultar y detener actualización
+                    sf:SetBackdrop(nil)
+                    if lockBtn then lockBtn:Hide() end
+                    if minBtn then minBtn:Hide() end
+                    if mt.titleFS then mt.titleFS:Hide() end
+                    sf:SetScript("OnUpdate", nil)
+                end
+            end)
+        end
+    end)
+    
+    -- Botón de resize corner (esquina inferior derecha para arrastrar el tamaño)
+    local rb = CreateFrame("Button", nil, mt)
+    rb:SetSize(16, 16)
+    rb:SetPoint("BOTTOMRIGHT", mt, "BOTTOMRIGHT", 0, 0)
+    rb:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
+    rb:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
+    rb:SetScript("OnMouseDown", function(self, button)
+        mt:StartSizing("BOTTOMRIGHT")
+    end)
+    rb:SetScript("OnMouseUp", function(self, button)
+        mt:StopMovingOrSizing()
+        local w, h = mt:GetSize()
+        if w and h and w > 0 and h > 0 then
+            SKquests.config.trackerWidth = w
+            SKquests.config.trackerHeight = h
+            SKquestsDB.config.trackerWidth = w
+            SKquestsDB.config.trackerHeight = h
+        end
+    end)
+    mt.resizeBtn = rb
+    
+    -- Scroll Frame (sin scrollbar bulky) - Empieza justo abajo del header (-28)
+    local sf = CreateFrame("ScrollFrame", "SKquests_MiniTrackerScroll", mt)
+    sf:SetPoint("TOPLEFT", mt, "TOPLEFT", 8, -28)
+    sf:SetPoint("BOTTOMRIGHT", mt, "BOTTOMRIGHT", -8, 8)
+    mt.scrollFrame = sf
+    
+    local content = CreateFrame("Frame", "SKquests_MiniTrackerScrollContent", sf)
+    content:SetSize(244, 10)
+    sf:SetScrollChild(content)
+    mt.content = content
+    
+    -- Soporte para rueda de ratón (Mouse wheel scrolling)
+    sf:EnableMouseWheel(true)
+    sf:SetScript("OnMouseWheel", function(self, delta)
+        local cur = self:GetVerticalScroll()
+        local maxScroll = math.max(0, content:GetHeight() - self:GetHeight())
+        local newScroll = cur - delta * 20
+        if newScroll < 0 then newScroll = 0 end
+        if newScroll > maxScroll then newScroll = maxScroll end
+        self:SetVerticalScroll(newScroll)
+    end)
+    
+    -- Aplicar tema inicial
+    addon:ApplyTheme()
+    
+    if not SKquests.config.showTracker then
+        mt:Hide()
+    else
+        mt:Show()
+    end
+end
+
+function addon:RefreshMiniTracker()
+    if not SKquests_MiniTracker then return end
+    
+    local mt = SKquests_MiniTracker
+    local sf = mt.scrollFrame
+    local content = mt.content
+    local minBtn = mt.minBtn
+    local lockBtn = mt.lockBtn
+    local resizeBtn = mt.resizeBtn
+    local header = mt.header
+    local minBtnTxt = minBtn and minBtn.txt
+    
+    local isLocked = SKquests.config.locked
+    
+    -- Ajustar interactividad, fondos y visibilidad de controles según estado de bloqueo
+    if isLocked then
+        mt:SetBackdrop(nil)
+        if header then
+            header:SetBackdrop(nil)
+        end
+        if minBtn then minBtn:Hide() end
+        if lockBtn then lockBtn:Hide() end
+        if resizeBtn then resizeBtn:Hide() end
+        if mt.titleFS then mt.titleFS:Hide() end
+        mt:EnableMouse(false)
+        if header then header:EnableMouse(true) end
+    else
+        -- Fondo sutil semi-transparente para indicar que es arrastrable
+        mt:SetBackdrop({
+            bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
+            edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+            tile = true, tileSize = 16,
+            edgeSize = 8,
+            insets = {left=2, right=2, top=2, bottom=2},
+        })
+        mt:SetBackdropColor(0, 0, 0, 0.45)
+        mt:SetBackdropBorderColor(C.border[1], C.border[2], C.border[3], 0.6)
+        
+        if header then
+            header:SetBackdrop({
+                bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
+                edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+                tile = true, tileSize = 16,
+                edgeSize = 8,
+                insets = {left=2, right=2, top=2, bottom=2},
+            })
+            header:SetBackdropColor(C.bgDetail[1], C.bgDetail[2], C.bgDetail[3], 0.85)
+            header:SetBackdropBorderColor(C.border[1], C.border[2], C.border[3], 0.6)
+            header:EnableMouse(true)
+        end
+        if minBtn then minBtn:Show() end
+        if lockBtn then
+            lockBtn.txt:SetText("lock")
+            lockBtn:Show()
+        end
+        if resizeBtn then resizeBtn:Show() end
+        if mt.titleFS then mt.titleFS:Show() end
+        mt:EnableMouse(true)
+    end
+    
+    if minBtnTxt then
+        minBtnTxt:SetText(SKquests.config.trackerMinimized and "+" or "-")
+    end
+    
+    local trackerW = SKquests.config.trackerWidth or 260
+    local trackerH = SKquests.config.trackerHeight or 300
+    
+    if SKquests.config.trackerMinimized then
+        mt:SetSize(trackerW, 28)
+        sf:Hide()
+        return
+    else
+        mt:SetSize(trackerW, trackerH)
+        sf:Show()
+    end
+    
+    -- Ajustar dinámicamente el ancho del contenido del scroll
+    content:SetWidth(trackerW - 16)
+    
+    -- Ocultar elementos en pools
+    for _, btn in ipairs(titleButtons) do btn:Hide() end
+    for _, fs in ipairs(objectiveStrings) do fs:Hide() end
+    for _, exp in ipairs(expandButtons) do exp:Hide() end
+    
+    local activeQuests = addon.Tracker and addon.Tracker:GetActiveQuests()
+    if not activeQuests then return end
+    
+    local yOffset = -4
+    local titleCount = 0
+    local objCount = 0
+    local totalQuestsCount = 0
+    
+    local showObjs = SKquests.config.trackerShowObjectives ~= false
+    local questLimit = SKquests.config.trackerQuestLimit or 10
+    local questsDisplayed = 0
+    
+    -- Recorrer en orden del log de misiones para consistencia
+    for i = 1, 100 do
+        local entry = activeQuests[i]
+        if entry then
+            if questsDisplayed >= questLimit then
+                break
+            end
+            questsDisplayed = questsDisplayed + 1
+            totalQuestsCount = totalQuestsCount + 1
+            
+            local qKey = entry.id or entry.title
+            local isCollapsed = SKquests.config.trackerCollapsedQuests[qKey] == true
+            
+            -- Crear o recuperar botón de expandir/colapsar (► / ▼)
+            local objs = entry.objectives or {}
+            local hasObjs = #objs > 0
+            
+            local expBtn = expandButtons[totalQuestsCount]
+            if not expBtn then
+                expBtn = CreateFrame("Button", nil, content)
+                expBtn:SetSize(14, 14)
+                
+                local expTxt = expBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+                expTxt:SetAllPoints()
+                expTxt:SetJustifyH("CENTER")
+                expTxt:SetJustifyV("MIDDLE")
+                expBtn.txt = expTxt
+                
+                expandButtons[totalQuestsCount] = expBtn
+            end
+            
+            if showObjs and hasObjs then
+                expBtn:SetPoint("TOPLEFT", content, "TOPLEFT", 4, yOffset - 2)
+                expBtn.txt:SetText(isCollapsed and ">" or "v")
+                expBtn.txt:SetTextColor(C.gold[1], C.gold[2], C.gold[3])
+                expBtn:SetScript("OnClick", function()
+                    SKquests.config.trackerCollapsedQuests[qKey] = not isCollapsed
+                    SKquestsDB.config.trackerCollapsedQuests[qKey] = SKquests.config.trackerCollapsedQuests[qKey]
+                    addon:RefreshMiniTracker()
+                end)
+                expBtn:Show()
+            else
+                expBtn:Hide()
+            end
+            
+            -- Obtener o crear botón de título de la quest
+            titleCount = titleCount + 1
+            local btn = titleButtons[titleCount]
+            if not btn then
+                btn = CreateFrame("Button", nil, content)
+                btn:SetHeight(18)
+                
+                local txt = btn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+                txt:SetPoint("LEFT", btn, "LEFT", 2, 0)
+                txt:SetPoint("RIGHT", btn, "RIGHT", -2, 0)
+                txt:SetJustifyH("LEFT")
+                txt:SetShadowColor(0, 0, 0, 1)
+                txt:SetShadowOffset(1, -1)
+                btn.txt = txt
+                
+                titleButtons[titleCount] = btn
+            end
+            
+            -- Ajustar el ancho del botón según el tamaño dinámico del tracker
+            btn:SetWidth(trackerW - 36)
+            
+            -- Colores temáticos dinámicos
+            local normalColor = entry.isComplete and C.green or C.gold
+            btn.txt:SetTextColor(normalColor[1], normalColor[2], normalColor[3])
+            
+            btn:SetScript("OnEnter", function()
+                btn.txt:SetTextColor(1, 1, 1)
+            end)
+            btn:SetScript("OnLeave", function()
+                btn.txt:SetTextColor(normalColor[1], normalColor[2], normalColor[3])
+            end)
+            
+            local questId = entry.id or GetQuestIdByName(entry.title)
+            btn:SetScript("OnClick", function()
+                if questId then
+                    addon:ShowQuest(questId)
+                else
+                    addon:ShowFrame()
+                    addon:SwitchTab("questlog")
+                end
+            end)
+            
+            local titleText = string.format("[%d] %s", entry.level or 0, entry.title or "")
+            if entry.isComplete then
+                titleText = titleText .. " (" .. (IsSpanish() and "Completa" or "Complete") .. ")"
+            end
+            btn.txt:SetText(titleText)
+            
+            -- Si el arrow está visible, desfasar el título un poco a la derecha
+            if showObjs and hasObjs then
+                btn:SetPoint("TOPLEFT", content, "TOPLEFT", 18, yOffset)
+            else
+                btn:SetPoint("TOPLEFT", content, "TOPLEFT", 4, yOffset)
+            end
+            
+            btn:Show()
+            yOffset = yOffset - 18
+            
+            -- Dibujar objetivos si la quest no está colapsada y el toggle global está activo
+            if showObjs and not isCollapsed then
+                for _, obj in ipairs(objs) do
+                    objCount = objCount + 1
+                    local fs = objectiveStrings[objCount]
+                    if not fs then
+                        fs = content:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+                        fs:SetHeight(14)
+                        fs:SetShadowColor(0, 0, 0, 1)
+                        fs:SetShadowOffset(1, -1)
+                        objectiveStrings[objCount] = fs
+                    end
+                    
+                    fs:SetWidth(trackerW - 36)
+                    fs:SetJustifyH("LEFT")
+                    
+                    local color = obj.done and C.green or C.white
+                    fs:SetTextColor(color[1], color[2], color[3])
+                    
+                    -- Sin corchetes ni caracteres especiales propensos a fallar (estilo pfQuest limpio)
+                    local mark = "  "
+                    fs:SetText("  " .. mark .. (obj.text or ""))
+                    fs:SetPoint("TOPLEFT", content, "TOPLEFT", 18, yOffset)
+                    fs:Show()
+                    yOffset = yOffset - 14
+                end
+            end
+            
+            yOffset = yOffset - 4
+        end
+    end
+    
+    if totalQuestsCount == 0 then
+        if not mt.emptyFS then
+            mt.emptyFS = content:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+            mt.emptyFS:SetPoint("TOPLEFT", content, "TOPLEFT", 10, -10)
+            mt.emptyFS:SetPoint("RIGHT", content, "RIGHT", -10, 0)
+            mt.emptyFS:SetJustifyH("CENTER")
+            mt.emptyFS:SetShadowColor(0, 0, 0, 1)
+            mt.emptyFS:SetShadowOffset(1, -1)
+        end
+        mt.emptyFS:SetText(IsSpanish() and "No hay misiones activas" or "No active quests")
+        mt.emptyFS:Show()
+        content:SetHeight(40)
+    else
+        if mt.emptyFS then mt.emptyFS:Hide() end
+        content:SetHeight(math.abs(yOffset))
+    end
+end
+
 
