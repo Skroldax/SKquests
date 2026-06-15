@@ -7,7 +7,6 @@ Leveling guide and quest database explorer addon for **World of Warcraft 3.3.5a*
 
 ## Features
 
-- **Leveling guide 1–60**: Step-by-step leveling routes for Alliance and Horde, complete with detailed objectives, coordinates, and custom maps per step.
 - **Quest database explorer**: Explore over 5,000 quests with name, NPC, or zone search, alongside level and zone filters.
 - **Interactive map viewer**: Seamless map preview inside the quest details panel, supporting wheel zoom (1x–3x), drag to pan, and click to reset, keeping the layout static.
 - **Zones tab**: Displaying expansion labels (Vanilla/Custom), level ranges, and total quests per zone.
