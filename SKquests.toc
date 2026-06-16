@@ -1,5 +1,5 @@
 ## Interface: 30300
-## Title: SKquests
+## Title: SKquests (WotLK Classic)
 ## Author: Skroldax
 ## Version: Beta 0.0.1
 ## Notes: Leveling Guide & Quest Explorer Addon
@@ -12,7 +12,6 @@
 SKquests_Localization.lua
 quest_origin_pfquest.lua
 Media\db\units.lua
-Media\db\units-ascension.lua
 Media\db\esES\quests.lua
 Media\db\esES\zones.lua
 SKquests_DetailDB.lua

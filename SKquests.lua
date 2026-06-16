@@ -34,14 +34,20 @@ local defaults = {
         language     = "enUS",
     },
     config = {
-        showTitle          = true,
-        showImage          = true,
-        imageSize          = "medium",
-        textSize           = "normal",
-        opacity            = 0.9,
-        frameColor         = { r=0, g=0, b=0 },
-        autoMinimize       = false,
-        questieIntegration = true,
+        showTitle              = true,
+        showImage              = true,
+        imageSize              = "medium",
+        textSize               = "normal",
+        opacity                = 0.9,
+        frameColor             = { r=0, g=0, b=0 },
+        autoMinimize           = false,
+        questieIntegration     = true,
+        showTracker            = true,
+        trackerMinimized       = false,
+        trackerShowObjectives  = true,
+        trackerQuestLimit      = 10,
+        trackerWidth           = 260,
+        trackerHeight          = 300,
     }
 }
 
@@ -68,6 +74,7 @@ local function InitializeDB()
     if not SKquestsDB.questIds           then SKquestsDB.questIds           = {} end
     if not SKquestsDB.completedQuests    then SKquestsDB.completedQuests    = {} end
     if not SKquestsDB.activeQuests       then SKquestsDB.activeQuests       = {} end
+    if not SKquestsDB.config.trackerCollapsedQuests then SKquestsDB.config.trackerCollapsedQuests = {} end
 
     for k,v in pairs(defaults.profile) do
         if SKquestsDB.profile[k] == nil then SKquestsDB.profile[k] = v end
@@ -78,6 +85,7 @@ local function InitializeDB()
 
     SKquests.db              = SKquestsDB.profile
     SKquests.config          = SKquestsDB.config
+    SKquests.config.trackerCollapsedQuests = SKquestsDB.config.trackerCollapsedQuests
     SKquests.questIds        = SKquestsDB.questIds
     SKquests.completedQuests = SKquestsDB.completedQuests
     SKquests.activeQuests    = SKquestsDB.activeQuests
@@ -260,6 +268,7 @@ local function PrintHelp()
     SKquests:Print("  /skq export      - Exportar progreso para la web")
     SKquests:Print('  /skq setid "Nombre" ID')
     SKquests:Print("  /skq lang enUS|esES")
+    SKquests:Print("  /skq tracker     - Mostrar/ocultar Mini-Tracker")
     SKquests:Print("  /skq help        - Esta ayuda")
 end
 
@@ -337,6 +346,26 @@ SlashCmdList["SKQUESTS"] = function(msg)
         else SKquests:Print("Uso: /skq guide Alliance|Horde") end
     elseif cmd == "export" then
         SKquests:ExportToChat()
+    elseif cmd == "tracker" then
+        local show = not SKquests.config.showTracker
+        SKquests.config.showTracker = show
+        SKquestsDB.config.showTracker = show
+        if show then
+            if not SKquests_MiniTracker then
+                SKquests:CreateMiniTracker()
+            end
+            SKquests_MiniTracker:Show()
+            SKquests:RefreshMiniTracker()
+            SKquests:Print(SKquests_Localization and SKquests_Localization.currentLanguage == "esES" and "Mini-Tracker mostrado." or "Mini-Tracker shown.")
+        else
+            if SKquests_MiniTracker then
+                SKquests_MiniTracker:Hide()
+            end
+            SKquests:Print(SKquests_Localization and SKquests_Localization.currentLanguage == "esES" and "Mini-Tracker ocultado." or "Mini-Tracker hidden.")
+        end
+        if SKquests_CB_showTracker then
+            SKquests_CB_showTracker:SetChecked(show)
+        end
     elseif cmd == "setid"  then
         local name, id = rest:match('^"([^"]+)"%s+(%d+)$')
         if not name then

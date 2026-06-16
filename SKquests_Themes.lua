@@ -91,7 +91,7 @@ addon.Themes.Dragonflight = {
     name = "Dragonflight",
     key = "dragonflight",
     isEditable = true,
-    textures = { bg = "Interface\\AddOns\\SKquests\\Media\\dragonflight_bg.tga", border = "Interface\\AddOns\\SKquests\\Media\\dragonflight_border.blp" },
+    textures = { bg = Textures.Solid, border = "Interface\\AddOns\\SKquests\\Media\\dragonflight_border.blp" },
     colors = {
         bgPanel    = {0.20, 0.05, 0.05, 0.95},
         bgHover    = {0.30, 0.10, 0.10, 0.8},
@@ -107,7 +107,7 @@ addon.Themes.WrathClassic = {
     name = "Wrath Classic",
     key = "wrathclassic",
     isEditable = true,
-    textures = { bg = "Interface\\AddOns\\SKquests\\Media\\wrath_bg.tga", border = "Interface\\AddOns\\SKquests\\Media\\wrathclassic_border.blp" },
+    textures = { bg = Textures.Solid, border = "Interface\\AddOns\\SKquests\\Media\\wrathclassic_border.blp" },
     colors = {
         bgPanel    = {0.05, 0.10, 0.15, 0.95},
         bgHover    = {0.10, 0.20, 0.30, 0.6},
@@ -151,21 +151,7 @@ addon.Themes.WarcraftLogs = {
     metrics = { borderSize = 32, padding = 8 },
 }
 
-addon.Themes.AscensionWoW = {
-    name = "Ascension WoW",
-    key = "ascensionwow",
-    isEditable = true,
-    textures = { bg = "Interface\\AddOns\\SKquests\\Media\\ascension_bg.tga", border = "Interface\\AddOns\\SKquests\\Media\\ascensionwow_border.blp" },
-    colors = {
-        bgPanel    = {0.18, 0.14, 0.08, 0.98},
-        bgHover    = {0.28, 0.22, 0.14, 0.80},
-        border     = {0.40, 0.32, 0.20, 1.0},
-        textNormal = {0.90, 0.84, 0.74},
-        textTitle  = {0.82, 0.62, 0.23},
-        accent     = {0.82, 0.62, 0.23},
-    },
-    metrics = { borderSize = 32, padding = 8 },
-}
+-- [WotLK Classic] AscensionWoW theme removed
 
 -- índice por clave de config
 addon.ThemesByKey = {
@@ -176,11 +162,10 @@ addon.ThemesByKey = {
     wrathclassic    = addon.Themes.WrathClassic,
     modern          = addon.Themes.Modern,
     warcraftlogs    = addon.Themes.WarcraftLogs,
-    ascensionwow    = addon.Themes.AscensionWoW,
 }
 
 -- Orden de temas extra para el desplegable
-addon.ThemeOrder = { "elvuidark", "minimaldark", "blizzardclassic", "dragonflight", "wrathclassic", "modern", "warcraftlogs", "ascensionwow" }
+addon.ThemeOrder = { "elvuidark", "minimaldark", "blizzardclassic", "dragonflight", "wrathclassic", "modern", "warcraftlogs" }
 
 -- Fallback del sistema Pro (build público sin SKquests_ProCodes.lua):
 -- bloqueado por defecto. SKquests_ProCodes.lua (privado) se carga DESPUÉS
