@@ -3,6 +3,110 @@
 All notable changes to SKquests will be documented in this file.
 This project follows [Semantic Versioning](https://semver.org/) and [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.5.12-beta] - 2026-06-18
+
+### Added
+- **Filtro de Zona Actual en Tracker**: nueva opción en ajustes para que el Mini-Tracker filtre automáticamente las misiones y muestre solo las que pertenecen a tu zona actual.
+- **Botón Profesiones/Clases en Zonas**: nuevo botón en la lista de Zonas para filtrar misiones especiales de Clases, Profesiones o Eventos del Mundo.
+
+### Changed
+- **Visualización del Quest Log**: se ha reestructurado el panel del Quest Log para agrupar las misiones por zona con encabezados colapsables, imitando el diseño clásico de WoW.
+- **Traducción de Zonas Especiales**: las zonas especiales (mazmorras, profesiones, clases) ahora muestran nombres localizados correctos (ej. "Herrería", "Mago") en lugar de su código interno.
+
+### Fixed
+- **Filtro de Nivel (UI)**: solucionado el problema visual donde la lista de misiones se solapaba y cortaba las cajas de texto del filtro de nivel.
+
+## [0.5.11-beta] - 2026-06-17
+
+### Added
+- **Tiempo estimado al siguiente nivel (F1)**: en la pestaña **Sesión** del Tasador de XP se muestra el porcentaje del nivel actual, la XP que falta y el **tiempo estimado** para subir, calculado con tu **XP/h real** (ritmo en vivo tras 1 min de sesión, o el de la última sesión). No calcula nada si aún no hay XP/h.
+- **Estadísticas globales persistentes (F4)**: nueva pestaña **Stats** con totales del personaje que se guardan entre sesiones: tiempo jugado, quests completadas y abandonadas, mobs asesinados, XP obtenida, niveles ganados, oro obtenido y muertes. Incluye botón para **reiniciar** las estadísticas.
+- **Análisis de tiempo perdido (F8)**: nueva pestaña **Tiempo** que reparte tu sesión por estado (questing, combate, viaje, vuelo, ciudad, AFK, muerto) con porcentaje y duración, para ver en qué se va el tiempo.
+- **Buscador de NPCs (F6)**: nueva pestaña **NPCs**. El addon registra de forma pasiva los NPCs que targeteas o sobre los que pasas el cursor (nombre, zona y coordenadas) y luego puedes **buscarlos por nombre**.
+- **Mob Inspector (F9)**: nueva pestaña **Mobs** con los mobs que has matado: número de kills y **XP media** por kill. Al pasar el cursor sobre un mob se muestra su **loot observado** con porcentajes (medido de tus propios saqueos, sin bases externas).
+- **"Worth It?" en Quests (F11)**: cada quest de la pestaña **Quests** lleva un **punto de color** según su eficiencia (XP/min) y, al pasar el cursor, un tooltip con XP total, tiempo medio, XP/min y clasificación.
+
+### Notas
+- Todas las funciones son **modulares** y se basan solo en la **observación real** del juego (eventos), sin Wowhead/Questie ni dependencias externas. Compatible con WotLK Classic 3.3.5a.
+
+## [0.5.10-beta] - 2026-06-17
+
+### Changed
+- **Pestaña Botín** ahora muestra el desglose como en el ejemplo pedido: bajo el nombre del objeto, una lista **Zona → Cantidad** ordenada de mayor a menor (ej: Westfall: 120, Darkshore: 75, Redridge: 43), con encabezados de columna **Zona / Cantidad** y la zona top resaltada arriba.
+
+### Fixed
+- **Botón Limpiar** ahora funciona de forma clara: deja de trackear el objeto activo, borra sus datos y vacía el buscador, volviendo al estado inicial.
+
+## [0.5.9-beta] - 2026-06-17
+
+### Added
+- **Rastreador de botín (loot) por nombre**: nueva pestaña **Botín** en la ventana del Tasador de XP. Escribe el nombre de un objeto **en inglés** (ej: `Linen Cloth`) en el buscador y pulsa **Trackear**: desde ese momento se cuenta cada vez que lo recoges y se reparte **por zona** para ver dónde lo farmeas más. Muestra el total recogido, la zona donde más cae, y una lista de zonas ordenada de mayor a menor con su porcentaje. Botón **Limpiar** para reiniciar los datos del objeto activo. Es un **buscador por nombre**, no una lista desplegable.
+
+## [0.5.8-beta] - 2026-06-17
+
+### Changed
+- **XP/hora ahora es un cálculo real al finalizar la sesión**: se quitó el número de XP/h "en vivo" del centro de la ventana (era irreal: al empezar la sesión, con poco tiempo, daba cifras enormes y volátiles). Ahora la cabecera muestra la **XP total** ganada y el **tiempo**, y el **XP/hora** se muestra como el promedio de la **última sesión terminada** (XP total ÷ tiempo). Cada sesión guarda su XP/h al iniciar una nueva o al **cerrar el juego** (visible también en la pestaña Historial).
+
+## [0.5.7-beta] - 2026-06-17
+
+### Changed
+- **Ventana del XP Appraiser ahora compacta por defecto**: al abrirse muestra una **vista reducida y acotada** con lo esencial — **XP/hora, XP total y tiempo** de la sesión (más el estado: Activo/Pausa/OFF). Con el botón **+** se **expande a la pestaña grande** (estilo FonzAppraiser) con todo el detalle: Sesión, Zonas, Quests e Historial. El botón **-** la vuelve a contraer, y recuerda en qué modo quedó.
+- **Opacidad ajustable de la ventana del XP**: nuevo **deslizador de opacidad** (20%–100%) en la sección "XP Appraiser" del panel de Ajustes para regular la transparencia de la ventana del medidor de forma independiente a la ventana principal.
+
+## [0.5.6-beta] - 2026-06-17
+
+### Changed
+- **Ventana del XP Appraiser ahora con estilo del tracker**: se le añadió un **botón de minimizar** (junto al de cerrar) que contrae la ventana a solo la barra de título, y ahora usa el **fondo y los colores del tema** activo del addon (igual que la ventana principal), recordando si quedó minimizada.
+- **Mini-tracker renombrado a "SKQuests"**: el título del seguimiento de misiones ahora dice "SKQuests" en vez de "Quest Tracker".
+
+### Fixed
+- **Auto-minimizar del mini-tracker ahora es dinámico**: la opción "Auto-minimizar" de Ajustes ya funciona de verdad. Con ella activada, el seguimiento se contrae solo cuando no hay misiones activas y **se vuelve a expandir automáticamente** al aceptar una nueva misión, sin tener que hacerlo a mano.
+
+## [0.5.5-beta] - 2026-06-17
+
+### Changed
+- **XP Appraiser ahora se controla desde Ajustes**: se añadió una sección "XP Appraiser" en el panel de Ajustes (Settings) del addon con casillas para **Activar medidor** y **Auto-pausa al estar AFK**, y botones **Abrir ventana**, **Pausar / Reanudar**, **Nueva** y **Reiniciar**. Ya no hace falta usar los comandos `/skq xp ...` (siguen funcionando como alternativa). Soluciona la confusión de que `/skq xp on` solo activaba el medidor pero no abría la ventana.
+
+## [0.5.4-beta] - 2026-06-17
+
+### Added
+- **SKQ Experience Appraiser — medidor de XP/hora (+0.1.0)**: nueva ventana movible estilo FonzAppraiser pero enfocada en experiencia. Muestra en tiempo real tu XP/hora, XP ganada, tiempo jugado y nivel; clasifica de dónde viene la XP (Quest / Mobs / Exploración / Otros) con porcentajes; registra estadísticas por zona (ranking de mejores zonas para levear), por quest (XP/min con valoración Excelente/Buena/Media/Pobre) e historial de sesiones persistente entre partidas. Es **activable/desactivable** y se puede **pausar y reanudar** manualmente, con **auto-pausa cuando entras en AFK** (se reanuda sola al volver). Comandos: `/skq xp` (abrir/cerrar ventana), `/skq xp on|off`, `/skq xp pause`, `/skq xp new`, `/skq xp reset`. Expone una API para futuras guías (`GetZoneXPH`, `GetQuestEfficiency`).
+
+## [0.4.4-beta] - 2026-06-17
+
+### Fixed
+- **Los iconos de riesgo ahora se muestran (+0.0.1)**: las texturas usadas para el símbolo de riesgo (Interface\COMMON\Indicator-*) no existen en el cliente 3.3.5a, por lo que no aparecía nada. Se reemplazaron por texturas garantizadas del cliente (check verde = SAFE, reloj amarillo = CAUTION, X roja = DANGEROUS, calavera = EXTREME), que se renderizan correctamente tanto en la lista como en el mini-tracker.
+
+## [0.4.3-beta] - 2026-06-17
+
+### Added
+- **Abandonar misiones desde el Quest Log (+0.1.0)**: ahora puedes abandonar una misión directamente desde la pestaña Quest Log del addon haciendo **clic derecho** sobre ella. Aparece un cuadro de confirmación (Sí/No) con el nombre de la misión para evitar abandonos accidentales; al confirmar, la misión se elimina del registro y la lista y el tracker se actualizan al instante. Al pasar el ratón por una misión del Quest Log se muestra la pista "Clic derecho: abandonar misión".
+
+## [0.3.3-beta] - 2026-06-17
+
+### Added
+- **Indicador de riesgo en el Mini-Tracker (+0.1.0)**: el seguimiento de misiones en pantalla ahora muestra junto a cada misión activa el mismo símbolo de riesgo Hardcore (verde/amarillo/rojo/calavera) que la lista principal, para ver de un vistazo qué misiones del tracker son peligrosas sin abrir la interfaz.
+
+## [0.2.3-beta] - 2026-06-17
+
+### Changed
+- **Nuevo símbolo de riesgo Hardcore (+0.0.1)**: se reemplazó el punto de color "●" (que se veía pobre en el cliente 3.3.5a) por iconos nativos del juego, nítidos a cualquier tamaño: un indicador redondo verde (SAFE), amarillo (CAUTION) o rojo (DANGEROUS) y una calavera para EXTREME.
+
+## [0.2.2-beta] - 2026-06-17
+
+### Fixed
+- **Solapamiento de barras de filtro (+0.0.1)**: en la pestaña Misiones, la barra de zona seleccionada y la barra de filtro de nivel anclaban ambas al borde inferior del marco de filtros, montándose una sobre otra cuando había una zona elegida Y un rango de nivel activo. Ahora la barra de nivel se apila automáticamente debajo de la barra de zona y el área de la lista ajusta su margen superior (una o dos barras) para no taparse.
+
+## [0.2.1-beta] - 2026-06-17
+
+### Added
+- **Recolector automático de datos de servidor (+0.1.0)**: sistema que captura en vivo el contenido del servidor para facilitar el porteo de misiones custom. Al aceptar una misión guarda id, nombre, nivel, descripción, objetivos, zona/subzona, nivel del jugador y si es custom (no presente en la base de datos del addon). Mide la **XP real** de cada entrega comparando UnitXP antes/después (sin estimaciones ni multiplicadores). Registra los NPC de inicio y fin con su ID, nombre, zona y coordenadas. Todo se almacena en la nueva variable guardada  (quests, rewards, npcs, deaths). Nuevo comando **** que vuelca un resumen y la ubicación del archivo de SavedVariables.
+
+## [0.1.1-beta] - 2026-06-17
+
+### Added
+- **Puntuación automática de riesgo Hardcore (+0.1.0)**: cada misión recibe una puntuación de riesgo calculada a partir de la diferencia de nivel (×10), objetivos elite (+50), cuevas/áreas confinadas (+30), cantidad de enemigos a matar (10/20/30) y el historial real de muertes del jugador (×2). El resultado se clasifica en SAFE / CAUTION / DANGEROUS / EXTREME y se muestra como un punto de color (verde/amarillo/naranja/rojo) junto a cada misión en la lista. Al pasar el ratón, un tooltip muestra el desglose detallado de los puntos. Se registran automáticamente las muertes del jugador (evento PLAYER_DEAD) por misión activa.
+
 ## [0.0.1-beta] - 2026-06-14
 
 ### Added

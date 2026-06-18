@@ -74,6 +74,8 @@ local function InitializeDB()
     if not SKquestsDB.questIds           then SKquestsDB.questIds           = {} end
     if not SKquestsDB.completedQuests    then SKquestsDB.completedQuests    = {} end
     if not SKquestsDB.activeQuests       then SKquestsDB.activeQuests       = {} end
+    if not SKquestsDB.collected          then SKquestsDB.collected          = {} end
+    if not SKquestsDB.collectedItems     then SKquestsDB.collectedItems     = {} end
     if not SKquestsDB.config.trackerCollapsedQuests then SKquestsDB.config.trackerCollapsedQuests = {} end
 
     for k,v in pairs(defaults.profile) do
@@ -269,6 +271,7 @@ local function PrintHelp()
     SKquests:Print('  /skq setid "Nombre" ID')
     SKquests:Print("  /skq lang enUS|esES")
     SKquests:Print("  /skq tracker     - Mostrar/ocultar Mini-Tracker")
+    SKquests:Print("  /skq xp          - XP Appraiser (medidor de XP/hora)")
     SKquests:Print("  /skq help        - Esta ayuda")
 end
 
@@ -346,6 +349,9 @@ SlashCmdList["SKQUESTS"] = function(msg)
         else SKquests:Print("Uso: /skq guide Alliance|Horde") end
     elseif cmd == "export" then
         SKquests:ExportToChat()
+        if SKquests.Collector and SKquests.Collector.Export then
+            SKquests.Collector:Export()
+        end
     elseif cmd == "tracker" then
         local show = not SKquests.config.showTracker
         SKquests.config.showTracker = show
@@ -366,6 +372,8 @@ SlashCmdList["SKQUESTS"] = function(msg)
         if SKquests_CB_showTracker then
             SKquests_CB_showTracker:SetChecked(show)
         end
+    elseif cmd == "xp"     then
+        if SKquests.XPCommand then SKquests:XPCommand(rest) end
     elseif cmd == "setid"  then
         local name, id = rest:match('^"([^"]+)"%s+(%d+)$')
         if not name then
@@ -406,5 +414,5 @@ initFrame:SetScript("OnEvent", function(_, event, arg1)
         SKquests:InitConfig()
     end
 
-    SKquests:Print("Cargado! Version Alpha 0.1.2 - Escribe /skq para abrir la interfaz")
+    SKquests:Print("Cargado! Version Beta 0.5.11 - Escribe /skq para abrir la interfaz")
 end)

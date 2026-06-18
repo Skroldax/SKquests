@@ -52,35 +52,41 @@ function T:Refresh()
 
     -- Escanear todo (ahora esta totalmente expandido)
     numEntries = GetNumQuestLogEntries()
+    local currentHeader = "Unknown"
     for i = 1, numEntries do
         local title, level, _, _, isHeader, _, isComplete, _, questID = GetQuestLogTitle(i)
-        if title and not isHeader then
-            local objectives = {}
-            local numObj = GetNumQuestLeaderBoards(i)
-            for o = 1, numObj do
-                local text, _, finished = GetQuestLogLeaderBoard(o, i)
-                if text then
-                    -- Extrae numeros de progreso "X/Y" del texto
-                    local done, total = text:match("(%d+)/(%d+)")
-                    table.insert(objectives, {
-                        text     = text,
-                        done     = finished,
-                        numDone  = tonumber(done)  or 0,
-                        numTotal = tonumber(total) or 0,
-                    })
+        if title then
+            if isHeader then
+                currentHeader = title
+            else
+                local objectives = {}
+                local numObj = GetNumQuestLeaderBoards(i)
+                for o = 1, numObj do
+                    local text, _, finished = GetQuestLogLeaderBoard(o, i)
+                    if text then
+                        -- Extrae numeros de progreso "X/Y" del texto
+                        local done, total = text:match("(%d+)/(%d+)")
+                        table.insert(objectives, {
+                            text     = text,
+                            done     = finished,
+                            numDone  = tonumber(done)  or 0,
+                            numTotal = tonumber(total) or 0,
+                        })
+                    end
                 end
-            end
 
-            local entry = {
-                logIndex   = i,
-                title      = title,
-                level      = level or 0,
-                isComplete = (isComplete == 1 or isComplete == true),
-                objectives = objectives,
-                id         = questID,
-            }
-            self._cache[i]              = entry
-            self._byTitle[title:lower()] = i
+                local entry = {
+                    logIndex   = i,
+                    title      = title,
+                    level      = level or 0,
+                    isComplete = (isComplete == 1 or isComplete == true),
+                    objectives = objectives,
+                    id         = questID,
+                    category   = currentHeader,
+                }
+                self._cache[i]              = entry
+                self._byTitle[title:lower()] = i
+            end
         end
     end
 
