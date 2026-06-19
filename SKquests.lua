@@ -19,6 +19,15 @@ local altAddon  = "SKquests"
 local SKquests  = {}
 _G.SKquests = SKquests
 
+-- Compat: el cliente moderno (build 11508+, Classic Era/SoD) requiere el mixin
+-- BackdropTemplateMixin para usar SetBackdrop en frames creados sin el template
+-- "BackdropTemplate". El cliente legacy 3.3.5a no lo necesita (no existe el mixin).
+function SKQ_EnsureBackdrop(f)
+    if f and not f.SetBackdrop and BackdropTemplateMixin then
+        Mixin(f, BackdropTemplateMixin)
+    end
+end
+
 -- Fallback Pro (build público sin ProCodes): bloqueado por defecto
 if not SKquests.IsProUnlocked then function SKquests:IsProUnlocked() return false end end
 if not SKquests.TryUnlockPro  then function SKquests:TryUnlockPro()  return false end end
@@ -45,6 +54,7 @@ local defaults = {
         showTracker            = true,
         trackerMinimized       = false,
         trackerShowObjectives  = true,
+        trackerCurrentZoneOnly = true,
         trackerQuestLimit      = 10,
         trackerWidth           = 260,
         trackerHeight          = 300,
@@ -187,7 +197,7 @@ function SKquests:GetQuestWowheadUrl(name)
     if SKquests_DetailDB then
         for id, q in pairs(SKquests_DetailDB) do
             if q.name and q.name:lower() == name:lower() then
-                return "https://www.wowhead.com/wotlk/quest=" .. id
+                return "https://www.wowhead.com/classic/quest=" .. id
             end
         end
     end
@@ -268,6 +278,8 @@ local function PrintHelp()
     SKquests:Print("  /skq step N      - Ir al paso N")
     SKquests:Print("  /skq guide Alliance|Horde")
     SKquests:Print("  /skq export      - Exportar progreso para la web")
+    SKquests:Print("  /skq export lua  - Ventana copiable con quests/items custom de SoD")
+    SKquests:Print("  /skq merge       - Forzar re-chequeo: agrega quests custom a la guia ya mismo")
     SKquests:Print('  /skq setid "Nombre" ID')
     SKquests:Print("  /skq lang enUS|esES")
     SKquests:Print("  /skq tracker     - Mostrar/ocultar Mini-Tracker")
@@ -348,9 +360,26 @@ SlashCmdList["SKQUESTS"] = function(msg)
         if SKquests:SetCurrentGuide(rest) then SKquests:Print("Guia: " .. rest)
         else SKquests:Print("Uso: /skq guide Alliance|Horde") end
     elseif cmd == "export" then
-        SKquests:ExportToChat()
-        if SKquests.Collector and SKquests.Collector.Export then
-            SKquests.Collector:Export()
+        if rest == "lua" then
+            if SKquests.Collector and SKquests.Collector.ShowExportFrame then
+                local qN, iN = SKquests.Collector:ShowExportFrame()
+                SKquests:Print(("Ventana de exportacion abierta: %d quests custom, %d items custom."):format(qN or 0, iN or 0))
+            end
+        else
+            SKquests:ExportToChat()
+            if SKquests.Collector and SKquests.Collector.Export then
+                SKquests.Collector:Export()
+            end
+        end
+    elseif cmd == "merge" then
+        if SKquests.Collector and SKquests.Collector.MergeCustomQuests then
+            local n = SKquests.Collector:MergeCustomQuests()
+            local es = SKquests_Localization and SKquests_Localization.currentLanguage == "esES"
+            if es then
+                SKquests:Print(("Re-chequeo completo: %d quests custom en la guia/explorador."):format(n or 0))
+            else
+                SKquests:Print(("Re-check complete: %d custom quests in the guide/explorer."):format(n or 0))
+            end
         end
     elseif cmd == "tracker" then
         local show = not SKquests.config.showTracker

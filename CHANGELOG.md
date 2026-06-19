@@ -3,6 +3,11 @@
 All notable changes to SKquests will be documented in this file.
 This project follows [Semantic Versioning](https://semver.org/) and [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.5.13-beta] - 2026-06-19
+
+### Fixed
+- **Filtro de Zona del Tracker / Quest Log con zona "Unknown"**: `GetQuestLogTitle` se leía con las posiciones de retorno de WotLK/ChromieCraft (3.3.5a), que no coinciden con las del cliente real de Classic Era / Season of Discovery. Esto hacía que ningún encabezado de zona se detectara como tal: se contaban como misiones falsas y `category` se quedaba fijo en "Unknown" para todas las misiones reales, mostrando "No active quests" en el Mini-Tracker y agrupando todo bajo "Unknown" en la pestaña Quest Log. Corregido en `SKquests_Tracker.lua`, `SKquests_Collector.lua` y `SKquests_Risk.lua` para usar las posiciones correctas del cliente actual (`isHeader` en la 4ª posición, `questID` en la 8ª).
+
 ## [0.5.12-beta] - 2026-06-18
 
 ### Added

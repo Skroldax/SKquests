@@ -214,8 +214,8 @@ riskFrame:SetScript("OnEvent", function(_, event)
     local active = {}
     local n = (GetNumQuestLogEntries and GetNumQuestLogEntries()) or 0
     for i = 1, n do
-        -- 3.3.5a (ChromieCraft) devuelve questID en la 9a posicion
-        local title, _, _, _, isHeader, _, _, _, questId = GetQuestLogTitle(i)
+        -- Classic Era (SoD) devuelve questID en la 8a posicion (sin questTag/isDaily)
+        local title, _, _, isHeader, _, _, _, questId = GetQuestLogTitle(i)
         if not isHeader and questId and questId > 0 then
             SKquestsDB.deathStats[questId] = (SKquestsDB.deathStats[questId] or 0) + 1
             table.insert(active, questId)

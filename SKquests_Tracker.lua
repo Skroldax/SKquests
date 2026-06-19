@@ -43,7 +43,7 @@ function T:Refresh()
     local collapsedHeaders = {}
     local numEntries = GetNumQuestLogEntries()
     for i = numEntries, 1, -1 do
-        local _, _, _, _, isHeader, isCollapsed = GetQuestLogTitle(i)
+        local _, _, _, isHeader, isCollapsed = GetQuestLogTitle(i)
         if isHeader and isCollapsed then
             table.insert(collapsedHeaders, i)
             ExpandQuestHeader(i)
@@ -54,7 +54,7 @@ function T:Refresh()
     numEntries = GetNumQuestLogEntries()
     local currentHeader = "Unknown"
     for i = 1, numEntries do
-        local title, level, _, _, isHeader, _, isComplete, _, questID = GetQuestLogTitle(i)
+        local title, level, _, isHeader, _, isComplete, _, questID = GetQuestLogTitle(i)
         if title then
             if isHeader then
                 currentHeader = title

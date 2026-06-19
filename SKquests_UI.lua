@@ -28,10 +28,36 @@ SKquests_Guides = {
 
 local L = function(key) return SKquests_Localization and SKquests_Localization:Get(key) or key end
 
--- Función auxiliar para leer auras de XP personalizadas de Ascension
--- [WotLK Classic] Ascension XP aura multiplier removed (stub)
-local function GetAscensionXPMultiplier()
-    return 1
+-- Season of Discovery: detección dinámica del buff "Discoverer's Delight"
+-- (Spell ID 436412, otorgado/activado vía el posadero) para multiplicar la
+-- XP de quests mostrada en la guía. Tramos según el buff real de Blizzard:
+--   nivel <=39: +150% XP (x2.5)   nivel 40-49: +100% XP (x2.0)   nivel 50+: sin bono confirmado (x1.0)
+local SOD_DISCOVERERS_DELIGHT_SPELLID = 436412
+local SOD_DISCOVERERS_DELIGHT_NAME = "Discoverer's Delight"
+
+local function IsDiscoverersDelightActive()
+    for i = 1, 40 do
+        local name, _, _, _, _, _, _, _, _, _, spellId = UnitAura("player", i, "HELPFUL")
+        if not name then break end
+        if spellId == SOD_DISCOVERERS_DELIGHT_SPELLID or name == SOD_DISCOVERERS_DELIGHT_NAME then
+            return true
+        end
+    end
+    return false
+end
+
+local function GetSoDXPMultiplier()
+    if not IsDiscoverersDelightActive() then
+        return 1
+    end
+    local level = UnitLevel and UnitLevel("player") or 0
+    if level <= 39 then
+        return 2.5
+    elseif level <= 49 then
+        return 2.0
+    else
+        return 1.0
+    end
 end
 
 
@@ -575,32 +601,7 @@ local ZoneCoordinates = {
     [490]  = { continent = 1, x = 43, y = 79 }, -- Un'Goro Crater
     [1377] = { continent = 1, x = 34, y = 78 }, -- Silithus
 
-    -- Continent 3: Outland (TBC)
-    [3430] = { continent = 2, x = 82, y = 18 }, -- Eversong Woods (Eastern Kingdoms)
-    [3433] = { continent = 2, x = 83, y = 24 }, -- Ghostlands (Eastern Kingdoms)
-    [3524] = { continent = 1, x = 13, y = 17 }, -- Azuremyst Isle (Kalimdor)
-    [3525] = { continent = 1, x = 12, y = 12 }, -- Bloodmyst Isle (Kalimdor)
-    [3483] = { continent = 3, x = 48, y = 56 }, -- Hellfire Peninsula
-    [3518] = { continent = 3, x = 38, y = 48 }, -- Nagrand
-    [3519] = { continent = 3, x = 53, y = 44 }, -- Terokkar Forest
-    [3520] = { continent = 3, x = 56, y = 68 }, -- Shadowmoon Valley
-    [3521] = { continent = 3, x = 29, y = 47 }, -- Zangarmarsh
-    [3522] = { continent = 3, x = 32, y = 37 }, -- Blade's Edge Mountains
-    [3523] = { continent = 3, x = 64, y = 27 }, -- Netherstorm
-    [4080] = { continent = 3, x = 74, y = 28 }, -- Isle of Quel'Danas
-
-    -- Continent 4: Northrend (WotLK)
-    [3537] = { continent = 4, x = 26, y = 76 }, -- Borean Tundra
-    [495]  = { continent = 4, x = 76, y = 73 }, -- Howling Fjord
-    [65]   = { continent = 4, x = 53, y = 55 }, -- Dragonblight
-    [394]  = { continent = 4, x = 68, y = 45 }, -- Grizzly Hills
-    [66]   = { continent = 4, x = 59, y = 30 }, -- Zul'Drak
-    [67]   = { continent = 4, x = 55, y = 17 }, -- The Storm Peaks
-    [4395] = { continent = 4, x = 50, y = 22 }, -- Icecrown
-    [3711] = { continent = 4, x = 50, y = 24 }, -- Icecrown Citadel (instance)
-    [210]  = { continent = 4, x = 35, y = 47 }, -- Crystalsong Forest
-    [206]  = { continent = 4, x = 28, y = 55 }, -- Sholazar Basin
-    [4197] = { continent = 4, x = 36, y = 25 }, -- Wintergrasp
+    -- (Outland/TBC y Northrend/WotLK excluidos - no aplican a Season of Discovery)
 
     -- Continent 2: Eastern Kingdoms
     [1]    = { continent = 2, x = 48, y = 51 }, -- Dun Morogh
@@ -628,14 +629,6 @@ local ZoneCoordinates = {
     [130]  = { continent = 2, x = 38, y = 23 }, -- Silverpine Forest
     [85]   = { continent = 2, x = 38, y = 14 }, -- Tirisfal Glades
     [154]  = { continent = 2, x = 38, y = 14 }, -- Deathknell -> Tirisfal Glades
-    -- TBC cities
-    [3487]  = { continent = 3, x = 49, y = 54 }, -- Shattrath City (Outland)
-    [3557]  = { continent = 1, x = 13, y = 14 }, -- The Exodar (Kalimdor)
-    -- WotLK extras
-    [2817]  = { continent = 4, x = 50, y = 40 }, -- Icecrown Glacier sub
-    [4100]  = { continent = 4, x = 72, y = 46 }, -- Naxxramas (Dragonblight)
-    [4196]  = { continent = 4, x = 57, y = 25 }, -- Ulduar (Storm Peaks)
-    [4264]  = { continent = 4, x = 57, y = 22 }, -- Icecrown (Argent Tournament area)
 }
 
 -- Listas filtradas
@@ -728,6 +721,7 @@ local ROW_H = 28
 -- ============================================================
 local function ApplyBD(f, bg, border, edgeSize)
     -- default fallback if not called inside ApplyTheme
+    SKQ_EnsureBackdrop(f)
     f:SetBackdrop({
         bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -762,6 +756,7 @@ function addon:ApplyTheme()
     local function UpdateBD(frame, alpha)
         -- IMPORTANTE: no usar el marco pintado como edgeFile (rompe el borde) ni
         -- tilear el bg como fondo de cada panel. Borde estándar + color de paleta.
+        SKQ_EnsureBackdrop(frame)
         frame:SetBackdrop({
             bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
             edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -777,6 +772,7 @@ function addon:ApplyTheme()
     local panelAlpha = isCustomBG and 0.0 or 0.98
 
     if isCustomBG then
+        SKQ_EnsureBackdrop(MainFrame)
         MainFrame:SetBackdrop({
             bgFile   = C.textures.bg,
             edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -832,6 +828,7 @@ function addon:ApplyTheme()
         end
         if GuideCardsPanel.cards then
             for _, card in ipairs(GuideCardsPanel.cards) do
+                SKQ_EnsureBackdrop(card)
                 card:SetBackdrop({
                     bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
                     edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -946,9 +943,11 @@ function addon:ApplyTheme()
 
     -- Actualizar colores del Mini-Tracker (Estilo transparente sin bordes ni fondo, como pfQuest)
     if SKquests_MiniTracker then
+        SKQ_EnsureBackdrop(SKquests_MiniTracker)
         SKquests_MiniTracker:SetBackdrop(nil)
         local header = SKquests_MiniTracker.header
         if header then
+            SKQ_EnsureBackdrop(header)
             header:SetBackdrop(nil)
         end
         if SKquests_MiniTracker.titleFS then
@@ -1006,6 +1005,18 @@ do
     end
 end
 
+-- Season of Discovery: zonas de Outland (TBC) y Northrend (WotLK), incluyendo
+-- capitales y zonas iniciales de razas TBC. Ver también ZoneCoordinates más
+-- arriba, de donde se quitaron estas mismas zonas.
+local EXPANSION_EXCLUDED_ZONES = {
+    [3483]=true, [3518]=true, [3519]=true, [3520]=true, [3521]=true, [3522]=true,
+    [3523]=true, [4080]=true, [3487]=true, [3524]=true, [3525]=true, [3557]=true,
+    [3430]=true, [3433]=true, -- Eversong Woods / Ghostlands (zona inicial Sangre Élfica TBC)
+    [3537]=true, [495]=true, [65]=true, [394]=true, [66]=true, [67]=true,
+    [4395]=true, [3711]=true, [210]=true, [206]=true, [4197]=true, [2817]=true,
+    [4100]=true, [4196]=true, [4264]=true,
+}
+
 local function IsQuestEligible(id, q)
     local title = string.upper(q.name or "")
     -- descartar quests sin nombre (entradas corruptas del volcado)
@@ -1053,7 +1064,21 @@ local function IsQuestEligible(id, q)
     if title:find("PVP") or title:find("JCJ") then
         return false
     end
-    -- [WotLK Classic] TBC/WotLK quests included (ChromieCraft has all expansions)
+    -- Season of Discovery: excluir contenido de TBC/WotLK (el ChromieCraft
+    -- original incluía las 3 expansiones; SoD es contenido clásico únicamente).
+    -- 1) Tabla de origen por quest ID (pfDB.quest_origin, de pfQuest)
+    if pfDB and pfDB['quest_origin'] and pfDB['quest_origin'][id] == 'tbc' then
+        return false
+    end
+    -- 2) Zonas de Outland/Northrend/capitales TBC (sin entrada en ZoneCoordinates
+    --    tras la exclusión de esas zonas; usamos la lista explícita como respaldo)
+    if q.zoneId and EXPANSION_EXCLUDED_ZONES[q.zoneId] then
+        return false
+    end
+    -- 3) Respaldo por nivel: nada en Vanilla/SoD supera el nivel 60
+    if l1 > 60 or l2 > 60 or l3 > 60 or l4 > 60 then
+        return false
+    end
     return true
 end
 
@@ -1170,10 +1195,6 @@ local function BuildZonesList()
             contOK = (cont == 2)
         elseif addon._zoneContinent == 0 then
             contOK = (not cont)
-        elseif addon._zoneContinent == 3 then
-            contOK = (cont == 3)
-        elseif addon._zoneContinent == 4 then
-            contOK = (cont == 4)
         end
 
         if showZone and contOK then
@@ -1258,10 +1279,6 @@ local function BuildFilteredQuestIds()
                     matchesContinent = (cont == 1)
                 elseif addon._questContinentFilter == "Eastern Kingdoms" then
                     matchesContinent = (cont == 2)
-                elseif addon._questContinentFilter == "Outland" then
-                    matchesContinent = (cont == 3)
-                elseif addon._questContinentFilter == "Northrend" then
-                    matchesContinent = (cont == 4)
                 elseif addon._questContinentFilter == "Dungeons" then
                     matchesContinent = (not cont)
                 end
@@ -1460,6 +1477,7 @@ local function CreateCopyableBox(parent, w, h)
     local box = CreateFrame("EditBox", nil, parent)
     box:SetSize(w, h)
     box:SetFontObject("GameFontHighlightSmall")
+    SKQ_EnsureBackdrop(box)
     box:SetBackdrop({
         bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -1698,8 +1716,12 @@ function addon:CreateModernUI()
     f:SetPoint("CENTER")
     f:SetMovable(true)
     f:SetResizable(true)
-    f:SetMinResize(800, 480)
-    f:SetMaxResize(maxW, maxH)
+    if f.SetResizeBounds then
+        f:SetResizeBounds(800, 480, maxW, maxH)
+    else
+        f:SetMinResize(800, 480)
+        f:SetMaxResize(maxW, maxH)
+    end
     f:EnableMouse(true)
     f:RegisterForDrag("LeftButton")
     f:SetScript("OnDragStart", function(self)
@@ -1856,6 +1878,7 @@ function addon:CreateModernUI()
         btn.tabId = item.id
         btn:RegisterForClicks("LeftButtonUp")
 
+        SKQ_EnsureBackdrop(btn)
         btn:SetBackdrop({
             bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
             edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -2251,6 +2274,7 @@ function addon:CreateModernUI()
         btn:SetSize(230, ROW_H)
         btn:SetPoint("TOPLEFT", 0, -(i - 1) * ROW_H)
         btn:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+        SKQ_EnsureBackdrop(btn)
         btn:SetBackdrop({
             bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
             edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -2520,9 +2544,7 @@ function addon:CreateModernUI()
     CreateZlBtn(2, 0, IsSpanish() and "Dungeons" or "Instances", 70)
     CreateZlBtn(3, 1, "Kalimdor", 65)
     CreateZlBtn(4, 2, IsSpanish() and "Eastern Kingdoms" or "EK", 110)
-    CreateZlBtn(5, 3, "Outland", 60)
-    CreateZlBtn(6, 4, "Northrend", 70)
-    CreateZlBtn(7, -1, IsSpanish() and "Profesiones/Clases" or "Profs/Classes", 130)
+    CreateZlBtn(5, -1, IsSpanish() and "Profesiones/Clases" or "Profs/Classes", 130)
     -- Iniciar visualmente el boton "Todos" (pero no disparar refresh para no romper el load inicial si no está listo)
     SelectZlCont(nil)
 
@@ -2794,7 +2816,7 @@ function addon:CreateModernUI()
     continentTabFrame:SetHeight(30)
 
     local currentContinent = 1 -- 1 = Kalimdor, 2 = Eastern Kingdoms
-    addon._zoneContinent = addon._zoneContinent or 1 -- 0=Dungeons 1=Kalimdor 2=EK 3=Outland 4=Northrend
+    addon._zoneContinent = addon._zoneContinent or 1 -- 0=Dungeons 1=Kalimdor 2=EK
 
     local btnKalimdor = CreateFrame("Button", nil, continentTabFrame)
     btnKalimdor:SetSize(120, 22)
@@ -2823,24 +2845,6 @@ function addon:CreateModernUI()
     lblInstances:SetText(IsSpanish() and "Mazmorras" or "Dungeons")
     btnInstances.lbl = lblInstances
 
-    local btnOutland = CreateFrame("Button", nil, continentTabFrame)
-    btnOutland:SetSize(80, 22)
-    btnOutland:SetPoint("LEFT", btnInstances, "RIGHT", 6, 0)
-    ApplyBD(btnOutland, {0,0,0}, {0.3,0.5,0.3}, 8)
-    local lblOutland = btnOutland:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    lblOutland:SetPoint("CENTER", 0, 0)
-    lblOutland:SetText("Outland")
-    btnOutland.lbl = lblOutland
-
-    local btnNorthrend = CreateFrame("Button", nil, continentTabFrame)
-    btnNorthrend:SetSize(90, 22)
-    btnNorthrend:SetPoint("LEFT", btnOutland, "RIGHT", 6, 0)
-    ApplyBD(btnNorthrend, {0,0,0}, {0.3,0.4,0.6}, 8)
-    local lblNorthrend = btnNorthrend:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    lblNorthrend:SetPoint("CENTER", 0, 0)
-    lblNorthrend:SetText("Northrend")
-    btnNorthrend.lbl = lblNorthrend
-
     -- Back button
     local backBtn = CreateFrame("Button", nil, ZonesMapPanel)
     backBtn:SetSize(80, 22)
@@ -2868,10 +2872,6 @@ function addon:CreateModernUI()
             local prefix
             if currentContinent == 1 then
                 prefix = "Interface\\WorldMap\\Kalimdor\\Kalimdor"
-            elseif currentContinent == 3 then
-                prefix = "Interface\\WorldMap\\Outland\\Outland"
-            elseif currentContinent == 4 then
-                prefix = "Interface\\WorldMap\\Northrend\\Northrend"
             else
                 prefix = "Interface\\WorldMap\\Azeroth\\Azeroth"
             end
@@ -2887,8 +2887,6 @@ function addon:CreateModernUI()
             hi(btnKalimdor,  currentContinent == 1)
             hi(btnEK,        currentContinent == 2)
             hi(btnInstances, currentContinent == 0)
-            hi(btnOutland,   currentContinent == 3)
-            hi(btnNorthrend, currentContinent == 4)
         else
             continentTabFrame:Hide()
             backBtn:Show()
@@ -2915,8 +2913,6 @@ function addon:CreateModernUI()
     btnKalimdor:SetScript("OnClick", function() SelectContinent(1) end)
     btnEK:SetScript("OnClick", function() SelectContinent(2) end)
     btnInstances:SetScript("OnClick", function() SelectContinent(0) end)
-    btnOutland:SetScript("OnClick", function() SelectContinent(3) end)
-    btnNorthrend:SetScript("OnClick", function() SelectContinent(4) end)
 
     backBtn:SetScript("OnClick", function()
         ZonesMapPanel.currentMapMode = "continent"
@@ -3564,10 +3560,6 @@ function addon:CreateModernUI()
             local prefix
             if currentContinent == 1 then
                 prefix = "Interface\\WorldMap\\Kalimdor\\Kalimdor"
-            elseif currentContinent == 3 then
-                prefix = "Interface\\WorldMap\\Outland\\Outland"
-            elseif currentContinent == 4 then
-                prefix = "Interface\\WorldMap\\Northrend\\Northrend"
             else
                 prefix = "Interface\\WorldMap\\Azeroth\\Azeroth"
             end
@@ -3583,8 +3575,6 @@ function addon:CreateModernUI()
             hi(btnKalimdor,  currentContinent == 1)
             hi(btnEK,        currentContinent == 2)
             hi(btnInstances, currentContinent == 0)
-            hi(btnOutland,   currentContinent == 3)
-            hi(btnNorthrend, currentContinent == 4)
             pcall(SetMapZoom, currentContinent)
             zoneHL:Hide(); lastHLName = nil; hoverZoneId = nil
             atlasOV.Hide()
@@ -3897,6 +3887,7 @@ function addon:CreateModernUI()
     -- nunca se mueve aunque se agrande la imagen.
     local questImgBox = CreateFrame("Frame", nil, dChild)
     questImgBox:SetHeight(220)
+    SKQ_EnsureBackdrop(questImgBox)
     questImgBox:SetBackdrop({
         bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -3912,6 +3903,7 @@ function addon:CreateModernUI()
     seBtn:SetFrameLevel(questImgBox:GetFrameLevel() + 40)
     seBtn:SetSize(210, 22)
     seBtn:SetPoint("TOPLEFT", questImgBox, "TOPLEFT", 6, -6)
+    SKQ_EnsureBackdrop(seBtn)
     seBtn:SetBackdrop({ bgFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 8, insets = {left=2,right=2,top=2,bottom=2} })
     seBtn:SetBackdropColor(0, 0, 0, 0.75)
     seBtn:SetBackdropBorderColor(1, 0.82, 0, 0.7)
@@ -4617,6 +4609,7 @@ function addon:CreateModernUI()
     local objBox = CreateFrame("Frame", nil, objSec)
     objBox:SetPoint("TOPLEFT", 4, -24)
     objBox:SetPoint("BOTTOMRIGHT", -4, -4)
+    SKQ_EnsureBackdrop(objBox)
     objBox:SetBackdrop({
         bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -4714,6 +4707,7 @@ function addon:CreateModernUI()
     -- 4) Imagen de Mapa (Guía)
     local mapBox = CreateFrame("Frame", nil, dChild)
     mapBox:SetHeight(180)
+    SKQ_EnsureBackdrop(mapBox)
     mapBox:SetBackdrop({
         bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -4745,6 +4739,7 @@ function addon:CreateModernUI()
     local function MakeNpcCard(parent, titleText)
         local card = CreateFrame("Frame", nil, parent)
         card:SetSize(185, 54)
+        SKQ_EnsureBackdrop(card)
         card:SetBackdrop({
             bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
             edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -4807,6 +4802,7 @@ function addon:CreateModernUI()
         local btn = CreateFrame("Button", bname, parent)
         btn:SetSize(36, 36)
         btn:SetPoint("TOPLEFT", xOffset, yOffset)
+        SKQ_EnsureBackdrop(btn)
         btn:SetBackdrop({
             edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
             edgeSize = 8, insets = {left=1, right=1, top=1, bottom=1}
@@ -5298,36 +5294,28 @@ function addon:CreateModernUI()
 
 
 
-    -- ---- MULTIPLICADOR XP SERVIDOR (ChromieCraft x1/x2/x3) ----
-    local xpRateLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    xpRateLbl:SetPoint("TOPLEFT", 20, -430)
-    xpRateLbl:SetText("Tasa XP Servidor")
-    table.insert(SettingsPanel.labels, xpRateLbl)
+    -- ---- MULTIPLICADOR XP DINÁMICO (Season of Discovery: Discoverer's Delight) ----
+    local sodXPLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    sodXPLbl:SetPoint("TOPLEFT", 20, -430)
+    sodXPLbl:SetText("Multiplicador XP (Dinámico - SoD)")
+    table.insert(SettingsPanel.labels, sodXPLbl)
 
-    local xpRateBtns = {}
-    local xpRates = {1, 2, 3}
-    for i, rate in ipairs(xpRates) do
-        local rb = CreateFrame("Button", "SKquests_XPRate" .. rate, SettingsPanel, "UIPanelButtonTemplate")
-        rb:SetPoint("TOPLEFT", 12 + (i-1)*58, -452)
-        rb:SetSize(54, 22)
-        rb:SetText("x" .. rate)
-        rb.rate = rate
-        rb:SetScript("OnClick", function(self)
-            SKquests.config.xpRate = self.rate
-            SKquestsDB.config.xpRate = self.rate
-            for _, b in ipairs(xpRateBtns) do
-                b:SetAlpha(b.rate == self.rate and 1.0 or 0.45)
-            end
-            if addon.RefreshDetail then addon:RefreshDetail() end
-        end)
-        xpRateBtns[i] = rb
-    end
-    do
-        local curRate = (SKquestsDB and SKquestsDB.config and SKquestsDB.config.xpRate) or 1
-        for _, b in ipairs(xpRateBtns) do
-            b:SetAlpha(b.rate == curRate and 1.0 or 0.45)
+    local sodXPStatus = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    sodXPStatus:SetPoint("TOPLEFT", 20, -452)
+    sodXPStatus:SetWidth(320)
+    sodXPStatus:SetJustifyH("LEFT")
+    table.insert(SettingsPanel.labels, sodXPStatus)
+
+    local function RefreshSoDXPStatus()
+        local mult = GetSoDXPMultiplier()
+        if mult > 1 then
+            sodXPStatus:SetText(("|cff40ff40Discoverer's Delight ACTIVO|r (x%.1f XP de quest)"):format(mult))
+        else
+            sodXPStatus:SetText("|cffaaaaaaDiscoverer's Delight inactivo|r (x1.0 XP de quest)")
         end
     end
+    RefreshSoDXPStatus()
+    SettingsPanel:HookScript("OnShow", RefreshSoDXPStatus)
 
     -- Controles del XP Appraiser (en su propia función: ver nota más abajo)
     addon:AddXPAppraiserSettings(SettingsPanel)
@@ -6113,8 +6101,8 @@ function addon:RefreshDetail()
             end
         end
 
-        -- Multiplicadores de servidor ChromieCraft (x1/x2/x3)
-        local customMult = (SKquestsDB and SKquestsDB.config and SKquestsDB.config.xpRate) or 1
+        -- Multiplicador dinámico de XP (Season of Discovery: Discoverer's Delight)
+        local customMult = GetSoDXPMultiplier()
         if customMult ~= 1 and not usedDynamic and baseXP > 0 then
             finalXP = math.floor(baseXP * customMult)
         end
@@ -6466,14 +6454,12 @@ function addon:RefreshDetail()
             end
         end
 
-        -- Multiplicadores de servidor ChromieCraft (x1/x2/x3)
-        local customMult = ((SKquestsDB and SKquestsDB.config and SKquestsDB.config.xpRate) or 1)
-        if customMult ~= 1 then
-            if usedDynamic and finalXP > 0 then
-                finalXP = math.floor(finalXP * customMult)
-            elseif not usedDynamic and baseXP > 0 then
-                finalXP = math.floor(baseXP * customMult)
-            end
+        -- Multiplicador dinámico de XP (Season of Discovery: Discoverer's Delight)
+        -- Nota: si la XP viene de la API en vivo (usedDynamic), el cliente ya
+        -- refleja el bono del buff, así que sólo se aplica sobre la XP base de la DB.
+        local customMult = GetSoDXPMultiplier()
+        if customMult ~= 1 and not usedDynamic and baseXP > 0 then
+            finalXP = math.floor(baseXP * customMult)
         end
         
         if finalMoney > 0 then
@@ -6513,7 +6499,7 @@ function addon:RefreshDetail()
                     btn.itemId = rId
                     btn.itemName = rew.name
                     btn.itemLink = rew.link
-                    btn.tex:SetTexture("Interface\Icons\INV_Misc_QuestionMark")
+                    btn.tex:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
                     local itemTexture = GetItemIcon(rId)
                     if itemTexture then btn.tex:SetTexture(itemTexture) end
                     local itemName, itemLink = GetItemInfo(rId)
@@ -6532,7 +6518,7 @@ function addon:RefreshDetail()
                 if rew then
                     btn.itemId = rew.id
                     btn.itemLink = nil
-                    btn.tex:SetTexture("Interface\Icons\INV_Misc_QuestionMark")
+                    btn.tex:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
                     local itemTexture = GetItemIcon(rew.id)
                     if itemTexture then btn.tex:SetTexture(itemTexture) end
                     local itemName, itemLink = GetItemInfo(rew.id)
@@ -6766,6 +6752,7 @@ function addon:RefreshDetail()
                     local mb = ch.objSec.mapBoxes[mapIndex]
                     if not mb then
                         mb = CreateFrame("Frame", nil, ch.objSec)
+                        SKQ_EnsureBackdrop(mb)
                         mb:SetBackdrop({
                             bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
                             edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -7131,8 +7118,12 @@ function addon:CreateMiniTracker()
     end)
     
     mt:SetResizable(true)
-    mt:SetMinResize(180, 80)
-    mt:SetMaxResize(400, 600)
+    if mt.SetResizeBounds then
+        mt:SetResizeBounds(180, 80, 400, 600)
+    else
+        mt:SetMinResize(180, 80)
+        mt:SetMaxResize(400, 600)
+    end
     mt:SetScript("OnSizeChanged", function(self, w, h)
         if w and h and w > 0 and h > 0 then
             SKquests.config.trackerWidth = w
@@ -7226,6 +7217,7 @@ function addon:CreateMiniTracker()
                 local mouseOver = sf:IsMouseOver() or (minBtn and minBtn:IsMouseOver()) or (lockBtn and lockBtn:IsMouseOver())
                 if mouseOver then
                     -- Mostrar cabecera y controles
+                    SKQ_EnsureBackdrop(sf)
                     sf:SetBackdrop({
                         bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
                         tile = true, tileSize = 16,
@@ -7240,6 +7232,7 @@ function addon:CreateMiniTracker()
                     if mt.titleFS then mt.titleFS:Show() end
                 else
                     -- Ocultar y detener actualización
+                    SKQ_EnsureBackdrop(sf)
                     sf:SetBackdrop(nil)
                     if lockBtn then lockBtn:Hide() end
                     if minBtn then minBtn:Hide() end
@@ -7319,8 +7312,10 @@ function addon:RefreshMiniTracker()
     
     -- Ajustar interactividad, fondos y visibilidad de controles según estado de bloqueo
     if isLocked then
+        SKQ_EnsureBackdrop(mt)
         mt:SetBackdrop(nil)
         if header then
+            SKQ_EnsureBackdrop(header)
             header:SetBackdrop(nil)
         end
         if minBtn then minBtn:Hide() end
@@ -7331,6 +7326,7 @@ function addon:RefreshMiniTracker()
         if header then header:EnableMouse(true) end
     else
         -- Fondo sutil semi-transparente para indicar que es arrastrable
+        SKQ_EnsureBackdrop(mt)
         mt:SetBackdrop({
             bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
             edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -7342,6 +7338,7 @@ function addon:RefreshMiniTracker()
         mt:SetBackdropBorderColor(C.border[1], C.border[2], C.border[3], 0.6)
         
         if header then
+            SKQ_EnsureBackdrop(header)
             header:SetBackdrop({
                 bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
                 edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -7413,16 +7410,22 @@ function addon:RefreshMiniTracker()
     local showObjs = SKquests.config.trackerShowObjectives ~= false
     local questLimit = SKquests.config.trackerQuestLimit or 10
     local showCurrentZoneOnly = SKquests.config.trackerCurrentZoneOnly
-    local currentZone = GetRealZoneText()
+    local currentZone    = GetRealZoneText()
+    local currentSubZone = GetSubZoneText()
     local questsDisplayed = 0
-    
+
     -- Recorrer en orden del log de misiones para consistencia
     for i = 1, 100 do
         local entry = activeQuests[i]
         if entry then
             local passZone = true
-            if showCurrentZoneOnly and entry.category and currentZone then
-                if entry.category ~= currentZone then
+            if showCurrentZoneOnly and entry.category and entry.category ~= "" then
+                -- El encabezado del quest log a veces usa la zona amplia
+                -- ("Mulgore") y a veces la subzona puntual ("Red Cloud Mesa").
+                -- Aceptamos cualquiera de las dos para no ocultar todo.
+                local matchesZone    = currentZone    and currentZone    ~= "" and entry.category == currentZone
+                local matchesSubZone = currentSubZone and currentSubZone ~= "" and entry.category == currentSubZone
+                if not (matchesZone or matchesSubZone) then
                     passZone = false
                 end
             end

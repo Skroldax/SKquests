@@ -64,8 +64,7 @@ See [CHANGELOG.md](CHANGELOG.md). This project follows [Semantic Versioning](htt
 
 ## Author
 
-**Skroldax** 
-https://discord.gg/vUtNFcK4Z8 Discord for you get updates :D
+**Skroldax** — Bronzebeard, Warcraft Reborn (Project Ascension).
 
 ## License
 

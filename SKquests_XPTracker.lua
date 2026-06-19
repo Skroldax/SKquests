@@ -834,6 +834,7 @@ local function BuildWindow()
     W.fullW, W.fullH = 400, 384
     W.compactW, W.compactH = 236, 104
     f:SetFrameStrata("DIALOG")
+    SKQ_EnsureBackdrop(f)
     f:SetBackdrop({
         bgFile   = "Interface\\DialogFrame\\UI-DialogBox-Background",
         edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
@@ -1182,6 +1183,7 @@ function SK:XPApplyTheme()
     f:SetAlpha(EnsureDB().window.opacity or 0.95)
     local C = SKquests.GetThemeColors and SKquests:GetThemeColors()
     if not C then return end
+    SKQ_EnsureBackdrop(f)
     f:SetBackdrop({
         bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
