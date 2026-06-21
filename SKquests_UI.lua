@@ -19,6 +19,8 @@
 -- Versión Alpha 0.11.4
 
 local addon = SKquests
+local HBD = LibStub("HereBeDragonsQuestie-2.0")
+local HBDPins = LibStub("HereBeDragonsQuestie-Pins-2.0")
 
 -- Inicializar referencias de Guias globales
 SKquests_Guides = {
@@ -28,12 +30,176 @@ SKquests_Guides = {
 
 local L = function(key) return SKquests_Localization and SKquests_Localization:Get(key) or key end
 
--- Función auxiliar para leer auras de XP personalizadas de Ascension
--- [WotLK Classic] Ascension XP aura multiplier removed (stub)
-local function GetAscensionXPMultiplier()
-    return 1
+-- Season of Discovery: detección dinámica del buff "Discoverer's Delight"
+-- (Spell ID 436412, otorgado/activado vía el posadero) para multiplicar la
+-- XP de quests mostrada en la guía. Tramos según el buff real de Blizzard:
+--   nivel <=39: +150% XP (x2.5)   nivel 40-49: +100% XP (x2.0)   nivel 50+: sin bono confirmado (x1.0)
+local SOD_DISCOVERERS_DELIGHT_SPELLID = 436412
+local SOD_DISCOVERERS_DELIGHT_NAME = "Discoverer's Delight"
+
+local function IsDiscoverersDelightActive()
+    for i = 1, 40 do
+        local name, _, _, _, _, _, _, _, _, _, spellId = UnitAura("player", i, "HELPFUL")
+        if not name then break end
+        if spellId == SOD_DISCOVERERS_DELIGHT_SPELLID or name == SOD_DISCOVERERS_DELIGHT_NAME then
+            return true
+        end
+    end
+    return false
 end
 
+local function GetSoDXPMultiplier()
+    if not IsDiscoverersDelightActive() then
+        return 1
+    end
+    local level = UnitLevel and UnitLevel("player") or 0
+    if level <= 39 then
+        return 2.5
+    elseif level <= 49 then
+        return 2.0
+    else
+        return 1.0
+    end
+end
+
+-- ============================================================
+--  TOOLTIP DE PROGRESO EN MOBS/NPCS DEL MUNDO
+--  Al pasar el mouse sobre un NPC vivo en el mundo (no en un mapa
+--  de SKquests), si ese NPC es parte de un objetivo de una quest
+--  activa (matar al NPC, o farmear un item que dropea), se agrega
+--  una linea al tooltip nativo con el progreso actual (ej "0/5").
+-- ============================================================
+local function SKQ_NpcIdFromGuid(guid)
+    if not guid or guid == "" then return nil end
+    -- Formato del servidor (confirmado via idTip): "Creature-0-1469-0-11-2951-0000123456"
+    local id = tonumber(guid:match("-(%d+)-%x+$"), 10)
+    if id and id > 0 then return id end
+    -- Fallback: formato hex clasico "0xF130001E2A000B87"
+    id = tonumber(guid:sub(7, 10), 16)
+    if id and id > 0 then return id end
+    return nil
+end
+
+-- Gradiente de color segun progreso: rojo (0%) -> amarillo (50%) -> verde (100%)
+local SKQ_COLOR_RED    = {1.00, 0.15, 0.15}
+local SKQ_COLOR_YELLOW = {1.00, 0.85, 0.10}
+local SKQ_COLOR_GREEN  = {0.15, 1.00, 0.15}
+
+local function SKQ_LerpColor(c1, c2, t)
+    return c1[1] + (c2[1] - c1[1]) * t,
+           c1[2] + (c2[2] - c1[2]) * t,
+           c1[3] + (c2[3] - c1[3]) * t
+end
+
+local function SKQ_ProgressColor(numDone, numTotal, done)
+    if done then
+        return SKQ_COLOR_GREEN[1], SKQ_COLOR_GREEN[2], SKQ_COLOR_GREEN[3]
+    end
+    if not numTotal or numTotal <= 0 then
+        return SKQ_COLOR_YELLOW[1], SKQ_COLOR_YELLOW[2], SKQ_COLOR_YELLOW[3]
+    end
+    local pct = (numDone or 0) / numTotal
+    if pct < 0 then pct = 0 elseif pct > 1 then pct = 1 end
+    if pct <= 0.5 then
+        return SKQ_LerpColor(SKQ_COLOR_RED, SKQ_COLOR_YELLOW, pct / 0.5)
+    else
+        return SKQ_LerpColor(SKQ_COLOR_YELLOW, SKQ_COLOR_GREEN, (pct - 0.5) / 0.5)
+    end
+end
+
+-- Cuenta cuantas palabras del nombre de la unidad aparecen en el texto del
+-- objetivo. Esto cubre tanto objetivos de "matar" (el texto suele contener el
+-- nombre completo del NPC, ej. "Palemane Poacher slain: 0/5") como objetivos
+-- de "recolectar item" donde el item comparte raiz con la familia del mob
+-- (ej. unidad "Prairie Wolf Alpha" -> objetivo "Prairie Wolf Paw: 5/6"), sin
+-- confundirlo con otro objetivo no relacionado de la misma quest (ej.
+-- "Plainstrider Talon: 3/4").
+local function SKQ_WordOverlapScore(unitWords, text)
+    if not text then return 0 end
+    local lo = text:lower()
+    local score = 0
+    for _, w in ipairs(unitWords) do
+        if lo:find(w, 1, true) then score = score + 1 end
+    end
+    return score
+end
+
+local function SKQ_FindQuestObjectivesForNpc(npcId, unitName)
+    if not npcId then return nil end
+    local active = addon.Tracker and addon.Tracker:GetActiveQuests()
+    if not active or not SKquests_ObjectiveLinks then return nil end
+    
+    local allFoundObjs = {}
+    
+    for _, entry in pairs(active) do
+        local links = entry.id and SKquests_ObjectiveLinks[entry.id]
+        if links then
+            local isLinked = false
+            if links.npcs then
+                for _, id in ipairs(links.npcs) do
+                    if id == npcId then isLinked = true; break end
+                end
+            end
+            if not isLinked and links.item_npcs then
+                for _, id in ipairs(links.item_npcs) do
+                    if id == npcId then isLinked = true; break end
+                end
+            end
+            if isLinked then
+                local objs = entry.objectives or {}
+                if #objs == 1 then
+                    table.insert(allFoundObjs, objs[1])
+                elseif unitName then
+                    local unitWords = {}
+                    for w in unitName:lower():gmatch("%a+") do
+                        if #w > 2 then table.insert(unitWords, w) end
+                    end
+                    local best, bestScore = {}, 0
+                    for _, obj in ipairs(objs) do
+                        local score = SKQ_WordOverlapScore(unitWords, obj.text)
+                        if score > bestScore then
+                            bestScore = score
+                            best = { obj }
+                        elseif score == bestScore and score > 0 then
+                            table.insert(best, obj)
+                        end
+                    end
+                    if bestScore > 0 then
+                        for _, bo in ipairs(best) do table.insert(allFoundObjs, bo) end
+                    else
+                        for _, bo in ipairs(objs) do table.insert(allFoundObjs, bo) end
+                    end
+                else
+                    for _, bo in ipairs(objs) do table.insert(allFoundObjs, bo) end
+                end
+            end
+        end
+    end
+    if #allFoundObjs > 0 then return allFoundObjs end
+    return nil
+end
+
+GameTooltip:HookScript("OnTooltipSetUnit", function(self)
+    local _, unit = self:GetUnit()
+    if not unit or not UnitExists(unit) then return end
+    if UnitIsPlayer(unit) then return end
+    local guid = UnitGUID and UnitGUID(unit)
+    local npcId = SKQ_NpcIdFromGuid(guid)
+    if not npcId then return end
+    local name = UnitName(unit)
+    local objs = SKQ_FindQuestObjectivesForNpc(npcId, name)
+    if objs then
+        local shown = false
+        for _, obj in ipairs(objs) do
+            if obj.text then
+                local r, g, b = SKQ_ProgressColor(obj.numDone, obj.numTotal, obj.done)
+                self:AddLine(obj.text, r, g, b, true)
+                shown = true
+            end
+        end
+        if shown then self:Show() end
+    end
+end)
 
 -- ============================================================
 --  MAPA DE ZONAS WotLK/Classic (LOOKUP TABLE)
@@ -379,6 +545,92 @@ local function ObjectDisplayName(objId)
     return (sd and sd.name) or ("Objeto " .. tostring(objId))
 end
 
+-- ============================================================
+--  TOOLTIP DE PROGRESO EN OBJETOS RECOLECTABLES DEL MUNDO
+--  Los GameObjects (herbs, cofres, items de quest en el piso, etc.)
+--  no son "unidades": OnTooltipSetUnit nunca dispara para ellos, y
+--  tampoco generan un tooltip de item real (OnTooltipSetItem). El
+--  cliente solo llama GameTooltip:SetText(nombre) directamente, asi
+--  que esa es la unica forma de detectarlos via Lua en 3.3.5a.
+-- ============================================================
+-- Cache nombre-normalizado -> texto/color de objetivo. El hook global de
+-- GameTooltip:SetText (mas abajo) se dispara en CADA tooltip del juego
+-- (hechizos, botones de accion, items del bolso, etc.), no solo en los
+-- relacionados con misiones. Antes, cada una de esas llamadas recorria
+-- todas las quests activas y armaba una tabla temporal de ids por quest;
+-- ahora ese trabajo se hace una sola vez por refresh del Tracker (ver
+-- SKQ_RebuildObjNameCache, llamado desde addon.Tracker.OnUpdate) y el hook
+-- solo hace una busqueda O(1) en la cache.
+local objNameCache = {}
+
+local function SKQ_IndexObjNames(idList, objs)
+    if not idList then return end
+    for _, id in ipairs(idList) do
+        local nm = ObjectDisplayName(id)
+        if nm then
+            local norm = QNameNorm(nm)
+            if norm ~= "" then
+                if not objNameCache[norm] then objNameCache[norm] = {} end
+                local obj = objs[1]
+                if #objs > 1 then
+                    for _, o in ipairs(objs) do
+                        if o.text and QNameNorm(o.text):find(norm, 1, true) then
+                            obj = o
+                            break
+                        end
+                    end
+                end
+                if obj and obj.text then
+                    local r, g, b = SKQ_ProgressColor(obj.numDone, obj.numTotal, obj.done)
+                    local exists = false
+                    for _, e in ipairs(objNameCache[norm]) do
+                        if e.text == obj.text then exists = true; break end
+                    end
+                    if not exists then
+                        table.insert(objNameCache[norm], { text = obj.text, r = r, g = g, b = b })
+                    end
+                end
+            end
+        end
+    end
+end
+
+local function SKQ_RebuildObjNameCache()
+    wipe(objNameCache)
+    local active = addon.Tracker and addon.Tracker:GetActiveQuests()
+    if not active or not SKquests_ObjectiveLinks then return end
+    for _, entry in pairs(active) do
+        local links = entry.id and SKquests_ObjectiveLinks[entry.id]
+        if links then
+            local objs = entry.objectives or {}
+            SKQ_IndexObjNames(links.objects, objs)
+            SKQ_IndexObjNames(links.item_objects, objs)
+        end
+    end
+end
+
+local function SKQ_FindQuestProgressForObjectName(displayedName)
+    local norm = QNameNorm(displayedName)
+    if norm == "" then return nil end
+    local hits = objNameCache[norm]
+    if not hits or #hits == 0 then return nil end
+    return hits
+end
+
+hooksecurefunc(GameTooltip, "SetText", function(self, text)
+    if not text or text == "" then return end
+    local _, unit = self:GetUnit()
+    if unit then return end
+    if self.GetItem and self:GetItem() then return end
+    local hits = SKQ_FindQuestProgressForObjectName(text)
+    if hits then
+        for _, hit in ipairs(hits) do
+            self:AddLine(hit.text, hit.r, hit.g, hit.b, true)
+        end
+        self:Show()
+    end
+end)
+
 -- Texto real de una quest del log (API del cliente), restaurando la selección
 local function GetLogQuestText(logIdx)
     if not logIdx then return nil end
@@ -447,6 +699,34 @@ local function GetZoneName(zoneId)
         if nm then ZoneMap[zoneId] = nm; return nm end
     end
     return "Zona " .. zoneId
+end
+
+-- Resuelve un nombre de zona real (GetRealZoneText) al zoneId interno del
+-- addon (esquema pfQuest), para saber si el jugador esta fisicamente en la
+-- misma zona que el mapa interactivo mostrado (marcador "tu posicion").
+local zoneNameToIdUI
+local function SKQ_NormZoneName(s) return (s:lower():gsub("[^%w]", "")) end
+local function SKQ_ResolveZoneIdFromRealZone(zoneName)
+    if not zoneName or zoneName == "" then return nil end
+    if not zoneNameToIdUI then
+        zoneNameToIdUI = {}
+        if pfDB and pfDB["zones"] then
+            for _, locTable in pairs(pfDB["zones"]) do
+                for id, nm in pairs(locTable) do
+                    if type(nm) == "string" and nm ~= "" then zoneNameToIdUI[SKQ_NormZoneName(nm)] = id end
+                end
+            end
+        end
+        if ZoneMap then
+            for id, nm in pairs(ZoneMap) do
+                if type(nm) == "string" and nm ~= "" then
+                    local norm = SKQ_NormZoneName(nm)
+                    if not zoneNameToIdUI[norm] then zoneNameToIdUI[norm] = id end
+                end
+            end
+        end
+    end
+    return zoneNameToIdUI[SKQ_NormZoneName(zoneName)]
 end
 
 -- GetItemIcon: WotLK has no GetItemIcon API; use GetItemInfo texture slot
@@ -575,32 +855,7 @@ local ZoneCoordinates = {
     [490]  = { continent = 1, x = 43, y = 79 }, -- Un'Goro Crater
     [1377] = { continent = 1, x = 34, y = 78 }, -- Silithus
 
-    -- Continent 3: Outland (TBC)
-    [3430] = { continent = 2, x = 82, y = 18 }, -- Eversong Woods (Eastern Kingdoms)
-    [3433] = { continent = 2, x = 83, y = 24 }, -- Ghostlands (Eastern Kingdoms)
-    [3524] = { continent = 1, x = 13, y = 17 }, -- Azuremyst Isle (Kalimdor)
-    [3525] = { continent = 1, x = 12, y = 12 }, -- Bloodmyst Isle (Kalimdor)
-    [3483] = { continent = 3, x = 48, y = 56 }, -- Hellfire Peninsula
-    [3518] = { continent = 3, x = 38, y = 48 }, -- Nagrand
-    [3519] = { continent = 3, x = 53, y = 44 }, -- Terokkar Forest
-    [3520] = { continent = 3, x = 56, y = 68 }, -- Shadowmoon Valley
-    [3521] = { continent = 3, x = 29, y = 47 }, -- Zangarmarsh
-    [3522] = { continent = 3, x = 32, y = 37 }, -- Blade's Edge Mountains
-    [3523] = { continent = 3, x = 64, y = 27 }, -- Netherstorm
-    [4080] = { continent = 3, x = 74, y = 28 }, -- Isle of Quel'Danas
-
-    -- Continent 4: Northrend (WotLK)
-    [3537] = { continent = 4, x = 26, y = 76 }, -- Borean Tundra
-    [495]  = { continent = 4, x = 76, y = 73 }, -- Howling Fjord
-    [65]   = { continent = 4, x = 53, y = 55 }, -- Dragonblight
-    [394]  = { continent = 4, x = 68, y = 45 }, -- Grizzly Hills
-    [66]   = { continent = 4, x = 59, y = 30 }, -- Zul'Drak
-    [67]   = { continent = 4, x = 55, y = 17 }, -- The Storm Peaks
-    [4395] = { continent = 4, x = 50, y = 22 }, -- Icecrown
-    [3711] = { continent = 4, x = 50, y = 24 }, -- Icecrown Citadel (instance)
-    [210]  = { continent = 4, x = 35, y = 47 }, -- Crystalsong Forest
-    [206]  = { continent = 4, x = 28, y = 55 }, -- Sholazar Basin
-    [4197] = { continent = 4, x = 36, y = 25 }, -- Wintergrasp
+    -- (Outland/TBC y Northrend/WotLK excluidos - no aplican a Season of Discovery)
 
     -- Continent 2: Eastern Kingdoms
     [1]    = { continent = 2, x = 48, y = 51 }, -- Dun Morogh
@@ -628,14 +883,6 @@ local ZoneCoordinates = {
     [130]  = { continent = 2, x = 38, y = 23 }, -- Silverpine Forest
     [85]   = { continent = 2, x = 38, y = 14 }, -- Tirisfal Glades
     [154]  = { continent = 2, x = 38, y = 14 }, -- Deathknell -> Tirisfal Glades
-    -- TBC cities
-    [3487]  = { continent = 3, x = 49, y = 54 }, -- Shattrath City (Outland)
-    [3557]  = { continent = 1, x = 13, y = 14 }, -- The Exodar (Kalimdor)
-    -- WotLK extras
-    [2817]  = { continent = 4, x = 50, y = 40 }, -- Icecrown Glacier sub
-    [4100]  = { continent = 4, x = 72, y = 46 }, -- Naxxramas (Dragonblight)
-    [4196]  = { continent = 4, x = 57, y = 25 }, -- Ulduar (Storm Peaks)
-    [4264]  = { continent = 4, x = 57, y = 22 }, -- Icecrown (Argent Tournament area)
 }
 
 -- Listas filtradas
@@ -728,6 +975,7 @@ local ROW_H = 28
 -- ============================================================
 local function ApplyBD(f, bg, border, edgeSize)
     -- default fallback if not called inside ApplyTheme
+    SKQ_EnsureBackdrop(f)
     f:SetBackdrop({
         bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -762,6 +1010,7 @@ function addon:ApplyTheme()
     local function UpdateBD(frame, alpha)
         -- IMPORTANTE: no usar el marco pintado como edgeFile (rompe el borde) ni
         -- tilear el bg como fondo de cada panel. Borde estándar + color de paleta.
+        SKQ_EnsureBackdrop(frame)
         frame:SetBackdrop({
             bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
             edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -777,6 +1026,7 @@ function addon:ApplyTheme()
     local panelAlpha = isCustomBG and 0.0 or 0.98
 
     if isCustomBG then
+        SKQ_EnsureBackdrop(MainFrame)
         MainFrame:SetBackdrop({
             bgFile   = C.textures.bg,
             edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -832,6 +1082,7 @@ function addon:ApplyTheme()
         end
         if GuideCardsPanel.cards then
             for _, card in ipairs(GuideCardsPanel.cards) do
+                SKQ_EnsureBackdrop(card)
                 card:SetBackdrop({
                     bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
                     edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -946,9 +1197,11 @@ function addon:ApplyTheme()
 
     -- Actualizar colores del Mini-Tracker (Estilo transparente sin bordes ni fondo, como pfQuest)
     if SKquests_MiniTracker then
+        SKQ_EnsureBackdrop(SKquests_MiniTracker)
         SKquests_MiniTracker:SetBackdrop(nil)
         local header = SKquests_MiniTracker.header
         if header then
+            SKQ_EnsureBackdrop(header)
             header:SetBackdrop(nil)
         end
         if SKquests_MiniTracker.titleFS then
@@ -1006,6 +1259,18 @@ do
     end
 end
 
+-- Season of Discovery: zonas de Outland (TBC) y Northrend (WotLK), incluyendo
+-- capitales y zonas iniciales de razas TBC. Ver también ZoneCoordinates más
+-- arriba, de donde se quitaron estas mismas zonas.
+local EXPANSION_EXCLUDED_ZONES = {
+    [3483]=true, [3518]=true, [3519]=true, [3520]=true, [3521]=true, [3522]=true,
+    [3523]=true, [4080]=true, [3487]=true, [3524]=true, [3525]=true, [3557]=true,
+    [3430]=true, [3433]=true, -- Eversong Woods / Ghostlands (zona inicial Sangre Élfica TBC)
+    [3537]=true, [495]=true, [65]=true, [394]=true, [66]=true, [67]=true,
+    [4395]=true, [3711]=true, [210]=true, [206]=true, [4197]=true, [2817]=true,
+    [4100]=true, [4196]=true, [4264]=true,
+}
+
 local function IsQuestEligible(id, q)
     local title = string.upper(q.name or "")
     -- descartar quests sin nombre (entradas corruptas del volcado)
@@ -1053,7 +1318,21 @@ local function IsQuestEligible(id, q)
     if title:find("PVP") or title:find("JCJ") then
         return false
     end
-    -- [WotLK Classic] TBC/WotLK quests included (ChromieCraft has all expansions)
+    -- Season of Discovery: excluir contenido de TBC/WotLK (el ChromieCraft
+    -- original incluía las 3 expansiones; SoD es contenido clásico únicamente).
+    -- 1) Tabla de origen por quest ID (pfDB.quest_origin, de pfQuest)
+    if pfDB and pfDB['quest_origin'] and pfDB['quest_origin'][id] == 'tbc' then
+        return false
+    end
+    -- 2) Zonas de Outland/Northrend/capitales TBC (sin entrada en ZoneCoordinates
+    --    tras la exclusión de esas zonas; usamos la lista explícita como respaldo)
+    if q.zoneId and EXPANSION_EXCLUDED_ZONES[q.zoneId] then
+        return false
+    end
+    -- 3) Respaldo por nivel: nada en Vanilla/SoD supera el nivel 60
+    if l1 > 60 or l2 > 60 or l3 > 60 or l4 > 60 then
+        return false
+    end
     return true
 end
 
@@ -1170,10 +1449,6 @@ local function BuildZonesList()
             contOK = (cont == 2)
         elseif addon._zoneContinent == 0 then
             contOK = (not cont)
-        elseif addon._zoneContinent == 3 then
-            contOK = (cont == 3)
-        elseif addon._zoneContinent == 4 then
-            contOK = (cont == 4)
         end
 
         if showZone and contOK then
@@ -1258,10 +1533,6 @@ local function BuildFilteredQuestIds()
                     matchesContinent = (cont == 1)
                 elseif addon._questContinentFilter == "Eastern Kingdoms" then
                     matchesContinent = (cont == 2)
-                elseif addon._questContinentFilter == "Outland" then
-                    matchesContinent = (cont == 3)
-                elseif addon._questContinentFilter == "Northrend" then
-                    matchesContinent = (cont == 4)
                 elseif addon._questContinentFilter == "Dungeons" then
                     matchesContinent = (not cont)
                 end
@@ -1460,6 +1731,7 @@ local function CreateCopyableBox(parent, w, h)
     local box = CreateFrame("EditBox", nil, parent)
     box:SetSize(w, h)
     box:SetFontObject("GameFontHighlightSmall")
+    SKQ_EnsureBackdrop(box)
     box:SetBackdrop({
         bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -1698,8 +1970,12 @@ function addon:CreateModernUI()
     f:SetPoint("CENTER")
     f:SetMovable(true)
     f:SetResizable(true)
-    f:SetMinResize(800, 480)
-    f:SetMaxResize(maxW, maxH)
+    if f.SetResizeBounds then
+        f:SetResizeBounds(800, 480, maxW, maxH)
+    else
+        f:SetMinResize(800, 480)
+        f:SetMaxResize(maxW, maxH)
+    end
     f:EnableMouse(true)
     f:RegisterForDrag("LeftButton")
     f:SetScript("OnDragStart", function(self)
@@ -1856,6 +2132,7 @@ function addon:CreateModernUI()
         btn.tabId = item.id
         btn:RegisterForClicks("LeftButtonUp")
 
+        SKQ_EnsureBackdrop(btn)
         btn:SetBackdrop({
             bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
             edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -1953,7 +2230,7 @@ function addon:CreateModernUI()
           local zbar = _G[ListPanel.scroll:GetName() .. "ScrollBar"]
           if zbar then zbar:SetValue(0) end
           addon:UpdateListRows()
-          PlaySound("igMainMenuOption")
+          PlaySound(SOUND.IG_MAINMENU_OPTION or 856)
       end)
 
     -- Filtro de Facción (Alliance / Horde)
@@ -2077,7 +2354,7 @@ function addon:CreateModernUI()
         lvlMinBox:SetText(""); lvlMaxBox:SetText("")
         lvlMinBox:ClearFocus(); lvlMaxBox:ClearFocus()
         ApplyLevelFilter()
-        PlaySound("igMainMenuOptionCheckBoxOn")
+        PlaySound(SOUND.IG_MAINMENU_OPTION_CHECKBOX_ON or 856)
     end)
     end -- do (levelBar scope)
 
@@ -2251,6 +2528,7 @@ function addon:CreateModernUI()
         btn:SetSize(230, ROW_H)
         btn:SetPoint("TOPLEFT", 0, -(i - 1) * ROW_H)
         btn:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+        SKQ_EnsureBackdrop(btn)
         btn:SetBackdrop({
             bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
             edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -2410,7 +2688,7 @@ function addon:CreateModernUI()
                     if ZonesMapPanel.UpdateContinentTabs then
                         ZonesMapPanel.UpdateContinentTabs()
                     end
-                    PlaySound("igMainMenuOption")
+                    PlaySound(SOUND.IG_MAINMENU_OPTION or 856)
                 else
                     -- Dungeon / cueva (sin mapa de continente) -> ir a Quests filtrado
                     addon:SwitchTab("quests")
@@ -2520,9 +2798,7 @@ function addon:CreateModernUI()
     CreateZlBtn(2, 0, IsSpanish() and "Dungeons" or "Instances", 70)
     CreateZlBtn(3, 1, "Kalimdor", 65)
     CreateZlBtn(4, 2, IsSpanish() and "Eastern Kingdoms" or "EK", 110)
-    CreateZlBtn(5, 3, "Outland", 60)
-    CreateZlBtn(6, 4, "Northrend", 70)
-    CreateZlBtn(7, -1, IsSpanish() and "Profesiones/Clases" or "Profs/Classes", 130)
+    CreateZlBtn(5, -1, IsSpanish() and "Profesiones/Clases" or "Profs/Classes", 130)
     -- Iniciar visualmente el boton "Todos" (pero no disparar refresh para no romper el load inicial si no está listo)
     SelectZlCont(nil)
 
@@ -2655,7 +2931,7 @@ function addon:CreateModernUI()
                         selectedZoneFilter = self.zoneName
                         addon._questFactionFilter = self.facFilter or "Both"
                         if qFacBtn and qFacBtn.lbl then
-                            qFacBtn.lbl:SetText((self.facFilter and self.facFilter ~= "Both") and self.facFilter or "Faction")
+                            qFacBtn.lbl:SetText((self.facFilter and self.facFilter ~= "Both") and self.facFilter or (IsSpanish() and "Facción" or "Faction"))
                         end
                         addon:SwitchTab("quests")
                         BuildFilteredQuestIds()
@@ -2663,7 +2939,7 @@ function addon:CreateModernUI()
                         local zbar = _G[ListPanel.scroll:GetName() .. "ScrollBar"]
                         if zbar then zbar:SetValue(0) end
                         addon:UpdateListRows()
-                        PlaySound("igMainMenuOption")
+                        PlaySound(SOUND.IG_MAINMENU_OPTION or 856)
                     end)
                     pool[ri] = b
                 end
@@ -2794,7 +3070,7 @@ function addon:CreateModernUI()
     continentTabFrame:SetHeight(30)
 
     local currentContinent = 1 -- 1 = Kalimdor, 2 = Eastern Kingdoms
-    addon._zoneContinent = addon._zoneContinent or 1 -- 0=Dungeons 1=Kalimdor 2=EK 3=Outland 4=Northrend
+    addon._zoneContinent = addon._zoneContinent or 1 -- 0=Dungeons 1=Kalimdor 2=EK
 
     local btnKalimdor = CreateFrame("Button", nil, continentTabFrame)
     btnKalimdor:SetSize(120, 22)
@@ -2823,24 +3099,6 @@ function addon:CreateModernUI()
     lblInstances:SetText(IsSpanish() and "Mazmorras" or "Dungeons")
     btnInstances.lbl = lblInstances
 
-    local btnOutland = CreateFrame("Button", nil, continentTabFrame)
-    btnOutland:SetSize(80, 22)
-    btnOutland:SetPoint("LEFT", btnInstances, "RIGHT", 6, 0)
-    ApplyBD(btnOutland, {0,0,0}, {0.3,0.5,0.3}, 8)
-    local lblOutland = btnOutland:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    lblOutland:SetPoint("CENTER", 0, 0)
-    lblOutland:SetText("Outland")
-    btnOutland.lbl = lblOutland
-
-    local btnNorthrend = CreateFrame("Button", nil, continentTabFrame)
-    btnNorthrend:SetSize(90, 22)
-    btnNorthrend:SetPoint("LEFT", btnOutland, "RIGHT", 6, 0)
-    ApplyBD(btnNorthrend, {0,0,0}, {0.3,0.4,0.6}, 8)
-    local lblNorthrend = btnNorthrend:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    lblNorthrend:SetPoint("CENTER", 0, 0)
-    lblNorthrend:SetText("Northrend")
-    btnNorthrend.lbl = lblNorthrend
-
     -- Back button
     local backBtn = CreateFrame("Button", nil, ZonesMapPanel)
     backBtn:SetSize(80, 22)
@@ -2868,10 +3126,6 @@ function addon:CreateModernUI()
             local prefix
             if currentContinent == 1 then
                 prefix = "Interface\\WorldMap\\Kalimdor\\Kalimdor"
-            elseif currentContinent == 3 then
-                prefix = "Interface\\WorldMap\\Outland\\Outland"
-            elseif currentContinent == 4 then
-                prefix = "Interface\\WorldMap\\Northrend\\Northrend"
             else
                 prefix = "Interface\\WorldMap\\Azeroth\\Azeroth"
             end
@@ -2887,8 +3141,6 @@ function addon:CreateModernUI()
             hi(btnKalimdor,  currentContinent == 1)
             hi(btnEK,        currentContinent == 2)
             hi(btnInstances, currentContinent == 0)
-            hi(btnOutland,   currentContinent == 3)
-            hi(btnNorthrend, currentContinent == 4)
         else
             continentTabFrame:Hide()
             backBtn:Show()
@@ -2915,8 +3167,6 @@ function addon:CreateModernUI()
     btnKalimdor:SetScript("OnClick", function() SelectContinent(1) end)
     btnEK:SetScript("OnClick", function() SelectContinent(2) end)
     btnInstances:SetScript("OnClick", function() SelectContinent(0) end)
-    btnOutland:SetScript("OnClick", function() SelectContinent(3) end)
-    btnNorthrend:SetScript("OnClick", function() SelectContinent(4) end)
 
     backBtn:SetScript("OnClick", function()
         ZonesMapPanel.currentMapMode = "continent"
@@ -2924,7 +3174,7 @@ function addon:CreateModernUI()
         ZonesMapPanel.zoneOffX = 0
         ZonesMapPanel.zoneOffY = 0
         UpdateContinentTabs()
-        PlaySound("igMainMenuOption")
+        PlaySound(SOUND.IG_MAINMENU_OPTION or 856)
     end)
 
     -- Dynamic scaling of map canvas on resize (4:3 aspect ratio)
@@ -3052,7 +3302,7 @@ function addon:CreateModernUI()
                 ZonesMapPanel.zoneOffX = 0
                 ZonesMapPanel.zoneOffY = 0
                 UpdateContinentTabs()
-                PlaySound("igMainMenuOption")
+                PlaySound(SOUND.IG_MAINMENU_OPTION or 856)
             end
         else
             zoneDragging = true
@@ -3076,7 +3326,7 @@ function addon:CreateModernUI()
                 zoneHL:Hide(); lastHLName = nil
                 if GameTooltip:IsOwned(MapClip) then GameTooltip:Hide() end
                 UpdateContinentTabs()
-                PlaySound("igMainMenuOption")
+                PlaySound(SOUND.IG_MAINMENU_OPTION or 856)
             end
         end
     end)
@@ -3425,7 +3675,7 @@ function addon:CreateModernUI()
                 ZonesMapPanel.zoneOffX = 0
                 ZonesMapPanel.zoneOffY = 0
                 UpdateContinentTabs()
-                PlaySound("igMainMenuOption")
+                PlaySound(SOUND.IG_MAINMENU_OPTION or 856)
             end)
 
             mapPins[activePinsCount] = pin
@@ -3490,7 +3740,7 @@ function addon:CreateModernUI()
                 if _zn then selectedZoneFilter = _zn; BuildFilteredQuestIds() end
                 addon:SwitchTab("quests")
                 addon:SelectQuestById(self.questId)
-                PlaySound("igMainMenuOption")
+                PlaySound(SOUND.IG_MAINMENU_OPTION or 856)
             end)
             
             questPinsPool[activeQuestPinsCount] = pin
@@ -3564,10 +3814,6 @@ function addon:CreateModernUI()
             local prefix
             if currentContinent == 1 then
                 prefix = "Interface\\WorldMap\\Kalimdor\\Kalimdor"
-            elseif currentContinent == 3 then
-                prefix = "Interface\\WorldMap\\Outland\\Outland"
-            elseif currentContinent == 4 then
-                prefix = "Interface\\WorldMap\\Northrend\\Northrend"
             else
                 prefix = "Interface\\WorldMap\\Azeroth\\Azeroth"
             end
@@ -3583,8 +3829,6 @@ function addon:CreateModernUI()
             hi(btnKalimdor,  currentContinent == 1)
             hi(btnEK,        currentContinent == 2)
             hi(btnInstances, currentContinent == 0)
-            hi(btnOutland,   currentContinent == 3)
-            hi(btnNorthrend, currentContinent == 4)
             pcall(SetMapZoom, currentContinent)
             zoneHL:Hide(); lastHLName = nil; hoverZoneId = nil
             atlasOV.Hide()
@@ -3890,6 +4134,31 @@ function addon:CreateModernUI()
     qLevel:SetTextColor(1, 0.82, 0)
     detailHeader.level = qLevel
 
+    detailHeader.trackBtn = CreateFrame("Button", nil, detailHeader, "UIPanelButtonTemplate")
+    detailHeader.trackBtn:SetSize(75, 22)
+    detailHeader.trackBtn:SetPoint("BOTTOMRIGHT", -4, 4)
+    detailHeader.trackBtn:SetText(IsSpanish() and "Seguir" or "Track")
+    detailHeader.trackBtn:Hide()
+
+    detailHeader.shareNativeBtn = CreateFrame("Button", nil, detailHeader, "UIPanelButtonTemplate")
+    detailHeader.shareNativeBtn:SetSize(80, 22)
+    detailHeader.shareNativeBtn:SetPoint("RIGHT", detailHeader.trackBtn, "LEFT", -4, 0)
+    detailHeader.shareNativeBtn:SetText(IsSpanish() and "Compartir" or "Share")
+    detailHeader.shareNativeBtn:Hide()
+
+    detailHeader.downBtn = CreateFrame("Button", nil, detailHeader, "UIPanelButtonTemplate")
+    detailHeader.downBtn:SetSize(22, 22)
+    detailHeader.downBtn:SetPoint("RIGHT", detailHeader.shareNativeBtn, "LEFT", -4, 0)
+    detailHeader.downBtn:SetText("v")
+    detailHeader.downBtn:Hide()
+
+    detailHeader.upBtn = CreateFrame("Button", nil, detailHeader, "UIPanelButtonTemplate")
+    detailHeader.upBtn:SetSize(22, 22)
+    detailHeader.upBtn:SetPoint("RIGHT", detailHeader.downBtn, "LEFT", -2, 0)
+    detailHeader.upBtn:SetText("^")
+    detailHeader.upBtn:Hide()
+
+
     -- Ilustración de Quest (Ilustración superior)
     -- ---- VISOR DE MAPA / ILUSTRACIÓN INTERACTIVO ----
     -- Rueda: zoom · Arrastrar: desplazar · Clic: restablecer.
@@ -3897,6 +4166,7 @@ function addon:CreateModernUI()
     -- nunca se mueve aunque se agrande la imagen.
     local questImgBox = CreateFrame("Frame", nil, dChild)
     questImgBox:SetHeight(220)
+    SKQ_EnsureBackdrop(questImgBox)
     questImgBox:SetBackdrop({
         bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -3912,6 +4182,7 @@ function addon:CreateModernUI()
     seBtn:SetFrameLevel(questImgBox:GetFrameLevel() + 40)
     seBtn:SetSize(210, 22)
     seBtn:SetPoint("TOPLEFT", questImgBox, "TOPLEFT", 6, -6)
+    SKQ_EnsureBackdrop(seBtn)
     seBtn:SetBackdrop({ bgFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 8, insets = {left=2,right=2,top=2,bottom=2} })
     seBtn:SetBackdropColor(0, 0, 0, 0.75)
     seBtn:SetBackdropBorderColor(1, 0.82, 0, 0.7)
@@ -3946,6 +4217,36 @@ function addon:CreateModernUI()
     questImgBox.tex = flatTex -- compatibilidad
 
     -- Pins interactivos estilo Wowhead (inicio "!" / entrega "?")
+    -- NUEVO: progreso en vivo del objetivo bajo el cursor (cuanto falta, ej "0/5")
+    local function GetQuestObjectiveProgress(qid, label)
+        if not qid then return nil end
+        local active = addon.Tracker and addon.Tracker:GetActiveQuests()
+        if not active then return nil end
+        local entry
+        for _, e in pairs(active) do
+            if e.id == qid then entry = e; break end
+        end
+        if not entry then return nil end
+        local objs = entry.objectives or {}
+        if #objs == 0 then return nil end
+        if #objs == 1 then return objs[1].text end
+        -- Varios objetivos: intentar emparejar por el nombre del NPC/objeto del pin
+        if label then
+            local lo = label:lower()
+            for _, obj in ipairs(objs) do
+                if obj.text and obj.text:lower():find(lo, 1, true) then
+                    return obj.text
+                end
+            end
+        end
+        -- Sin match claro: mostrar todos los objetivos de la quest
+        local lines = {}
+        for _, obj in ipairs(objs) do
+            if obj.text then table.insert(lines, obj.text) end
+        end
+        return #lines > 0 and table.concat(lines, "\n") or nil
+    end
+
     local pinPool = {}
     local function GetPin(idx)
         local pin = pinPool[idx]
@@ -3958,6 +4259,12 @@ function addon:CreateModernUI()
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(self.label or "", 1, 0.82, 0)
                 if self.sub then GameTooltip:AddLine(self.sub, 1, 1, 1) end
+                if self.questId then
+                    local progress = GetQuestObjectiveProgress(self.questId, self.label)
+                    if progress then
+                        GameTooltip:AddLine(progress, 0.2, 1.0, 0.2, true)
+                    end
+                end
                 GameTooltip:Show()
             end)
             pin:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -3980,6 +4287,31 @@ function addon:CreateModernUI()
         end
         return pin
     end
+
+    -- Marcador "tu posicion" (jugador) en el mapa interactivo. Solo se
+    -- muestra cuando el jugador esta fisicamente en la zona mostrada.
+    local playerPin = CreateFrame("Frame", nil, imgCanvas)
+    playerPin:SetSize(14, 14)
+    playerPin:Hide()
+    playerPin:SetFrameLevel(imgCanvas:GetFrameLevel() + 10)
+    local playerPinGlow = playerPin:CreateTexture(nil, "ARTWORK")
+    playerPinGlow:SetPoint("CENTER")
+    playerPinGlow:SetSize(28, 28)
+    playerPinGlow:SetTexture("Interface\\AddOns\\SKquests\\Media\\circle.tga")
+    playerPinGlow:SetVertexColor(0.25, 0.65, 1.0, 0.35)
+    playerPinGlow:SetBlendMode("ADD")
+    local playerPinTex = playerPin:CreateTexture(nil, "OVERLAY")
+    playerPinTex:SetAllPoints(playerPin)
+    playerPinTex:SetTexture("Interface\\AddOns\\SKquests\\Media\\circle.tga")
+    playerPinTex:SetVertexColor(0.35, 0.75, 1.0, 1)
+    playerPinTex:SetBlendMode("ADD")
+    playerPin:EnableMouse(true)
+    playerPin:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:SetText(IsSpanish() and "Tu posición" or "Your position", 0.35, 0.75, 1)
+        GameTooltip:Show()
+    end)
+    playerPin:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
     local imgMode = "flat"
     local customMap = false
@@ -4110,8 +4442,38 @@ function addon:CreateModernUI()
                 ov:SetSize(ov.relW * W, ov.relH * H)
             end
         end
+        -- Marcador del jugador: reposicionar con el mismo factor del lienzo
+        if playerPin.relX and playerPin:IsShown() then
+            playerPin:ClearAllPoints()
+            playerPin:SetPoint("CENTER", imgCanvas, "TOPLEFT", playerPin.relX * W, -(playerPin.relY * H))
+        end
     end
     questImgBox.Relayout = ImgLayout
+
+    -- Actualiza la posicion del marcador del jugador: solo visible si esta
+    -- fisicamente parado en la misma zona que el mapa interactivo mostrado.
+    local playerPinElapsed = 0
+    local function UpdatePlayerPin()
+        local zoneId = _G.SKquests_UI_CurrentMapZone
+        local realZone = GetRealZoneText and GetRealZoneText()
+        local hereId = realZone and realZone ~= "" and SKQ_ResolveZoneIdFromRealZone(realZone)
+        if not zoneId or not hereId or tostring(hereId) ~= tostring(zoneId) then
+            playerPin.relX, playerPin.relY = nil, nil
+            playerPin:Hide()
+            return
+        end
+        local px, py
+        if addon.GetPlayerMapCoords then px, py = addon:GetPlayerMapCoords() end
+        if not px or not py then
+            playerPin:Hide()
+            return
+        end
+        playerPin.relX, playerPin.relY = px / 100, py / 100
+        local cW, cH = imgCanvas:GetWidth(), imgCanvas:GetHeight()
+        playerPin:ClearAllPoints()
+        playerPin:SetPoint("CENTER", imgCanvas, "TOPLEFT", playerPin.relX * cW, -(playerPin.relY * cH))
+        playerPin:Show()
+    end
     questImgBox:SetScript("OnSizeChanged", ImgLayout)
 
     questImgBox:SetScript("OnMouseWheel", function(self, delta)
@@ -4138,10 +4500,15 @@ function addon:CreateModernUI()
             ImgLayout()
         end
     end)
-    questImgBox:SetScript("OnUpdate", function(self)
+    questImgBox:SetScript("OnUpdate", function(self, elapsed)
         if self.needsLayout and imgClip:GetWidth() and imgClip:GetWidth() > 1 then
             self.needsLayout = false
             ImgLayout()
+        end
+        playerPinElapsed = playerPinElapsed + (elapsed or 0)
+        if playerPinElapsed >= 1 then
+            playerPinElapsed = 0
+            UpdatePlayerPin()
         end
         if not imgDragging then return end
         local x, y = GetCursorPosition()
@@ -4203,6 +4570,7 @@ function addon:CreateModernUI()
         
         local originalMapZone = mapZone
         _G.SKquests_UI_CurrentMapZone = mapZone
+        UpdatePlayerPin()
 
         -- Inicio/Fin: alternar a la zona del ender si se apreto la flecha
         local _endZone = (q and q.enderId) and NpcZone(q.enderId) or nil
@@ -4401,6 +4769,7 @@ function addon:CreateModernUI()
                 placed[#placed + 1] = { x = x, y = y, r = r, g = g }
                 local pin = GetPin(nPin)
                 pin.category = category
+                pin.questId  = q and q.id
                 pin:SetSize(14, 14)
                 pin.tex:SetTexture("Interface\\AddOns\\SKquests\\Media\\circle.tga")
                 pin.tex:SetVertexColor(r, g, b, 0.5)
@@ -4502,6 +4871,7 @@ function addon:CreateModernUI()
                         pin:SetScript("OnMouseDown", nil)
                         pin.label = name or ("NPC " .. tostring(id))
                         pin.sub = string.format("%s (%.1f, %.1f)", role, cx, cy)
+                        pin.questId = nil
                         pin:Show()
                     end
                 end
@@ -4551,6 +4921,7 @@ function addon:CreateModernUI()
                     pin:SetScript("OnMouseDown", nil)
                     pin.label = q.name
                     pin.sub = string.format("%s (%.0f, %.0f)", L("MAP_START"), bq.x, bq.y)
+                    pin.questId = nil
                     pin:Show()
                 end
 
@@ -4570,6 +4941,7 @@ function addon:CreateModernUI()
                     pin:SetScript("OnMouseDown", nil)
                     pin.label = q.name
                     pin.sub = (IsSpanish() and "Guardado al aceptar" or "Saved on accept") .. string.format(" (%.0f, %.0f)", savedC.x, savedC.y)
+                    pin.questId = nil
                     pin:Show()
                 end
             end
@@ -4617,6 +4989,7 @@ function addon:CreateModernUI()
     local objBox = CreateFrame("Frame", nil, objSec)
     objBox:SetPoint("TOPLEFT", 4, -24)
     objBox:SetPoint("BOTTOMRIGHT", -4, -4)
+    SKQ_EnsureBackdrop(objBox)
     objBox:SetBackdrop({
         bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -4661,12 +5034,17 @@ function addon:CreateModernUI()
           local chanName = chDef.chan  -- upvalue por botón
           cBtn:SetScript("OnClick", function()
               local sb = objSec.shareBtn
-              if sb and sb.shareLines and #sb.shareLines > 0 then
+              if sb and ((sb.shareLines and #sb.shareLines > 0) or sb.isComplete) then
                   local qId   = sb.questId or 0
                   local qLvl  = sb.questLevel or 0
                   local qName = sb.questTitle or ""
                   local qLink = "|cff808080|Hquest:" .. qId .. ":" .. qLvl .. "|h[" .. qName .. "]|h|r"
-                  local prog  = table.concat(sb.shareLines, ", ")
+                  local prog
+                  if sb.shareLines and #sb.shareLines > 0 then
+                      prog = table.concat(sb.shareLines, ", ")
+                  else
+                      prog = IsSpanish() and "¡Completada! Lista para entregar." or "Completed! Ready to turn in."
+                  end
                   SendChatMessage("SKquests: " .. qLink .. " - " .. prog, chanName)
               end
               shareChanMenu:Hide()
@@ -4675,7 +5053,7 @@ function addon:CreateModernUI()
 
       -- El botón principal ahora abre/cierra el menú de canal
       shareBtn:SetScript("OnClick", function(self)
-            if self.shareLines and #self.shareLines > 0 then
+            if (self.shareLines and #self.shareLines > 0) or self.isComplete then
                 if shareChanMenu:IsShown() then
                     shareChanMenu:Hide()
                 else
@@ -4714,6 +5092,7 @@ function addon:CreateModernUI()
     -- 4) Imagen de Mapa (Guía)
     local mapBox = CreateFrame("Frame", nil, dChild)
     mapBox:SetHeight(180)
+    SKQ_EnsureBackdrop(mapBox)
     mapBox:SetBackdrop({
         bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -4745,6 +5124,7 @@ function addon:CreateModernUI()
     local function MakeNpcCard(parent, titleText)
         local card = CreateFrame("Frame", nil, parent)
         card:SetSize(185, 54)
+        SKQ_EnsureBackdrop(card)
         card:SetBackdrop({
             bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
             edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -4807,6 +5187,7 @@ function addon:CreateModernUI()
         local btn = CreateFrame("Button", bname, parent)
         btn:SetSize(36, 36)
         btn:SetPoint("TOPLEFT", xOffset, yOffset)
+        SKQ_EnsureBackdrop(btn)
         btn:SetBackdrop({
             edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
             edgeSize = 8, insets = {left=1, right=1, top=1, bottom=1}
@@ -5298,36 +5679,28 @@ function addon:CreateModernUI()
 
 
 
-    -- ---- MULTIPLICADOR XP SERVIDOR (ChromieCraft x1/x2/x3) ----
-    local xpRateLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    xpRateLbl:SetPoint("TOPLEFT", 20, -430)
-    xpRateLbl:SetText("Tasa XP Servidor")
-    table.insert(SettingsPanel.labels, xpRateLbl)
+    -- ---- MULTIPLICADOR XP DINÁMICO (Season of Discovery: Discoverer's Delight) ----
+    local sodXPLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    sodXPLbl:SetPoint("TOPLEFT", 20, -430)
+    sodXPLbl:SetText("Multiplicador XP (Dinámico - SoD)")
+    table.insert(SettingsPanel.labels, sodXPLbl)
 
-    local xpRateBtns = {}
-    local xpRates = {1, 2, 3}
-    for i, rate in ipairs(xpRates) do
-        local rb = CreateFrame("Button", "SKquests_XPRate" .. rate, SettingsPanel, "UIPanelButtonTemplate")
-        rb:SetPoint("TOPLEFT", 12 + (i-1)*58, -452)
-        rb:SetSize(54, 22)
-        rb:SetText("x" .. rate)
-        rb.rate = rate
-        rb:SetScript("OnClick", function(self)
-            SKquests.config.xpRate = self.rate
-            SKquestsDB.config.xpRate = self.rate
-            for _, b in ipairs(xpRateBtns) do
-                b:SetAlpha(b.rate == self.rate and 1.0 or 0.45)
-            end
-            if addon.RefreshDetail then addon:RefreshDetail() end
-        end)
-        xpRateBtns[i] = rb
-    end
-    do
-        local curRate = (SKquestsDB and SKquestsDB.config and SKquestsDB.config.xpRate) or 1
-        for _, b in ipairs(xpRateBtns) do
-            b:SetAlpha(b.rate == curRate and 1.0 or 0.45)
+    local sodXPStatus = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    sodXPStatus:SetPoint("TOPLEFT", 20, -452)
+    sodXPStatus:SetWidth(320)
+    sodXPStatus:SetJustifyH("LEFT")
+    table.insert(SettingsPanel.labels, sodXPStatus)
+
+    local function RefreshSoDXPStatus()
+        local mult = GetSoDXPMultiplier()
+        if mult > 1 then
+            sodXPStatus:SetText(("|cff40ff40Discoverer's Delight ACTIVO|r (x%.1f XP de quest)"):format(mult))
+        else
+            sodXPStatus:SetText("|cffaaaaaaDiscoverer's Delight inactivo|r (x1.0 XP de quest)")
         end
     end
+    RefreshSoDXPStatus()
+    SettingsPanel:HookScript("OnShow", RefreshSoDXPStatus)
 
     -- Controles del XP Appraiser (en su propia función: ver nota más abajo)
     addon:AddXPAppraiserSettings(SettingsPanel)
@@ -5408,6 +5781,7 @@ function addon:CreateModernUI()
 
     if addon.Tracker then
         addon.Tracker.OnUpdate = function()
+            SKQ_RebuildObjNameCache()
             if MainFrame and MainFrame:IsShown() then
                 addon:UpdateListRows()
                 addon:RefreshDetail()
@@ -5427,15 +5801,14 @@ function addon:CreateModernUI()
         if not questLogIndex or type(GetQuestLogTitle) ~= "function" then return end
         local title = GetQuestLogTitle(questLogIndex)
         if not title or title == "" then return end
-        if SetMapToCurrentZone then SetMapToCurrentZone() end
-        local x, y = 0, 0
-        if GetPlayerMapPosition then x, y = GetPlayerMapPosition("player") end
-        if not x or not y or (x == 0 and y == 0) then return end
+        local x, y
+        if addon.GetPlayerMapCoords then x, y = addon:GetPlayerMapCoords() end
+        if not x or not y then return end
         local zone = (GetRealZoneText and GetRealZoneText()) or (GetZoneText and GetZoneText()) or nil
         if not zone or zone == "" then return end
         SKquestsDB = SKquestsDB or {}
         SKquestsDB.acceptedCoords = SKquestsDB.acceptedCoords or {}
-        SKquestsDB.acceptedCoords[title] = { x = x * 100, y = y * 100, zone = zone }
+        SKquestsDB.acceptedCoords[title] = { x = x, y = y, zone = zone }
     end
 
     -- ============================================================
@@ -5707,6 +6080,18 @@ function addon:RefreshList()
                 -- Mostrar nombre localizado (Español) si está disponible
                 local locN = GetQuestLoc(q.id)
                 local displayName = (IsSpanish() and ((locN and locN.T) or (q.name_loc and q.name_loc ~= "" and q.name_loc))) or q.name
+                
+                local isDone = false
+                if C_QuestLog and C_QuestLog.IsQuestFlaggedCompleted then
+                    isDone = C_QuestLog.IsQuestFlaggedCompleted(id) == true
+                elseif IsQuestFlaggedCompleted then
+                    isDone = IsQuestFlaggedCompleted(id) == true
+                end
+                
+                if isDone then
+                    displayName = "|TInterface\\Buttons\\UI-CheckBox-Check:14|t " .. displayName
+                end
+                
                 btn.txt:SetText(displayName)
                 
                 local lvl = tonumber(q.level) or 0
@@ -5763,7 +6148,13 @@ function addon:RefreshList()
                     local entry = item.entry
                     btn.itemId = item.idx
                     btn.icon:Hide()
-                    btn.txt:SetText("  " .. tostring(entry.title or "Misión"))
+                    local titleText = "  " .. tostring(entry.title or (IsSpanish() and "Misión" or "Quest"))
+                    local qColor = GetQuestDifficultyColor(entry.level or 0)
+                    if qColor then
+                        local dotHex = string.format(" |cff%02x%02x%02x•|r", (qColor.r or 1) * 255, (qColor.g or 1) * 255, (qColor.b or 1) * 255)
+                        titleText = titleText .. dotHex
+                    end
+                    btn.txt:SetText(titleText)
                     
                     local lvl = tonumber(entry.level) or 0
                     btn.lvl:SetText(lvl > 0 and lvl or "")
@@ -5917,6 +6308,13 @@ function addon:RefreshDetail()
     local ch = DetailPanel.child
     if not ch then return end
 
+    if ch.header and ch.header.trackBtn then
+        ch.header.trackBtn:Hide()
+        ch.header.shareNativeBtn:Hide()
+        if ch.header.upBtn then ch.header.upBtn:Hide() end
+        if ch.header.downBtn then ch.header.downBtn:Hide() end
+    end
+
     -- Por defecto, ocultar TODOS los elementos de la guía (checkboxes, sus
     -- botones de link, encabezados de circuito y cajas de mapa) para que no
     -- queden visibles "detrás" del detalle de quest.
@@ -6029,7 +6427,8 @@ function addon:RefreshDetail()
                 local str = ""
                 for _, obj in ipairs(objs) do
                     local color = obj.done and "|cff00ff00" or "|cffffffff"
-                    local mark = obj.done and "|TInterface\\Buttons\\UI-CheckBox-Check:14|t " or "- "
+                    local isExploration = obj.text and (string.match(obj.text:lower(), "^explore ") or string.match(obj.text:lower(), "^explorar "))
+                    local mark = obj.done and "|TInterface\\Buttons\\UI-CheckBox-Check:14|t " or (isExploration and "|TInterface\\Icons\\INV_Misc_Spyglass_02:14|t " or "- ")
                     str = str .. color .. mark .. obj.text .. "|r\n"
                 end
                 ch.objSec.box.text:SetText(str)
@@ -6113,8 +6512,8 @@ function addon:RefreshDetail()
             end
         end
 
-        -- Multiplicadores de servidor ChromieCraft (x1/x2/x3)
-        local customMult = (SKquestsDB and SKquestsDB.config and SKquestsDB.config.xpRate) or 1
+        -- Multiplicador dinámico de XP (Season of Discovery: Discoverer's Delight)
+        local customMult = GetSoDXPMultiplier()
         if customMult ~= 1 and not usedDynamic and baseXP > 0 then
             finalXP = math.floor(baseXP * customMult)
         end
@@ -6264,7 +6663,7 @@ function addon:RefreshDetail()
         end
 
         if not entry then
-            ch.header.title:SetText("Ninguna misión activa seleccionada")
+            ch.header.title:SetText(IsSpanish() and "Ninguna misión activa seleccionada" or "No active quest selected")
             ch.header.meta:SetText("Selecciona una misión del Quest Log del panel izquierdo.")
             ch.header.level:SetText("")
             ch.objSec.box.text:SetText(L("NO_DETAILS"))
@@ -6316,6 +6715,102 @@ function addon:RefreshDetail()
         local zoneName = q and q.zoneId and GetZoneName(q.zoneId) or "Quest Log"
         ch.header.meta:SetText(string.format(L("ZONE_META"), zoneName))
 
+        if ch.header.trackBtn then
+            local qKey = entry.id or entry.title
+            ch.header.trackBtn:SetScript("OnClick", function()
+                if SKquests.config.manualTrackState[qKey] == true then
+                    SKquests.config.manualTrackState[qKey] = false
+                elseif SKquests.config.manualTrackState[qKey] == false then
+                    SKquests.config.manualTrackState[qKey] = nil
+                else
+                    SKquests.config.manualTrackState[qKey] = true
+                end
+                addon:RefreshDetail()
+                if addon.RefreshMiniTracker then addon:RefreshMiniTracker() end
+            end)
+            
+            local trackState = SKquests.config.manualTrackState[qKey]
+            if trackState == true then
+                ch.header.trackBtn:SetText(IsSpanish() and "Fijo" or "Pinned")
+            elseif trackState == false then
+                ch.header.trackBtn:SetText(IsSpanish() and "Oculto" or "Hidden")
+            else
+                ch.header.trackBtn:SetText("Auto")
+            end
+            ch.header.trackBtn:Show()
+            
+            if GetQuestLogPushable(selectedQuestLogIdx) then
+                ch.header.shareNativeBtn:Enable()
+            else
+                ch.header.shareNativeBtn:Disable()
+            end
+            ch.header.shareNativeBtn:SetScript("OnClick", function()
+                QuestLogPushQuest(selectedQuestLogIdx)
+            end)
+            ch.header.shareNativeBtn:Show()
+
+            if ch.header.upBtn and ch.header.downBtn then
+                local function moveQuest(targetQKey, direction)
+                    local activeQuests = addon.Tracker and addon.Tracker:GetActiveQuests()
+                    if not activeQuests then return end
+                    
+                    local sortedQuests = {}
+                    for i = 1, 100 do
+                        local e = activeQuests[i]
+                        if e then
+                            local started = e.isComplete or false
+                            if not started and e.objectives then
+                                for _, obj in ipairs(e.objectives) do
+                                    if obj.numDone and obj.numDone > 0 then started = true; break end
+                                end
+                            end
+                            table.insert(sortedQuests, { entry = e, started = started, origIndex = i })
+                        end
+                    end
+                    
+                    if not SKquests.config.userSortPriority then SKquests.config.userSortPriority = {} end
+                    local prio = SKquests.config.userSortPriority
+                    
+                    table.sort(sortedQuests, function(a, b)
+                        local keyA = a.entry.id or a.entry.title
+                        local keyB = b.entry.id or b.entry.title
+                        local pA = prio[keyA] or 0
+                        local pB = prio[keyB] or 0
+                        if pA ~= pB then return pA > pB end
+                        if a.started ~= b.started then return a.started end
+                        return a.origIndex < b.origIndex
+                    end)
+                    
+                    local N = #sortedQuests
+                    for i, item in ipairs(sortedQuests) do
+                        local k = item.entry.id or item.entry.title
+                        prio[k] = N - i + 1
+                    end
+                    
+                    for i, item in ipairs(sortedQuests) do
+                        local k = item.entry.id or item.entry.title
+                        if k == targetQKey then
+                            local targetIdx = i + direction
+                            if targetIdx >= 1 and targetIdx <= N then
+                                local targetItem = sortedQuests[targetIdx]
+                                local targetKey = targetItem.entry.id or targetItem.entry.title
+                                local temp = prio[k]
+                                prio[k] = prio[targetKey]
+                                prio[targetKey] = temp
+                            end
+                            break
+                        end
+                    end
+                    if addon.RefreshMiniTracker then addon:RefreshMiniTracker() end
+                end
+
+                ch.header.upBtn:SetScript("OnClick", function() moveQuest(qKey, -1) end)
+                ch.header.downBtn:SetScript("OnClick", function() moveQuest(qKey, 1) end)
+                ch.header.upBtn:Show()
+                ch.header.downBtn:Show()
+            end
+        end
+
         -- Mostrar Ilustración
         ch.questImgBox:SetQuest(q)
 
@@ -6323,30 +6818,49 @@ function addon:RefreshDetail()
         local objs = entry.objectives or {}
         if #objs == 0 then
             ch.objSec.box.text:SetText("|cff00ff00Misión completada o sin objetivos.|r")
-            if ch.objSec.shareBtn then ch.objSec.shareBtn:Hide() end
+            -- Antes esto ocultaba el botón "Chat" directamente. Ahora lo
+            -- dejamos visible (sin lineas de progreso) para poder avisar al
+            -- chat que la mision ya esta completada/lista para entregar.
+            if ch.objSec.shareBtn then
+                ch.objSec.shareBtn.shareLines = nil
+                ch.objSec.shareBtn.isComplete = true
+                ch.objSec.shareBtn.questId    = entry.id
+                ch.objSec.shareBtn.questTitle = entry.title or "?"
+                ch.objSec.shareBtn.questLevel = (q and q.level) or (entry.level) or 0
+                ch.objSec.shareBtn:Show()
+            end
         else
             local str = ""
             local shareLines = {}
             for _, obj in ipairs(objs) do
                 local color = obj.done and "|cff00ff00" or "|cffffffff"
-                local mark = obj.done and "|TInterface\\Buttons\\UI-CheckBox-Check:14|t " or "- "
+                local isExploration = obj.text and (string.match(obj.text:lower(), "^explore ") or string.match(obj.text:lower(), "^explorar "))
+                local mark = obj.done and "|TInterface\\Buttons\\UI-CheckBox-Check:14|t " or (isExploration and "|TInterface\\Icons\\INV_Misc_Spyglass_02:14|t " or "- ")
                 str = str .. color .. mark .. obj.text .. "|r\n"
-                -- Añadir al share si tiene progreso (contiene "/" como "5/7")
-                if not obj.done and obj.text and obj.text:find("/") then
+                -- Añadir al share cualquier objetivo pendiente, tenga o no
+                -- contador numérico (antes exigía "/" como en "5/7", lo que
+                -- dejaba el botón oculto en quests de un solo paso, p.ej.
+                -- "usa la maza en el peón" sin contador).
+                if not obj.done and obj.text and obj.text ~= "" then
                     table.insert(shareLines, obj.text)
                 end
             end
             ch.objSec.box.text:SetText(str)
             if ch.objSec.shareBtn then
+                ch.objSec.shareBtn.questId    = entry.id
+                ch.objSec.shareBtn.questTitle = entry.title or "?"
+                ch.objSec.shareBtn.questLevel = (q and q.level) or (entry.level) or 0
                 if #shareLines > 0 then
                     ch.objSec.shareBtn.shareLines = shareLines
-                    ch.objSec.shareBtn.questId    = entry.id
-                    ch.objSec.shareBtn.questTitle = entry.title or "?"
-                    ch.objSec.shareBtn.questLevel = (q and q.level) or (entry.level) or 0
-                    ch.objSec.shareBtn:Show()
+                    ch.objSec.shareBtn.isComplete = nil
                 else
-                    ch.objSec.shareBtn:Hide()
+                    -- Todos los objetivos estan en "done" (lista para
+                    -- entregar): igual mostramos el boton, en modo
+                    -- "completada", en vez de ocultarlo sin mas.
+                    ch.objSec.shareBtn.shareLines = nil
+                    ch.objSec.shareBtn.isComplete = true
                 end
+                ch.objSec.shareBtn:Show()
             end
         end
 
@@ -6466,14 +6980,12 @@ function addon:RefreshDetail()
             end
         end
 
-        -- Multiplicadores de servidor ChromieCraft (x1/x2/x3)
-        local customMult = ((SKquestsDB and SKquestsDB.config and SKquestsDB.config.xpRate) or 1)
-        if customMult ~= 1 then
-            if usedDynamic and finalXP > 0 then
-                finalXP = math.floor(finalXP * customMult)
-            elseif not usedDynamic and baseXP > 0 then
-                finalXP = math.floor(baseXP * customMult)
-            end
+        -- Multiplicador dinámico de XP (Season of Discovery: Discoverer's Delight)
+        -- Nota: si la XP viene de la API en vivo (usedDynamic), el cliente ya
+        -- refleja el bono del buff, así que sólo se aplica sobre la XP base de la DB.
+        local customMult = GetSoDXPMultiplier()
+        if customMult ~= 1 and not usedDynamic and baseXP > 0 then
+            finalXP = math.floor(baseXP * customMult)
         end
         
         if finalMoney > 0 then
@@ -6513,7 +7025,7 @@ function addon:RefreshDetail()
                     btn.itemId = rId
                     btn.itemName = rew.name
                     btn.itemLink = rew.link
-                    btn.tex:SetTexture("Interface\Icons\INV_Misc_QuestionMark")
+                    btn.tex:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
                     local itemTexture = GetItemIcon(rId)
                     if itemTexture then btn.tex:SetTexture(itemTexture) end
                     local itemName, itemLink = GetItemInfo(rId)
@@ -6532,7 +7044,7 @@ function addon:RefreshDetail()
                 if rew then
                     btn.itemId = rew.id
                     btn.itemLink = nil
-                    btn.tex:SetTexture("Interface\Icons\INV_Misc_QuestionMark")
+                    btn.tex:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
                     local itemTexture = GetItemIcon(rew.id)
                     if itemTexture then btn.tex:SetTexture(itemTexture) end
                     local itemName, itemLink = GetItemInfo(rew.id)
@@ -6573,7 +7085,7 @@ function addon:RefreshDetail()
 
         local guide = addon:GetGuideTable()
         if not guide or not guideChapters or not guideChapters[selectedGuideChapter] then
-            ch.header.title:SetText("No hay pasos de guía cargados")
+            ch.header.title:SetText(IsSpanish() and "No hay pasos de guía cargados" or "No guide steps loaded")
             ch.header.meta:SetText("Elige otra facción en Ajustes si es necesario.")
             ch.header.level:SetText("")
             ch.objSec.box.text:SetText("")
@@ -6766,6 +7278,7 @@ function addon:RefreshDetail()
                     local mb = ch.objSec.mapBoxes[mapIndex]
                     if not mb then
                         mb = CreateFrame("Frame", nil, ch.objSec)
+                        SKQ_EnsureBackdrop(mb)
                         mb:SetBackdrop({
                             bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
                             edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -7025,6 +7538,664 @@ SlashCmdList["SKQCALIB"] = function(msg)
 end
 
 -- ============================================================
+--  PINES DE QUEST GIVER/ENDER EN EL MAPA DEL MUNDO Y EL MINIMAPA
+-- ============================================================
+-- Estilo Questie: muestra sobre el WorldMapFrame nativo de Blizzard (tecla M)
+-- y sobre el Minimap la ubicacion de los NPCs dadores ("!") y entregadores
+-- ("?") de TODAS las quests disponibles/activas de la zona, usando
+-- SKquests_DetailDB + las coordenadas de pfDB (pfQuest).
+
+-- Proyecta la coordenada (0-100%) de un NPC al sistema de la zona objetivo,
+-- maneja el caso subzona<->zona padre (p.ej. Northshire dentro de Elwynn),
+-- reutilizando la misma calibracion (pfDB.zones.data) que ya usa el panel de
+-- mapa propio del addon.
+local function SKQ_GetNpcCoordInZone(npcId, targetZoneId)
+    if not npcId or not targetZoneId then return nil end
+    local u = GetUnitData(npcId)
+    if not u or not u.coords then return nil end
+
+    -- 1. Coincidencia directa: el NPC tiene coords registradas en esta zona
+    for _, c in ipairs(u.coords) do
+        if c[3] == targetZoneId then return c[1], c[2] end
+    end
+
+    local zonesData = pfDB and pfDB["zones"] and pfDB["zones"]["data"]
+
+    -- 2. El NPC esta en una subzona hija de targetZoneId -> proyectar hijo->padre
+    for _, c in ipairs(u.coords) do
+        local cz = c[3]
+        local czData = cz and zonesData and zonesData[cz]
+        if czData and czData[1] == targetZoneId and czData[2] and czData[4] then
+            local zw, zh, zx, zy = czData[2], czData[3], czData[4], czData[5]
+            return zx + (c[1] * zw / 100), zy + (c[2] * zh / 100)
+        end
+    end
+
+    -- 3. targetZoneId es una subzona y el NPC esta en la zona padre -> padre->hijo
+    local targetData = zonesData and zonesData[targetZoneId]
+    local parent = targetData and targetData[1]
+    if parent and targetData[2] and targetData[4] then
+        for _, c in ipairs(u.coords) do
+            if c[3] == parent then
+                local zw, zh, zx, zy = targetData[2], targetData[3], targetData[4], targetData[5]
+                return (c[1] - zx) * 100 / zw, (c[2] - zy) * 100 / zh
+            end
+        end
+    end
+    return nil
+end
+
+-- Wrapper de compatibilidad: en clientes modernos (Classic Era/SoD), el
+-- global IsQuestFlaggedCompleted fue reemplazado por C_QuestLog.IsQuestFlaggedCompleted
+-- y puede no existir como global suelto -> sin este wrapper, la condicion
+-- "IsQuestFlaggedCompleted and ..." se evaluaba directo a false y TODAS las
+-- quests ya completadas se mostraban para siempre como disponibles ("!").
+local function SKQ_IsQuestCompletedCompat(questId)
+    if not questId then return false end
+    if C_QuestLog and C_QuestLog.IsQuestFlaggedCompleted then
+        return C_QuestLog.IsQuestFlaggedCompleted(questId) == true
+    end
+    if IsQuestFlaggedCompleted then
+        return IsQuestFlaggedCompleted(questId) == true
+    end
+    return false
+end
+
+-- Estado de una quest para decidir que pin mostrar: "active"/"complete"
+-- (esta en el log) o "available" (no iniciada y no completada de forma
+-- permanente). Devuelve nil si no se debe mostrar ningun pin.
+local function SKQ_GetQuestPinStatus(questId)
+    if not questId then return nil end
+    local active = addon.Tracker and addon.Tracker:GetActiveQuests()
+    if active then
+        for _, entry in pairs(active) do
+            if entry.id == questId then
+                return entry.isComplete and "complete" or "active"
+            end
+        end
+    end
+    if SKQ_IsQuestCompletedCompat(questId) then
+        return nil
+    end
+    -- Quests de cadena (campo prevId en la DB): el NPC todavia no la ofrece
+    -- de verdad si la quest anterior de la cadena no esta completada de
+    -- forma permanente
+    local q = SKquests_DetailDB and SKquests_DetailDB[questId]
+    if q then
+        if q.minLevel and UnitLevel("player") < q.minLevel then
+            return nil
+        end
+        if q.prevId and not SKQ_IsQuestCompletedCompat(q.prevId) then
+            return nil
+        end
+    end
+    if SKquests.hiddenQuests and SKquests.hiddenQuests[questId] then
+        return nil
+    end
+    return "available"
+end
+
+-- Indice estatico (zoneId -> lista de quests de SKquests_DetailDB en esa
+-- zona). SKquests_DetailDB no cambia en tiempo de ejecucion, asi que esto se
+-- calcula una sola vez por zona y se cachea para no recorrer toda la DB en
+-- cada refresh del minimapa.
+local skqZoneQuestsStaticCache = {}
+local function SKQ_GetZoneQuestsStatic(zoneId)
+    if not zoneId then return {} end
+    local cached = skqZoneQuestsStaticCache[zoneId]
+    if cached then return cached end
+    local list = {}
+    if SKquests_DetailDB then
+        for questId, q in pairs(SKquests_DetailDB) do
+            if q.zoneId == zoneId then
+                table.insert(list, { questId = questId, q = q })
+            end
+        end
+    end
+    skqZoneQuestsStaticCache[zoneId] = list
+    return list
+end
+
+-- Lista final de pines a mostrar para una zona: NPC a usar (giver si esta
+-- disponible, ender si esta activa/completa) + estado.
+local function SKQ_GetZoneQuestPins(zoneId)
+    local out = {}
+    for _, item in ipairs(SKQ_GetZoneQuestsStatic(zoneId)) do
+        local q = item.q
+        local status = SKQ_GetQuestPinStatus(item.questId)
+        if status then
+            local npcId, npcType
+            if status == "available" then
+                npcId, npcType = q.giverId, q.giverType
+            else
+                npcId, npcType = q.enderId or q.giverId, q.enderType or q.giverType
+            end
+            if npcId and npcType ~= "GO" then
+                table.insert(out, { questId = item.questId, npcId = npcId, status = status, q = q })
+            end
+        end
+    end
+    return out
+end
+
+local function SKQ_PinIconFor(status)
+    if status == "available" then return "Interface\\GossipFrame\\AvailableQuestIcon" end
+    if status == "complete" then return "Interface\\GossipFrame\\ActiveQuestIcon" end
+    return "Interface\\GossipFrame\\IncompleteQuestIcon"
+end
+
+-- ----------------------------------------------------------
+--  WORLDMAPFRAME (tecla M)
+-- ----------------------------------------------------------
+local SKQ_QUEST_COLORS = {
+    {0, 0.8, 1},   -- default light blue
+    {0, 1, 0},     -- green
+    {1, 1, 0},     -- yellow
+    {1, 0.5, 0},   -- orange
+    {1, 0, 1},     -- magenta
+    {1, 0, 0},     -- red
+    {0.5, 0, 1},   -- purple
+    {1, 1, 1},     -- white
+}
+local SKQ_RefreshWorldMapPins
+local SKQ_RefreshMinimapPinsFull
+local function SKQ_CycleQuestColor(qId)
+    if not qId then return end
+    SKquestsDB.questColors = SKquestsDB.questColors or {}
+    local current = SKquestsDB.questColors[qId]
+    local idx = 1
+    if current then
+        for i, c in ipairs(SKQ_QUEST_COLORS) do
+            if math.abs(c[1]-current[1]) < 0.01 and math.abs(c[2]-current[2]) < 0.01 and math.abs(c[3]-current[3]) < 0.01 then
+                idx = i
+                break
+            end
+        end
+    end
+    local nextIdx = (idx % #SKQ_QUEST_COLORS) + 1
+    SKquestsDB.questColors[qId] = SKQ_QUEST_COLORS[nextIdx]
+    if SKQ_RefreshWorldMapPins then SKQ_RefreshWorldMapPins() end
+    if SKQ_RefreshMinimapPinsFull then SKQ_RefreshMinimapPinsFull() end
+end
+
+local function SKQ_GetQuestColor(qId)
+    if SKquestsDB and SKquestsDB.questColors and SKquestsDB.questColors[qId] then
+        local c = SKquestsDB.questColors[qId]
+        return c[1], c[2], c[3]
+    end
+    return 0, 0.8, 1
+end
+
+local skqWorldMapPins = {}
+local skqWorldMapPinCount = 0
+
+local function SKQ_GetWorldMapPin(i)
+    local pin = skqWorldMapPins[i]
+    if not pin then
+        pin = CreateFrame("Frame", nil, WorldMapDetailFrame)
+        pin:SetSize(10, 10)
+        pin:SetFrameStrata("TOOLTIP")
+        local tex = pin:CreateTexture(nil, "OVERLAY")
+        tex:SetAllPoints()
+        pin.tex = tex
+        pin:EnableMouse(true)
+        pin:SetScript("OnEnter", function(self)
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:SetText(self.label or "", 1, 1, 1)
+            if self.sub then GameTooltip:AddLine(self.sub, 1, 0.82, 0, true) end
+            GameTooltip:AddLine("<Click derecho para cambiar color>", 0.5, 0.5, 0.5)
+            GameTooltip:Show()
+        end)
+        pin:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        pin:SetScript("OnMouseUp", function(self, button)
+            if button == "RightButton" and self.qId then
+                if IsShiftKeyDown() then
+                    if not SKquests.hiddenQuests then SKquests.hiddenQuests = {} end
+                    if not SKquestsDB.hiddenQuests then SKquestsDB.hiddenQuests = {} end
+                    SKquests.hiddenQuests[self.qId] = true
+                    SKquestsDB.hiddenQuests[self.qId] = true
+                    print("|cff00ff00SKquests:|r Misión oculta del mapa. Para volver a verla, usa /skq unhide")
+                    if SKQ_RefreshWorldMapPins then SKQ_RefreshWorldMapPins() end
+                    if SKQ_RefreshMinimapPinsFull then SKQ_RefreshMinimapPinsFull() end
+                else
+                    SKQ_CycleQuestColor(self.qId)
+                end
+            end
+        end)
+        skqWorldMapPins[i] = pin
+    end
+    return pin
+end
+
+local function SKQ_HideWorldMapPins()
+    for i = 1, skqWorldMapPinCount do skqWorldMapPins[i]:Hide() end
+    skqWorldMapPinCount = 0
+end
+local function SKQ_GetActiveQuestIds()
+    local ids = {}
+    if type(GetNumQuestLogEntries) ~= "function" then return ids end
+    local n = GetNumQuestLogEntries() or 0
+    for i = 1, n do
+        local title, _, _, isHeader, _, isComplete, _, questID = GetQuestLogTitle(i)
+        if not isHeader and questID and questID > 0 then
+            ids[questID] = title
+        end
+    end
+    return ids
+end
+
+local zoneIdToModernMapIdCache
+local modernMapIdToZoneIdCache
+local function SKQ_InitMapIdCaches()
+    if zoneIdToModernMapIdCache then return end
+    zoneIdToModernMapIdCache = {}
+    modernMapIdToZoneIdCache = {}
+    local nameToMapId = {}
+    for i = 1, 2000 do
+        local name = HBD:GetLocalizedMap(i)
+        if name then nameToMapId[SKQ_NormZoneName(name)] = i end
+    end
+    if pfDB and pfDB["zones"] then
+        for _, locTable in pairs(pfDB["zones"]) do
+            for id, nm in pairs(locTable) do
+                if type(nm) == "string" and nm ~= "" then
+                    local uiMapID = nameToMapId[SKQ_NormZoneName(nm)]
+                    if uiMapID and not zoneIdToModernMapIdCache[id] then
+                        zoneIdToModernMapIdCache[id] = uiMapID
+                        modernMapIdToZoneIdCache[uiMapID] = id
+                    end
+                end
+            end
+        end
+    end
+    if ZoneMap then
+        for id, nm in pairs(ZoneMap) do
+            if type(nm) == "string" and nm ~= "" then
+                local uiMapID = nameToMapId[SKQ_NormZoneName(nm)]
+                if uiMapID and not zoneIdToModernMapIdCache[id] then
+                    zoneIdToModernMapIdCache[id] = uiMapID
+                    modernMapIdToZoneIdCache[uiMapID] = id
+                end
+            end
+        end
+    end
+end
+
+local function SKQ_GetPfDBZoneForModernMapID(uiMapID)
+    if not uiMapID then return nil end
+    SKQ_InitMapIdCaches()
+    return modernMapIdToZoneIdCache[uiMapID]
+end
+
+SKQ_RefreshWorldMapPins = function()
+    if not WorldMapFrame or not WorldMapFrame:IsShown() then HBDPins:RemoveAllWorldMapIcons(addon); return end
+    if SKquestsDB and SKquestsDB.config and SKquestsDB.config.showMapPins == false then
+        HBDPins:RemoveAllWorldMapIcons(addon); return
+    end
+
+    HBDPins:RemoveAllWorldMapIcons(addon)
+
+    local mapId = WorldMapFrame:GetMapID()
+    if not mapId then return end
+    
+    local zoneId = SKQ_GetPfDBZoneForModernMapID(mapId)
+    if not zoneId then return end -- Si es Kalimdor u otro continente, zoneId es nil, no se dibuja nada
+
+    local n = 0
+    
+    -- 1. Quest Givers
+    for _, p in ipairs(SKQ_GetZoneQuestPins(zoneId)) do
+        local x, y = SKQ_GetNpcCoordInZone(p.npcId, zoneId)
+        if x and y then
+            n = n + 1
+            local pin = SKQ_GetWorldMapPin(n)
+            pin.tex:SetTexture(SKQ_PinIconFor(p.status))
+            pin.tex:SetTexCoord(0, 1, 0, 1)
+            pin.tex:SetVertexColor(1, 1, 1)
+            pin.label = GetLocalizedQuestName(p.q) or p.q.name
+            pin.sub = UnitDisplayName(p.npcId)
+            pin.qId = p.questId
+            
+            -- 1 = HBD_PINS_WORLDMAP_SHOW_PARENT (solo zona actual o su padre si esta configurado)
+            HBDPins:AddWorldMapIconMap(addon, pin, mapId, x/100, y/100, 1)
+        end
+    end
+
+    -- 2. Quest Objectives
+    if SKquests_ObjectiveLinks and SKquests_SpawnData then
+        local activeQuestsDict = addon.Tracker and addon.Tracker:GetActiveQuests() or {}
+        local activeQuests = SKQ_GetActiveQuestIds()
+        for qId, qTitle in pairs(activeQuests) do
+            local qEntry = nil
+            for i = 1, 100 do
+                if activeQuestsDict[i] and activeQuestsDict[i].id == qId then
+                    qEntry = activeQuestsDict[i]
+                    break
+                end
+            end
+            
+            if not qEntry or not qEntry.isComplete then
+                local links = SKquests_ObjectiveLinks[qId]
+                if links then
+                    local idsToSpawn = {}
+                    for _, id in ipairs(links.npcs or {}) do idsToSpawn[id] = { type="npc", icon="slay_mono.tga" } end
+                    for _, id in ipairs(links.item_npcs or {}) do idsToSpawn[id] = { type="npc", icon="slay_mono.tga" } end
+                    for _, id in ipairs(links.objects or {}) do idsToSpawn[id] = { type="object", icon="loot_mono.tga" } end
+                    for _, id in ipairs(links.item_objects or {}) do idsToSpawn[id] = { type="object", icon="loot_mono.tga" } end
+                    
+                    for id, info in pairs(idsToSpawn) do
+                        local spawnInfo = SKquests_SpawnData[info.type .. "s"] and SKquests_SpawnData[info.type .. "s"][id]
+                        -- Solo iteramos los spawns en la zona especifica que estamos mirando
+                        if spawnInfo and spawnInfo.spawns and spawnInfo.spawns[zoneId] then
+                            for _, coord in ipairs(spawnInfo.spawns[zoneId]) do
+                                local x, y = coord[1], coord[2]
+                                n = n + 1
+                                local pin = SKQ_GetWorldMapPin(n)
+                                pin.tex:SetTexture("Interface\\AddOns\\SKquests\\Media\\textures\\QuestieIcons\\" .. info.icon)
+                                pin.tex:SetTexCoord(0, 1, 0, 1)
+                                pin.tex:SetVertexColor(SKQ_GetQuestColor(qId))
+                                pin.label = qTitle or tostring(qId)
+                                pin.sub = spawnInfo.name or "Objetivo"
+                                pin.qId = qId
+                                
+                                HBDPins:AddWorldMapIconMap(addon, pin, mapId, x/100, y/100, 1)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    for i = n + 1, skqWorldMapPinCount do skqWorldMapPins[i]:Hide() end
+    skqWorldMapPinCount = n
+end
+
+-- NOTA: "WORLD_MAP_UPDATE" no existe como evento en este cliente (lanzaba
+-- "Attempt to register unknown event", lo que abortaba el resto de la carga
+-- de este archivo y producia errores en cascada en CreateModernUI). En vez
+-- de depender de un evento, se usa un ticker liviano que solo corre mientras
+-- el mapa esta abierto -- igual de fiable y no depende del nombre exacto de
+-- ningun evento de este cliente en particular.
+local skqWorldMapWatcher = CreateFrame("Frame")
+skqWorldMapWatcher:RegisterEvent("QUEST_LOG_UPDATE")
+skqWorldMapWatcher:SetScript("OnEvent", function()
+    if WorldMapFrame and WorldMapFrame:IsShown() then SKQ_RefreshWorldMapPins() end
+end)
+skqWorldMapWatcher.acc = 0
+skqWorldMapWatcher:SetScript("OnUpdate", function(self, elapsed)
+    if not (WorldMapFrame and WorldMapFrame:IsShown()) then return end
+    self.acc = self.acc + elapsed
+    if self.acc < 0.3 then return end
+    self.acc = 0
+    SKQ_RefreshWorldMapPins()
+end)
+if WorldMapFrame then
+    WorldMapFrame:HookScript("OnShow", SKQ_RefreshWorldMapPins)
+    WorldMapFrame:HookScript("OnHide", SKQ_HideWorldMapPins)
+end
+
+-- ----------------------------------------------------------
+--  MINIMAP
+-- ----------------------------------------------------------
+-- NOTA: el cliente 3.3.5a no expone una API limpia para "cuantas yardas
+-- representa el radio del minimapa en este nivel de zoom". Las tablas de
+-- abajo son las constantes de uso comun en addons de esa era. Si los pines
+-- del minimapa aparecen sistematicamente mas cerca o mas lejos de lo real,
+-- ajustar SKQ_MINIMAP_SCALE (p.ej. 0.9 o 1.1) es el arreglo esperado.
+local SKQ_MINIMAP_SCALE = 1.0
+local MINIMAP_RADIUS_YARDS_OUTDOOR = { [0] = 333.33, [1] = 266.66, [2] = 200.0,  [3] = 133.33, [4] = 66.66,  [5] = 33.33 }
+local MINIMAP_RADIUS_YARDS_INDOOR  = { [0] = 200.0,  [1] = 166.66, [2] = 133.33, [3] = 100.0,  [4] = 66.66,  [5] = 33.33 }
+local MINIMAP_RADIUS_YARDS_CITY    = { [0] = 133.33, [1] = 100.0,  [2] = 66.66,  [3] = 33.33,  [4] = 16.66,  [5] = 10.0  }
+
+-- Radio fijo (en yardas) usado para decidir si un pin entra en rango del
+-- minimapa y para escalar su posicion a pixeles. A pedido: no depende del
+-- zoom actual del minimapa (Minimap:GetZoom()), que resulto poco confiable
+-- como fuente de esa escala. Ajustar este numero si el rango se ve muy
+-- chico/grande comparado con el radio real del minimapa.
+local SKQ_MINIMAP_FIXED_RADIUS_YARDS = 400
+
+local skqMinimapPins = {}
+local skqMinimapPinCount = 0
+
+local function SKQ_GetMinimapPin(i)
+    local pin = skqMinimapPins[i]
+    if not pin then
+        pin = CreateFrame("Frame", nil, Minimap)
+        pin:SetSize(10, 10)
+        pin:SetFrameStrata("TOOLTIP")
+        local tex = pin:CreateTexture(nil, "OVERLAY")
+        tex:SetAllPoints()
+        pin.tex = tex
+        pin:EnableMouse(true)
+        pin:SetScript("OnEnter", function(self)
+            GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+            GameTooltip:SetText(self.label or "", 1, 1, 1)
+            if self.sub then GameTooltip:AddLine(self.sub, 1, 0.82, 0, true) end
+            GameTooltip:AddLine("<Click derecho para cambiar color>", 0.5, 0.5, 0.5)
+            GameTooltip:Show()
+        end)
+        pin:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        pin:SetScript("OnMouseUp", function(self, button)
+            if button == "RightButton" and self.qId then
+                if IsShiftKeyDown() then
+                    if not SKquests.hiddenQuests then SKquests.hiddenQuests = {} end
+                    if not SKquestsDB.hiddenQuests then SKquestsDB.hiddenQuests = {} end
+                    SKquests.hiddenQuests[self.qId] = true
+                    SKquestsDB.hiddenQuests[self.qId] = true
+                    print("|cff00ff00SKquests:|r Misión oculta del mapa. Para volver a verla, usa /skq unhide")
+                    if SKQ_RefreshWorldMapPins then SKQ_RefreshWorldMapPins() end
+                    if SKQ_RefreshMinimapPinsFull then SKQ_RefreshMinimapPinsFull() end
+                else
+                    SKQ_CycleQuestColor(self.qId)
+                end
+            end
+        end)
+        skqMinimapPins[i] = pin
+    end
+    return pin
+end
+
+local function SKQ_HideMinimapPins()
+    for i = 1, skqMinimapPinCount do skqMinimapPins[i]:Hide() end
+    skqMinimapPinCount = 0
+end
+
+local function SKQ_GetMinimapRadiusYards()
+    local zoom = Minimap:GetZoom() or 0
+    local isIndoor = IsIndoors and IsIndoors()
+    local tbl = isIndoor and MINIMAP_RADIUS_YARDS_INDOOR or MINIMAP_RADIUS_YARDS_OUTDOOR
+    return (tbl[zoom] or tbl[0] or 200) * SKQ_MINIMAP_SCALE
+end
+
+-- addon:GetPlayerMapCoords() llama internamente a SetMapToCurrentZone(), que
+-- cambia la zona/continente seleccionados del WorldMapFrame como efecto
+-- secundario. Como este refresh corre cada segundo SIEMPRE (no solo con el
+-- mapa abierto), eso pelearia con cualquier navegacion manual del jugador en
+-- el mapa del mundo (p.ej. mirando una zona distinta a la propia). Por eso
+-- guardamos la seleccion previa y la restauramos justo despues de leer la
+-- posicion del jugador.
+local function SKQ_GetPlayerCoordsSafe()
+    local prevContinent = GetCurrentMapContinent and GetCurrentMapContinent()
+    local prevZone = GetCurrentMapZone and GetCurrentMapZone()
+    local px, py
+    if addon.GetPlayerMapCoords then px, py = addon:GetPlayerMapCoords() end
+    if prevContinent and prevZone and SetMapZoom then
+        SetMapZoom(prevContinent, prevZone)
+    end
+    return px, py
+end
+
+-- Cache de pines "activos" decididos por el ultimo pase completo (full pass):
+-- coords crudas (%) del NPC y dims de zona usadas para convertirlas a yardas.
+-- El pase barato (reposition) usa esta cache para reubicar pines en cada tick
+-- SIN volver a escanear quests/zona. Antes, el pase completo (filtrar que NPC
+-- entra en rango, decidir icono/label, escanear SKQ_GetZoneQuestPins) corria
+-- entero 10 veces por segundo: cualquier bache transitorio en ese escaneo
+-- (orden de iteracion del log de quests, cache no actualizada todavia, etc.)
+-- podia hacer que un pin se ocultara y volviera a aparecer de un tick a otro,
+-- lo que se percibe como que la quest "se refresca" en vez de quedarse
+-- estatica. Separar "decidir que pin mostrar" (poco frecuente) de "donde
+-- dibujarlo" (muy frecuente, pura matematica con datos ya decididos) es el
+-- mismo patron que usa HereBeDragons-Pins, la libreria de minimapa que usa
+-- Questie para este mismo problema.
+
+SKQ_RefreshMinimapPinsFull = function()
+    if SKquestsDB and SKquestsDB.config and SKquestsDB.config.showMapPins == false then
+        HBDPins:RemoveAllMinimapIcons(addon)
+        return
+    end
+    if WorldMapFrame and WorldMapFrame:IsShown() then return end
+    
+    HBDPins:RemoveAllMinimapIcons(addon)
+    
+    local realZone = GetRealZoneText and GetRealZoneText()
+    local zoneId = realZone and SKQ_ResolveZoneIdFromRealZone(realZone)
+    if not zoneId then return end
+    
+    local mapId = C_Map and C_Map.GetBestMapForUnit and C_Map.GetBestMapForUnit("player")
+    if not mapId then return end
+    
+    local n = 0
+    
+    -- 1. Quest Givers and Enders
+    for _, p in ipairs(SKQ_GetZoneQuestPins(zoneId)) do
+        local x, y = SKQ_GetNpcCoordInZone(p.npcId, zoneId)
+        if x and y then
+            n = n + 1
+            local pin = SKQ_GetMinimapPin(n)
+            pin.tex:SetTexture(SKQ_PinIconFor(p.status))
+            pin.tex:SetTexCoord(0, 1, 0, 1) -- Reset tex coord
+            pin.tex:SetVertexColor(1, 1, 1) -- Reset color
+            pin.label = GetLocalizedQuestName(p.q) or p.q.name
+            pin.sub = UnitDisplayName(p.npcId)
+            pin.qId = p.questId
+            
+            HBDPins:AddMinimapIconMap(addon, pin, mapId, x/100, y/100, true, false)
+        end
+    end
+    
+    -- 2. Quest Objectives (Mobs/Items)
+    if SKquests_ObjectiveLinks and SKquests_SpawnData then
+        local activeQuestsDict = addon.Tracker and addon.Tracker:GetActiveQuests() or {}
+        local activeQuests = SKQ_GetActiveQuestIds()
+        for qId, qTitle in pairs(activeQuests) do
+            local qEntry = nil
+            for i = 1, 100 do
+                if activeQuestsDict[i] and activeQuestsDict[i].id == qId then
+                    qEntry = activeQuestsDict[i]
+                    break
+                end
+            end
+            
+            if not qEntry or not qEntry.isComplete then
+                local links = SKquests_ObjectiveLinks[qId]
+                if links then
+                    local idsToSpawn = {}
+                    for _, id in ipairs(links.npcs or {}) do idsToSpawn[id] = { type="npc", icon="slay_mono.tga" } end
+                    for _, id in ipairs(links.item_npcs or {}) do idsToSpawn[id] = { type="npc", icon="slay_mono.tga" } end
+                    for _, id in ipairs(links.objects or {}) do idsToSpawn[id] = { type="object", icon="loot_mono.tga" } end
+                    for _, id in ipairs(links.item_objects or {}) do idsToSpawn[id] = { type="object", icon="loot_mono.tga" } end
+                    
+                    for id, info in pairs(idsToSpawn) do
+                        local spawnInfo = SKquests_SpawnData[info.type .. "s"] and SKquests_SpawnData[info.type .. "s"][id]
+                        if spawnInfo and spawnInfo.spawns and spawnInfo.spawns[zoneId] then
+                            for _, coord in ipairs(spawnInfo.spawns[zoneId]) do
+                                local x, y = coord[1], coord[2]
+                                n = n + 1
+                                local pin = SKQ_GetMinimapPin(n)
+                                pin.tex:SetTexture("Interface\\AddOns\\SKquests\\Media\\textures\\QuestieIcons\\" .. info.icon)
+                                pin.tex:SetTexCoord(0, 1, 0, 1) -- Reset tex coord
+                                pin.tex:SetVertexColor(SKQ_GetQuestColor(qId))
+                                pin.label = qTitle or tostring(qId)
+                                pin.sub = spawnInfo.name or "Objetivo"
+                                pin.qId = qId
+                                
+                                HBDPins:AddMinimapIconMap(addon, pin, mapId, x/100, y/100, true, false)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    for i = n + 1, skqMinimapPinCount do skqMinimapPins[i]:Hide() end
+    skqMinimapPinCount = n
+end
+
+local function SKQ_RefreshMinimapPins()
+    SKQ_RefreshMinimapPinsFull()
+end
+
+-- Comando de diagnostico: imprime los numeros crudos del calculo de pines
+-- del minimapa (posicion del jugador, dims de zona, yardas/radio, pixeles)
+-- para poder detectar a ojo si algo no se actualiza o esta mal escalado.
+SLASH_SKQPINS1 = "/skqpins"
+SlashCmdList["SKQPINS"] = function()
+    local realZone = GetRealZoneText and GetRealZoneText()
+    local zoneId = realZone and SKQ_ResolveZoneIdFromRealZone(realZone)
+    print(string.format("|cff00ff00SKquests pins debug:|r zona=%s zoneId=%s", tostring(realZone), tostring(zoneId)))
+    if not zoneId then return end
+    local px, py = SKQ_GetPlayerCoordsSafe()
+    print(string.format("  jugador px=%s py=%s", tostring(px), tostring(py)))
+    local dims = pfDB and pfDB["minimap"] and pfDB["minimap"][zoneId]
+    if not dims then
+        print("  dims: NO HAY (pfDB.minimap[zoneId] vacio)")
+        return
+    end
+    print(string.format("  dims zoneWidthYards=%.1f zoneHeightYards=%.1f", dims[1], dims[2]))
+    local radiusYards = SKQ_MINIMAP_FIXED_RADIUS_YARDS
+    local scaleRadiusYards = SKQ_GetMinimapRadiusYards() or radiusYards
+    local mmRadiusPx = (Minimap:GetWidth() or 140) / 2
+    print(string.format("  zoom=%s radiusYards=%.1f (fijo, rango) scaleRadiusYards=%.1f (real, escala) mmRadiusPx=%.1f", tostring(Minimap:GetZoom()), radiusYards, scaleRadiusYards, mmRadiusPx))
+    if not px or not py then return end
+    local zoneWidthYards, zoneHeightYards = SKQ_GetModernZoneDimensionsYards(dims[1], dims[2])
+    for _, p in ipairs(SKQ_GetZoneQuestPins(zoneId)) do
+        local x, y = SKQ_GetNpcCoordInZone(p.npcId, zoneId)
+        if x and y then
+            local dxYards = (x - px) / 100 * zoneWidthYards
+            local dyYards = (y - py) / 100 * zoneHeightYards
+            local dxPx = (dxYards / scaleRadiusYards) * mmRadiusPx
+            local dyPx = (dyYards / scaleRadiusYards) * mmRadiusPx
+            local dist = math.sqrt(dxYards * dxYards + dyYards * dyYards)
+            print(string.format("  [%s] %s npc(x=%.1f,y=%.1f) d=(%.1f,%.1f)yd px=(%.1f,%.1f) dist=%.0fyd",
+                p.status, (p.q and p.q.name) or "?", x, y, dxYards, dyYards, dxPx, dyPx, dist))
+        else
+            print(string.format("  [%s] %s -> SIN COORDS NPC (npcId=%s)", p.status, (p.q and p.q.name) or "?", tostring(p.npcId)))
+        end
+    end
+end
+
+local skqMinimapWatcher = CreateFrame("Frame")
+skqMinimapWatcher.acc = 0
+skqMinimapWatcher.fullAcc = 0
+skqMinimapWatcher:SetScript("OnUpdate", function(self, elapsed)
+    -- Pase completo (decide que pin va, icono, label): cada 0.75s. Es el
+    -- unico que reescanea quests/zona, asi que cualquier bache transitorio
+    -- de ese escaneo solo puede notarse, como mucho, una vez cada 0.75s
+    -- en vez de 10 veces por segundo.
+    self.fullAcc = self.fullAcc + elapsed
+    if self.fullAcc >= 0.75 then
+        self.fullAcc = 0
+        self.acc = 0
+        SKQ_RefreshMinimapPinsFull()
+        return
+    end
+    -- Pase barato eliminado: HereBeDragons-Pins maneja la actualizacion
+    -- de posiciones en cada frame de forma nativa e interna.
+end)
+-- Cambios de zoom o de zona deben reflejarse al instante, no esperar hasta
+-- 0.75s al siguiente pase completo periodico.
+skqMinimapWatcher:RegisterEvent("MINIMAP_UPDATE_ZOOM")
+skqMinimapWatcher:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+skqMinimapWatcher:RegisterEvent("ZONE_CHANGED")
+skqMinimapWatcher:RegisterEvent("ZONE_CHANGED_INDOORS")
+skqMinimapWatcher:SetScript("OnEvent", function(self)
+    self.acc, self.fullAcc = 0, 0
+    SKQ_RefreshMinimapPinsFull()
+end)
+
+-- ============================================================
 --  INTERACTIVE MINI-TRACKER FEATURE IMPLEMENTATION
 -- ============================================================
 local titleButtons = {}
@@ -7131,8 +8302,12 @@ function addon:CreateMiniTracker()
     end)
     
     mt:SetResizable(true)
-    mt:SetMinResize(180, 80)
-    mt:SetMaxResize(400, 600)
+    if mt.SetResizeBounds then
+        mt:SetResizeBounds(180, 80, 400, 600)
+    else
+        mt:SetMinResize(180, 80)
+        mt:SetMaxResize(400, 600)
+    end
     mt:SetScript("OnSizeChanged", function(self, w, h)
         if w and h and w > 0 and h > 0 then
             SKquests.config.trackerWidth = w
@@ -7226,6 +8401,7 @@ function addon:CreateMiniTracker()
                 local mouseOver = sf:IsMouseOver() or (minBtn and minBtn:IsMouseOver()) or (lockBtn and lockBtn:IsMouseOver())
                 if mouseOver then
                     -- Mostrar cabecera y controles
+                    SKQ_EnsureBackdrop(sf)
                     sf:SetBackdrop({
                         bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
                         tile = true, tileSize = 16,
@@ -7240,6 +8416,7 @@ function addon:CreateMiniTracker()
                     if mt.titleFS then mt.titleFS:Show() end
                 else
                     -- Ocultar y detener actualización
+                    SKQ_EnsureBackdrop(sf)
                     sf:SetBackdrop(nil)
                     if lockBtn then lockBtn:Hide() end
                     if minBtn then minBtn:Hide() end
@@ -7319,8 +8496,10 @@ function addon:RefreshMiniTracker()
     
     -- Ajustar interactividad, fondos y visibilidad de controles según estado de bloqueo
     if isLocked then
+        SKQ_EnsureBackdrop(mt)
         mt:SetBackdrop(nil)
         if header then
+            SKQ_EnsureBackdrop(header)
             header:SetBackdrop(nil)
         end
         if minBtn then minBtn:Hide() end
@@ -7331,6 +8510,7 @@ function addon:RefreshMiniTracker()
         if header then header:EnableMouse(true) end
     else
         -- Fondo sutil semi-transparente para indicar que es arrastrable
+        SKQ_EnsureBackdrop(mt)
         mt:SetBackdrop({
             bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
             edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -7342,6 +8522,7 @@ function addon:RefreshMiniTracker()
         mt:SetBackdropBorderColor(C.border[1], C.border[2], C.border[3], 0.6)
         
         if header then
+            SKQ_EnsureBackdrop(header)
             header:SetBackdrop({
                 bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
                 edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -7413,18 +8594,75 @@ function addon:RefreshMiniTracker()
     local showObjs = SKquests.config.trackerShowObjectives ~= false
     local questLimit = SKquests.config.trackerQuestLimit or 10
     local showCurrentZoneOnly = SKquests.config.trackerCurrentZoneOnly
-    local currentZone = GetRealZoneText()
+    local currentZone    = GetRealZoneText()
+    local currentSubZone = GetSubZoneText()
     local questsDisplayed = 0
-    
-    -- Recorrer en orden del log de misiones para consistencia
+
+    local sortedQuests = {}
     for i = 1, 100 do
         local entry = activeQuests[i]
         if entry then
-            local passZone = true
-            if showCurrentZoneOnly and entry.category and currentZone then
-                if entry.category ~= currentZone then
-                    passZone = false
+            local started = entry.isComplete or false
+            if not started and entry.objectives then
+                for _, obj in ipairs(entry.objectives) do
+                    if obj.numDone and obj.numDone > 0 then started = true; break end
                 end
+            end
+            table.insert(sortedQuests, { entry = entry, started = started, origIndex = i })
+        end
+    end
+    table.sort(sortedQuests, function(a, b)
+        local keyA = a.entry.id or a.entry.title
+        local keyB = b.entry.id or b.entry.title
+        local pA = SKquests.config.userSortPriority and SKquests.config.userSortPriority[keyA] or 0
+        local pB = SKquests.config.userSortPriority and SKquests.config.userSortPriority[keyB] or 0
+        
+        if pA ~= pB then return pA > pB end
+        if a.started ~= b.started then return a.started end
+        return a.origIndex < b.origIndex
+    end)
+
+    -- Recorrer en orden del log de misiones (con iniciadas primero)
+    for _, item in ipairs(sortedQuests) do
+        local entry = item.entry
+        if entry then
+            local qKey = entry.id or entry.title
+            local trackState = SKquests.config.manualTrackState and SKquests.config.manualTrackState[qKey]
+            
+            local passZone = true
+            if trackState == false then
+                passZone = false
+            elseif trackState == true then
+                passZone = true
+            else
+                if showCurrentZoneOnly and entry.category and entry.category ~= "" then
+                -- El encabezado del quest log a veces usa la zona amplia
+                -- ("Mulgore") y a veces la subzona puntual ("Red Cloud Mesa").
+                -- Aceptamos cualquiera de las dos para no ocultar todo.
+                local matchesZone    = currentZone    and currentZone    ~= "" and entry.category == currentZone
+                local matchesSubZone = currentSubZone and currentSubZone ~= "" and entry.category == currentSubZone
+                if not (matchesZone or matchesSubZone) then
+                    -- No ocultamos una quest en la que ya hay progreso real
+                    -- (objetivo con X/Y > 0): esas son justo las quests que
+                    -- el jugador esta "haciendo" activamente, y es normal
+                    -- alejarse de su zona de origen para cumplir objetivos
+                    -- (viajar a otra zona, entrar a una cueva/subzona, etc.).
+                    -- Sin esto, el filtro de zona las ocultaba de golpe en
+                    -- cuanto el jugador salia de la zona donde se acepto.
+                    local hasProgress = false
+                    if entry.objectives then
+                        for _, obj in ipairs(entry.objectives) do
+                            if obj.numDone and obj.numDone > 0 then
+                                hasProgress = true
+                                break
+                            end
+                        end
+                    end
+                    if not hasProgress then
+                        passZone = false
+                    end
+                end
+            end
             end
             
             if passZone then
@@ -7521,9 +8759,26 @@ function addon:RefreshMiniTracker()
                 local _, rlabel = SKquests:GetQuestRisk(rq, rzone)
                 riskPrefix = SKquests:GetRiskIcon(rlabel, 12) .. " "
             end
-            local titleText = riskPrefix .. string.format("[%d] %s", entry.level or 0, entry.title or "")
-            if entry.isComplete then
-                titleText = titleText .. " (" .. (IsSpanish() and "Completa" or "Complete") .. ")"
+
+            -- Prefijo con el icono del item especial que hay que usar para esta
+            -- quest (p.ej. la maza de Lazy Peons), vía la API en vivo del
+            -- cliente (GetQuestLogSpecialItemInfo) -- no depende de ninguna DB
+            -- propia del addon, así que cubre cualquier quest que lo tenga.
+            local itemPrefix = ""
+            if entry.logIndex then
+                local _, itemIcon = GetQuestLogSpecialItemInfo(entry.logIndex)
+                if type(itemIcon) == "string" and itemIcon ~= "" then
+                    itemPrefix = "|T" .. itemIcon .. ":12:12:0:0|t "
+                end
+            end
+
+            local titleText = riskPrefix .. itemPrefix .. string.format("[%d] %s", entry.level or 0, entry.title or "")
+            -- [REMOVED] if entry.isComplete then titleText = titleText .. " (Completa)" end
+            
+            local qColor = GetQuestDifficultyColor(entry.level or 0)
+            if qColor then
+                local dotHex = string.format("|cff%02x%02x%02x", (qColor.r or 1) * 255, (qColor.g or 1) * 255, (qColor.b or 1) * 255)
+                titleText = titleText .. " " .. dotHex .. "•|r"
             end
             btn.txt:SetText(titleText)
             
@@ -7585,6 +8840,17 @@ function addon:RefreshMiniTracker()
     else
         if mt.emptyFS then mt.emptyFS:Hide() end
         content:SetHeight(math.abs(yOffset))
+    end
+
+    -- Reajustar el scroll si el contenido se encogio (p.ej. tras filtrar por
+    -- zona o completar misiones): sin esto, el scroll podia quedar mas abajo
+    -- que el nuevo contenido y la lista se veia vacia hasta mover/arrastrar
+    -- la ventana (lo que forzaba un redraw) o hacer scroll manualmente.
+    if sf then
+        local maxScroll = math.max(0, content:GetHeight() - sf:GetHeight())
+        if sf:GetVerticalScroll() > maxScroll then
+            sf:SetVerticalScroll(maxScroll)
+        end
     end
 end
 

@@ -64,6 +64,25 @@ local function EnsureDB()
     db.Zones    = db.Zones    or {}   -- [zone] = { xp, time }
     db.Quests   = db.Quests   or {}   -- [qid]  = { name, xp, count, time, bestXPM, lastXPM }
     db.accepts  = db.accepts  or {}   -- [qid]  = acceptTime (persistente entre /reload)
+    -- Migracion unica: purga entradas de Quests corrompidas por el viejo bug
+    -- de medicion (siempre quedaba en xp=0 con count>0). No toca nada mas.
+    if not db._questXPFixMigrated then
+        for qid, q in pairs(db.Quests) do
+            if (q.xp or 0) == 0 and (q.count or 0) > 0 then db.Quests[qid] = nil end
+        end
+        db._questXPFixMigrated = true
+    end
+    -- Migracion unica: corrige nombres en espanol guardados por el bug de
+    -- prioridad name_loc/name (volvian a aparecer en espanol aunque el resto
+    -- de la ventana esta en ingles). Reescribe usando el nombre en ingles de
+    -- la DB cuando esta disponible.
+    if not db._questNameFixMigrated then
+        for qid, q in pairs(db.Quests) do
+            local dd = SKquests_DetailDB and SKquests_DetailDB[qid]
+            if dd and dd.name and dd.name ~= "" then q.name = dd.name end
+        end
+        db._questNameFixMigrated = true
+    end
     db.window   = db.window   or {}
     db.Loot     = db.Loot     or {}   -- [nombreMinus] = { name, total, zones = { [zona]=n } }
     if db.LootActive == nil then db.LootActive = false end
@@ -217,31 +236,19 @@ local function OnXPUpdate()
     end
 end
 
--- ── Medicion de XP de entrega de quest (diferida) ───────────────────────────
-local questPending = nil
-local function MeasureQuestXP()
-    local after  = UnitXP("player") or 0
-    local xp     = after - questPending.xpBefore
-    if xp < 0 then xp = (questPending.maxBefore - questPending.xpBefore) + after end
-    local qid    = questPending.qid
-    local name   = questPending.name
-    local db     = EnsureDB()
-    local accept = qid and db.accepts[qid]
-    local duration = accept and (time() - accept) or nil
-    if S.active and not S.paused then S.src.quest = S.src.quest + xp end
-    if qid then
-        local q = db.Quests[qid] or { name = name, xp = 0, count = 0, time = 0 }
-        q.name  = name or q.name
-        q.xp    = q.xp + xp
-        q.count = q.count + 1
-        if duration and duration > 0 then q.time = q.time + duration end
-        local xpm = (duration and duration > 0) and (xp / (duration / 60)) or nil
-        q.lastXPM = xpm
-        if xpm and (not q.bestXPM or xpm > q.bestXPM) then q.bestXPM = xpm end
-        db.Quests[qid] = q
-        db.accepts[qid] = nil
-    end
-    questPending = nil
+-- ── Registro de XP de entrega de quest ──────────────────────────────────────
+-- Antes esto se medía de forma diferida (QUEST_COMPLETE + hook de
+-- GetQuestReward + delta de UnitXP unos milisegundos despues), pero en este
+-- cliente la entrega y la concesion de XP ya habian ocurrido para cuando se
+-- medía el delta, dando siempre 0. Ahora se usa directamente el evento
+-- QUEST_TURNED_IN(questID, xpReward, moneyReward), que entrega el questID
+-- exacto y el XP otorgado por el servidor sin necesidad de medir ni adivinar.
+local function RecordQuestTurnIn(qid, xpReward)
+    if not qid or qid == 0 then return end
+    local db = EnsureDB()
+    db.accepts[qid] = nil
+    xpReward = tonumber(xpReward) or 0
+    if S.active and not S.paused then S.src.quest = S.src.quest + xpReward end
 end
 
 -- ── Auto-pausa por AFK ──────────────────────────────────────────────────────
@@ -801,12 +808,33 @@ local function RefreshMobs()
     end
 end
 
+-- ── Estilo de pestanas (acorde al tema Dark/Light del addon) ────────────────
+-- Antes estos botones no tenian backdrop ni colores propios del tema, solo
+-- texto sobre el fondo de la ventana: de ahi el aspecto "feo"/desentonado.
+local function StyleTabBtn(btn, key)
+    local C = SKquests.GetThemeColors and SKquests:GetThemeColors()
+    local active = (W.curTab == key)
+    local bg   = (C and (C.bgDetail or C.bg)) or { 0.09, 0.09, 0.09 }
+    local br   = (C and C.borderDim) or { 0.2, 0.2, 0.2 }
+    local gold = (C and C.gold) or { 0.9, 0.75, 0.3 }
+    local dim  = (C and C.dim) or { 0.6, 0.6, 0.6 }
+    if active then
+        btn:SetBackdropColor(bg[1] + 0.12, bg[2] + 0.12, bg[3] + 0.12, 0.95)
+        btn:SetBackdropBorderColor(gold[1], gold[2], gold[3], 1)
+        btn.txt:SetTextColor(gold[1], gold[2], gold[3])
+    else
+        btn:SetBackdropColor(bg[1], bg[2], bg[3], 0.85)
+        btn:SetBackdropBorderColor(br[1], br[2], br[3], 0.8)
+        btn.txt:SetTextColor(dim[1], dim[2], dim[3])
+    end
+end
+
 -- ── Cambio de pestana ───────────────────────────────────────────────────────
 local function ShowTab(name)
     W.curTab = name
     for k, frame in pairs(W.tabs) do frame:Hide() end
     for k, btn in pairs(W.tabBtns) do
-        btn.txt:SetTextColor(k == name and 1 or 0.6, k == name and 0.82 or 0.6, k == name and 0 or 0.6)
+        StyleTabBtn(btn, k)
     end
     W.tabs[name]:Show()
     SK:XPRefresh()
@@ -834,6 +862,7 @@ local function BuildWindow()
     W.fullW, W.fullH = 400, 384
     W.compactW, W.compactH = 236, 104
     f:SetFrameStrata("DIALOG")
+    SKQ_EnsureBackdrop(f)
     f:SetBackdrop({
         bgFile   = "Interface\\DialogFrame\\UI-DialogBox-Background",
         edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
@@ -903,7 +932,6 @@ local function BuildWindow()
     local tabDefs = {
         { "session", T("Sesión", "Session") },
         { "zones",   T("Zonas", "Zones") },
-        { "quests",  "Quests" },
         { "history", T("Historial", "History") },
         { "loot",    T("Botín", "Loot") },
         { "stats",   "Stats" },
@@ -919,12 +947,20 @@ local function BuildWindow()
         local b = CreateFrame("Button", nil, f)
         b:SetSize(TABW, 22)
         b:SetPoint("TOPLEFT", 16 + col * (TABW + 1), -42 - row * 23)
+        SKQ_EnsureBackdrop(b)
+        b:SetBackdrop({
+            bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
+            edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+            tile = true, tileSize = 8, edgeSize = 10,
+            insets = { left = 2, right = 2, top = 2, bottom = 2 },
+        })
         b.txt = b:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         b.txt:SetPoint("CENTER")
         b.txt:SetText(label)
         b:SetScript("OnClick", function() ShowTab(key) end)
-        local hl = b:CreateTexture(nil, "BACKGROUND")
-        hl:SetAllPoints(); hl:SetTexture(1, 1, 1, 0.08)
+        local hl = b:CreateTexture(nil, "HIGHLIGHT")
+        hl:SetAllPoints(); hl:SetTexture(1, 1, 1, 0.12)
+        b:SetHighlightTexture(hl)
         W.tabBtns[key] = b
 
         local c = CreateFrame("Frame", nil, f)
@@ -983,9 +1019,8 @@ local function BuildWindow()
         W.btnEnable:SetPoint("BOTTOMRIGHT", -4, 6)
     end
 
-    -- contenido: ZONAS / QUESTS / HISTORIAL
+    -- contenido: ZONAS / HISTORIAL
     W.zScroll = NewScroll(W.tabs.zones, RefreshZones)
-    W.qScroll = NewScroll(W.tabs.quests, RefreshQuests)
 
     do
         local c = W.tabs.history
@@ -1182,6 +1217,7 @@ function SK:XPApplyTheme()
     f:SetAlpha(EnsureDB().window.opacity or 0.95)
     local C = SKquests.GetThemeColors and SKquests:GetThemeColors()
     if not C then return end
+    SKQ_EnsureBackdrop(f)
     f:SetBackdrop({
         bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -1194,6 +1230,9 @@ function SK:XPApplyTheme()
     f:SetBackdropBorderColor(br[1], br[2], br[3], 1)
     if W.title and C.gold then
         W.title:SetTextColor(C.gold[1], C.gold[2], C.gold[3])
+    end
+    if W.tabBtns then
+        for k, btn in pairs(W.tabBtns) do StyleTabBtn(btn, k) end
     end
 end
 
@@ -1273,7 +1312,7 @@ ev:RegisterEvent("PLAYER_ENTERING_WORLD")
 ev:RegisterEvent("PLAYER_XP_UPDATE")
 ev:RegisterEvent("PLAYER_LEVEL_UP")
 ev:RegisterEvent("QUEST_ACCEPTED")
-ev:RegisterEvent("QUEST_COMPLETE")
+ev:RegisterEvent("QUEST_TURNED_IN")
 ev:RegisterEvent("CHAT_MSG_COMBAT_XP_GAIN")
 ev:RegisterEvent("CHAT_MSG_LOOT")
 ev:RegisterEvent("ZONE_CHANGED_NEW_AREA")
@@ -1309,13 +1348,10 @@ ev:SetScript("OnEvent", function(self, event, arg1, ...)
         local qid = select(1, ...)   -- arg2
         if qid and qid ~= 0 then EnsureDB().accepts[qid] = time() end
 
-    elseif event == "QUEST_COMPLETE" then
-        questPending = {
-            xpBefore  = UnitXP("player") or 0,
-            maxBefore = UnitXPMax("player") or 0,
-            name      = (GetTitleText and GetTitleText()) or nil,
-            armed     = false, t = 0,
-        }
+    elseif event == "QUEST_TURNED_IN" then
+        local qid = arg1
+        local xpReward = ...
+        RecordQuestTurnIn(qid, xpReward)
 
     elseif event == "CHAT_MSG_COMBAT_XP_GAIN" then
         if S.active and not S.paused then
@@ -1334,35 +1370,9 @@ ev:SetScript("OnEvent", function(self, event, arg1, ...)
     end
 end)
 
--- En 3.3.5a no existe QUEST_TURNED_IN, así que detectamos la entrega con GetQuestReward
-hooksecurefunc("GetQuestReward", function()
-    if questPending then
-        local target = ""
-        if questPending.name then
-            target = questPending.name:lower():gsub('"', ''):gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")
-        end
-        local qid = 0
-        if SKquests_DetailDB and target ~= "" then
-            for id, q in pairs(SKquests_DetailDB) do
-                local n = q.name and q.name:lower():gsub('"', ''):gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")
-                if n == target then qid = id; break end
-                local nloc = q.name_loc and q.name_loc:lower():gsub('"', ''):gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")
-                if nloc == target then qid = id; break end
-            end
-        end
-        questPending.qid   = qid
-        questPending.armed = true
-        questPending.t     = 0
-    end
-end)
-
--- OnUpdate unico: lectura diferida de XP de quest + throttle de 1s
+-- OnUpdate unico: throttle de 1s para tiempo de zona / refresco de ventana
 ev.acc = 0
 ev:SetScript("OnUpdate", function(self, e)
-    if questPending and questPending.armed then
-        questPending.t = (questPending.t or 0) + e
-        if questPending.t >= 0.25 then MeasureQuestXP() end
-    end
     self.acc = self.acc + e
     if self.acc >= 1 then
         local dt = self.acc

@@ -3,6 +3,65 @@
 All notable changes to SKquests will be documented in this file.
 This project follows [Semantic Versioning](https://semver.org/) and [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.5.20-SoD] - 2026-06-21
+
+### Added
+- **Ocultar misiones manualmente del mapa**: Ahora puedes ocultar pines de misiones indeseadas (como misiones de otras profesiones que el servidor marca como disponibles) haciendo **Shift + Click Derecho** sobre cualquier pin en el Mapa del Mundo o el Minimapa. La misión desaparecerá de ambos mapas al instante y el addon recordará tu preferencia. Puedes restaurar las misiones ocultas usando el nuevo comando `/skq unhide` o `/skq reset`.
+
+### Changed
+- **Ordenamiento visual suave del Tracker**: Los botones de flechas (subir/bajar) del panel del Quest Tracker en pantalla han sido reprogramados. En lugar de asignar una prioridad absoluta causando saltos bruscos, ahora el algoritmo intercambia posiciones 1x1 con la misión adyacente, resultando en un reordenamiento fluido y predecible.
+- **Mejora en Tooltip de progreso de NPCs/Objetos**: El tooltip que muestra tu progreso de misión al pasar el cursor sobre un NPC u objeto en el mundo ya no se detiene en la primera misión coincidente. Ahora busca sobre *todas* tus misiones activas y muestra de forma combinada el progreso de múltiples misiones que comparten ese mismo objetivo.
+- **Filtro estricto de misiones en el mapa**: Los signos de exclamación amarillos en el mapa (Misiones Disponibles) ahora verifican estrictamente los prerrequisitos de nivel (`minLevel`) y las misiones previas requeridas de cadenas (`prevId`) antes de dibujarse, limpiando el mapa de misiones que aún no puedes tomar.
+- **Optimización del XP Appraiser (Pestaña Quests)**: Se eliminó la pestaña "Quests" ("Worth It?") de la ventana del Tasador de XP, junto con todo su código interno de seguimiento de textos y tiempos por misión. Esto ahorra memoria RAM y reduce la carga en la CPU. La XP que otorgan las misiones se sigue sumando correctamente de forma ultraligera a las estadísticas de la Sesión.
+
+## [0.5.19-SoD] - 2026-06-20
+
+### Changed
+- **Optimizacion de rendimiento (auditoria general)**: se revisaron ambas copias del addon (Season of Discovery/Classic Era y WotLK 3.3.5a) en busca de trabajo repetido en rutas calientes. Se implementaron dos mejoras:
+  - **Tooltip de progreso en objetos del mundo (cofres, hierbas, items de quest en el piso)**: `SKQ_FindQuestProgressForObjectName` recorria todas las misiones activas y armaba una tabla temporal de ids en *cada* llamada al hook global `GameTooltip:SetText` — un hook que se dispara en practicamente todos los tooltips del juego (hechizos, botones de accion, items del bolso), no solo los relacionados con misiones. Ahora ese escaneo se hace una sola vez por refresh del Tracker (cuando realmente cambian las misiones activas) y se guarda en una cache; el hook solo hace una busqueda O(1).
+  - **Refresh del Tracker agrupado (debounce)**: el quest log dispara varios eventos casi simultaneos por una sola accion (aceptar/entregar una mision suele disparar `QUEST_LOG_UPDATE` y `UNIT_QUEST_LOG_CHANGED` a la vez). Cada uno disparaba un `T:Refresh()` completo, que es O(n) sobre el quest log e incluye expandir/colapsar todos los encabezados. Ahora esas rafagas se agrupan en un unico `Refresh()` ejecutado en el siguiente frame, sin cambiar el comportamiento visible.
+
+## [0.5.18-SoD] - 2026-06-20
+
+### Fixed
+- **Misiones que "desaparecian" del Mini-Tracker hasta mover la ventana**: con el filtro "Mostrar solo zona actual" activo, el tracker ocultaba una misión en cuanto `entry.category` (la zona/encabezado del quest log donde se acepto la misión) dejaba de coincidir exactamente con `GetRealZoneText()`/`GetSubZoneText()` (la zona donde esta el jugador en ese momento) — algo que pasa todo el tiempo, porque es normal alejarse de la zona de origen de una misión para cumplir sus objetivos (entrar a una cueva, cruzar a una subzona o zona vecina, etc.). Ahora una misión con progreso real (algún objetivo en X/Y > 0) queda exenta del filtro de zona y se sigue mostrando aunque el jugador se haya movido.
+- **El filtro de zona no se reevaluaba al cambiar de zona**: el frame de eventos del tracker solo escuchaba `QUEST_LOG_UPDATE`/`UNIT_QUEST_LOG_CHANGED`/`QUEST_WATCH_UPDATE`/`PLAYER_ENTERING_WORLD`, así que el filtro "zona actual" solo se volvía a calcular cuando cambiaba el quest log, no cuando el jugador simplemente caminaba a otra zona o subzona. Esto hacía que una misión quedara "atascada" oculta o visible hasta que algún evento de quest log no relacionado disparara un refresh tardío — y mover/arrastrar la ventana del tracker fuerza ese redraw, por eso "reaparecían" al moverlo. Se agregaron `ZONE_CHANGED`, `ZONE_CHANGED_NEW_AREA` y `ZONE_CHANGED_INDOORS` para que el tracker se actualice apenas cambia la zona real.
+- **Misiones ocultas a la fuerza por un encabezado "Unknown"**: `T:Refresh()` inicializaba `currentHeader = "Unknown"`, así que cualquier misión escaneada antes de detectar su encabezado real quedaba con `category = "Unknown"` — un valor no vacío que el filtro de zona intentaba comparar contra la zona actual y nunca coincidía, ocultando esa misión permanentemente. Cambiado a `nil`, que el filtro ya trataba correctamente como "sin categoría, no filtrar".
+- **Lista del Mini-Tracker se veía vacía sin haber misiones nuevas**: si el contenido se encogía (por el filtro de zona o al completar misiones) el scroll podía quedar más abajo que el nuevo contenido, mostrando una lista en blanco hasta hacer scroll manualmente. Se agregó un reajuste del scroll al final de `RefreshMiniTracker` que lo recorta al máximo válido.
+
+## [0.5.17-SoD] - 2026-06-20
+
+### Fixed
+- **Nombres de misiones en español en la pestaña Quests ("Worth It?") del Tasador de XP**: `RecordQuestTurnIn` priorizaba `dd.name_loc` (nombre en español) sobre `dd.name` (inglés) al guardar el nombre de la misión, aunque el resto de esa ventana (pestañas, tooltips) se muestra en inglés para este usuario. Resultado: misiones entregadas mostraban su nombre en español de forma inconsistente con el resto de la UI. Corregido el orden de prioridad (`dd.name or dd.name_loc`), igual que en el resto del módulo. Se agregó una migración única que recorre `db.Quests` y corrige los nombres ya guardados usando `SKquests_DetailDB`, incluyendo registros viejos y corruptos heredados del bug de medición anterior a 0.5.16 (ej. "Sergra Espinoscura" en vez de "Crossroads Conscription" — el nombre de un NPC de entrega capturado por error en vez del nombre real de la misión).
+
+## [0.5.16-SoD] - 2026-06-19
+
+### Fixed
+- **Crash al abrir el detalle de una misión**: el nuevo resolver de zona del marcador de jugador (`SKQ_ResolveZoneIdFromRealZone`) asumía que toda entrada de `pfDB.zones.<locale>` era un nombre de zona (string), pero algunas son tablas de datos de continente/escala. Llamar `:lower()` sobre esas tablas rompía `SetQuest` cada vez que se abría una misión. Corregido con una verificación de tipo (`type(nm) == "string"`).
+- **Pestaña Quests ("Worth It?") del Tasador de XP siempre en 0 XP / sin actualizarse**: la detección de entrega de misión dependía de `QUEST_COMPLETE` + un hook de `GetQuestReward` + medir el delta de XP del jugador unos milisegundos después, pero en este cliente la XP ya se había otorgado para cuando se medía, dando siempre 0. Reemplazado por el evento `QUEST_TURNED_IN(questID, xpReward, moneyReward)`, que entrega el ID de misión exacto y el XP otorgado directamente del servidor — igual que ya usa de forma confiable la pestaña Stats. Se incluye una migración única que limpia los registros de misiones ya corrompidos por el bug anterior (xp=0 con contador > 0); las nuevas entregas se medirán correctamente.
+
+## [0.5.15-SoD] - 2026-06-19
+
+### Added
+- **Marcador de "tu posición" en el mapa interactivo**: el visor de mapa de la ficha de misión ahora muestra un punto azul con la posición real del jugador, actualizado en vivo (cada ~1s, y al instante al hacer zoom/pan o cambiar de misión). Solo se muestra cuando estás físicamente en la misma zona que el mapa mostrado.
+
+### Changed
+- **Pestañas del Tasador de XP (Session/Zonas/Quests/Historial/Botín/Stats/Tiempo/NPCs/Mobs)**: ahora tienen fondo y borde propios acordes al tema Dark/Light del addon (antes eran botones sin estilo, solo texto sobre el fondo de la ventana). La pestaña activa se resalta con borde dorado.
+
+### Fixed
+- **Coordenadas de NPC siempre en "-" en la pestaña NPCs del Tasador de XP**: `PlayerCoords()` dependía de `GetPlayerMapPosition`/`SetMapToCurrentZone`, APIs eliminadas en el cliente moderno de Classic Era/SoD. Corregido en `SKquests_Stats.lua` usando `C_Map.GetBestMapForUnit` + `C_Map.GetPlayerMapPosition` (con fallback al método clásico). Los NPCs ya registrados sin coordenadas se autocompletan la próxima vez que los vuelvas a inspeccionar. El mismo problema afectaba a `CaptureQuestCoord` en `SKquests_UI.lua`; ambos ahora usan la misma función compartida (`SK:GetPlayerMapCoords()`).
+
+## [0.5.14-SoD] - 2026-06-19
+
+### Fixed
+- **Pestaña Mobs vacía en el Tasador de XP**: `COMBAT_LOG_EVENT_UNFILTERED` se leía con los argumentos directos del formato clásico, pero este servidor usa la convención moderna (sin payload directo, hay que llamar a `CombatLogGetCurrentEventInfo()`) — igual que su formato de GUID con guiones. Como resultado, ningún kill se registraba nunca en `SKQ_Stats.mobs`. Corregido en `SKquests_Stats.lua`, con fallback al formato clásico si el cliente lo requiere. También se corrigió `NpcIdFromGuid` para soportar ambos formatos de GUID (moderno y clásico).
+- **Objetivos de quest superpuestos en el tooltip de NPCs**: al pasar el cursor sobre un NPC, el tooltip podía mostrar objetivos de la misma quest que no correspondían a ese NPC (ej. "Plainstrider Talon" al pasar el cursor sobre "Prairie Wolf Alpha"). La comparación buscaba el nombre completo del NPC dentro del texto del objetivo, lo cual nunca coincide en objetivos de recolección de items (el texto nombra el item, no el mob), y por eso caía en mostrar todos los objetivos de la quest. Corregido en `SKquests_UI.lua` (`SKQ_FindQuestObjectivesForNpc`) usando coincidencia por palabras compartidas en vez de substring completo.
+
+## [0.5.13-beta] - 2026-06-19
+
+### Fixed
+- **Filtro de Zona del Tracker / Quest Log con zona "Unknown"**: `GetQuestLogTitle` se leía con las posiciones de retorno de WotLK/ChromieCraft (3.3.5a), que no coinciden con las del cliente real de Classic Era / Season of Discovery. Esto hacía que ningún encabezado de zona se detectara como tal: se contaban como misiones falsas y `category` se quedaba fijo en "Unknown" para todas las misiones reales, mostrando "No active quests" en el Mini-Tracker y agrupando todo bajo "Unknown" en la pestaña Quest Log. Corregido en `SKquests_Tracker.lua`, `SKquests_Collector.lua` y `SKquests_Risk.lua` para usar las posiciones correctas del cliente actual (`isHeader` en la 4ª posición, `questID` en la 8ª).
+
 ## [0.5.12-beta] - 2026-06-18
 
 ### Added
