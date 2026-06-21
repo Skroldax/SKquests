@@ -6313,6 +6313,37 @@ end
 addon.GetDiagRender = function(self) return addon._diagRender end
 
 -- ============================================================
+-- HELPER PARA OBJETIVOS COMPLETADOS
+-- ============================================================
+local function SKQ_IsObjectiveFinished(qEntry, sdName)
+    if not qEntry or not qEntry.index or not sdName then return false end
+    if not GetNumQuestLeaderBoards or not GetQuestLogLeaderBoard then return false end
+    
+    local numObjectives = GetNumQuestLeaderBoards(qEntry.index)
+    if not numObjectives or numObjectives == 0 then return false end
+
+    local isFinished = false
+    local isAlsoUnfinished = false
+    local sdLower = string.lower(sdName)
+
+    for i = 1, numObjectives do
+        local text, objType, finished = GetQuestLogLeaderBoard(i, qEntry.index)
+        if text then
+            local textLower = string.lower(text)
+            if string.find(textLower, sdLower, 1, true) then
+                if finished then
+                    isFinished = true
+                else
+                    isAlsoUnfinished = true
+                end
+            end
+        end
+    end
+    
+    return isFinished and not isAlsoUnfinished
+end
+
+-- ============================================================
 -- HELPER PARA OBTENER COORDENADAS GPS
 -- ============================================================
 local function SKQ_GetFirstQuestCoordinate(q)
@@ -6322,7 +6353,7 @@ local function SKQ_GetFirstQuestCoordinate(q)
         if type(idList) ~= "table" then idList = {idList} end
         for _, id in ipairs(idList) do
             local sd = SKquests_SpawnData[typeName] and SKquests_SpawnData[typeName][id]
-            if sd and sd.spawns then
+            if sd and sd.spawns and not SKQ_IsObjectiveFinished(q, sd.name) then
                 for mapId, coords in pairs(sd.spawns) do
                     if coords[1] then return mapId, coords[1][1], coords[1][2], sd.name, coords end
                 end
@@ -7976,7 +8007,7 @@ SKQ_RefreshWorldMapPins = function()
                     for id, info in pairs(idsToSpawn) do
                         local spawnInfo = SKquests_SpawnData[info.type .. "s"] and SKquests_SpawnData[info.type .. "s"][id]
                         -- Solo iteramos los spawns en la zona especifica que estamos mirando
-                        if spawnInfo and spawnInfo.spawns and spawnInfo.spawns[zoneId] then
+                        if spawnInfo and spawnInfo.spawns and spawnInfo.spawns[zoneId] and not SKQ_IsObjectiveFinished(qEntry, spawnInfo.name) then
                             for _, coord in ipairs(spawnInfo.spawns[zoneId]) do
                                 local x, y = coord[1], coord[2]
                                 n = n + 1
@@ -8188,7 +8219,7 @@ SKQ_RefreshMinimapPinsFull = function()
                     
                     for id, info in pairs(idsToSpawn) do
                         local spawnInfo = SKquests_SpawnData[info.type .. "s"] and SKquests_SpawnData[info.type .. "s"][id]
-                        if spawnInfo and spawnInfo.spawns and spawnInfo.spawns[zoneId] then
+                        if spawnInfo and spawnInfo.spawns and spawnInfo.spawns[zoneId] and not SKQ_IsObjectiveFinished(qEntry, spawnInfo.name) then
                             for _, coord in ipairs(spawnInfo.spawns[zoneId]) do
                                 local x, y = coord[1], coord[2]
                                 n = n + 1
@@ -9124,4 +9155,5 @@ SlashCmdList["SKQARROW"] = function()
     ArrowFrame:Show()
     print("SKquests: Flecha forzada a mostrarse en el centro.")
 end
+
 
