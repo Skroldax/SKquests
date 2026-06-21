@@ -9064,8 +9064,7 @@ ArrowFrame:SetScript("OnUpdate", function(self, elapsed)
 
     -- Restauramos la conversión matemática correcta ahora que los valores no están al revés
     local facing = GetPlayerFacing() or 0
-    local target_wow_angle = (3 * math.pi / 2) - angle
-    local bearing = target_wow_angle - facing
+    local bearing = angle - facing
     
     arrowTex:SetRotation(bearing)
     
@@ -9155,5 +9154,6 @@ SlashCmdList["SKQARROW"] = function()
     ArrowFrame:Show()
     print("SKquests: Flecha forzada a mostrarse en el centro.")
 end
+
 
 
