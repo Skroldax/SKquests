@@ -4993,7 +4993,7 @@ function addon:CreateModernUI()
         end
         if self.targetMapId and self.targetX and self.targetY then
             if SKQ_Arrow_SetWaypoint then
-                SKQ_Arrow_SetWaypoint(self.targetMapId, self.targetX, self.targetY, self.targetTitle, self.targetCoords)
+                SKQ_Arrow_SetWaypoint(self.targetMapId, self.targetX, self.targetY, self.targetTitle)
                 self:SetText(IsSpanish() and "Detener GPS" or "Stop GPS")
             end
         end
@@ -6324,7 +6324,7 @@ local function SKQ_GetFirstQuestCoordinate(q)
             local sd = SKquests_SpawnData[typeName] and SKquests_SpawnData[typeName][id]
             if sd and sd.spawns then
                 for mapId, coords in pairs(sd.spawns) do
-                    if coords[1] then return mapId, coords[1][1], coords[1][2], sd.name, coords end
+                    if coords[1] then return mapId, coords[1][1], coords[1][2], sd.name end
                 end
             end
         end
@@ -6689,12 +6689,11 @@ function addon:RefreshDetail()
             RightSidebar.chain.nextBtn:Hide()
         end
 
-        local tM, tX, tY, tN, tCoords = SKQ_GetFirstQuestCoordinate(q)
+        local tM, tX, tY, tN = SKQ_GetFirstQuestCoordinate(q)
         if tM and tX and tY then
             ch.objSec.tomtomBtn.targetMapId = tM
             ch.objSec.tomtomBtn.targetX = tX
             ch.objSec.tomtomBtn.targetY = tY
-            ch.objSec.tomtomBtn.targetCoords = tCoords
             ch.objSec.tomtomBtn.targetTitle = tN or GetLocalizedQuestName(q)
             ch.objSec.tomtomBtn:Show()
             if SKQ_Arrow_GetTarget and SKQ_Arrow_GetTarget() == tM then
@@ -7144,12 +7143,11 @@ function addon:RefreshDetail()
         end
 
         local dbQ = entry and SKquests_DetailDB[entry.id]
-        local tM, tX, tY, tN, tCoords = SKQ_GetFirstQuestCoordinate(dbQ)
+        local tM, tX, tY, tN = SKQ_GetFirstQuestCoordinate(dbQ)
         if tM and tX and tY then
             ch.objSec.tomtomBtn.targetMapId = tM
             ch.objSec.tomtomBtn.targetX = tX
             ch.objSec.tomtomBtn.targetY = tY
-            ch.objSec.tomtomBtn.targetCoords = tCoords
             ch.objSec.tomtomBtn.targetTitle = tN or (dbQ and GetLocalizedQuestName(dbQ)) or entry.title
             ch.objSec.tomtomBtn:Show()
             if SKQ_Arrow_GetTarget and SKQ_Arrow_GetTarget() == tM then
@@ -8957,20 +8955,23 @@ print("|cff00ff00SKquests:|r Modulo Arrow cargado correctamente.")
 
 -- Estado interno
 local targetMapId = nil
-local targetUiMapId = nil
 local targetX = nil
 local targetY = nil
-local targetCoords = nil
 local targetTitle = nil
 
 local ArrowFrame = CreateFrame("Button", nil, UIParent)
-ArrowFrame:SetSize(56, 56)
+ArrowFrame:SetSize(64, 64)
 ArrowFrame:SetPoint("CENTER", 0, 100)
 ArrowFrame:SetMovable(true)
 ArrowFrame:EnableMouse(true)
 ArrowFrame:SetFrameStrata("TOOLTIP")
 ArrowFrame:SetClampedToScreen(true)
 
+-- Aadir un fondo rojo slido para depuracin
+local bg = ArrowFrame:CreateTexture(nil, "BACKGROUND")
+bg:SetAllPoints()
+bg:SetColorTexture(1, 0, 0, 0.5)
+ArrowFrame:EnableMouse(true)
 ArrowFrame:RegisterForDrag("LeftButton")
 ArrowFrame:SetScript("OnDragStart", function(self) self:StartMoving() end)
 ArrowFrame:SetScript("OnDragStop", function(self)
@@ -8990,12 +8991,6 @@ ArrowFrame:SetScript("OnEnter", function(self)
     GameTooltip:AddLine("<Arrastra para mover>", 0.5, 0.5, 0.5)
     GameTooltip:Show()
 end)
-
-local distText = ArrowFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-distText:SetPoint("TOP", arrowTex, "BOTTOM", 0, 0)
-
--- Debug string eliminado
-
 ArrowFrame:SetScript("OnLeave", function() GameTooltip:Hide() end)
 ArrowFrame:Hide()
 
@@ -9005,7 +9000,7 @@ arrowTex:SetTexture("Interface\\Minimap\\MinimapArrow")
 arrowTex:SetAllPoints()
 
 -- Texto de distancia
-
+local distText = ArrowFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 distText:SetPoint("TOP", ArrowFrame, "BOTTOM", 0, -5)
 
 -- Evento de Update para rotar y calcular distancia
@@ -9015,33 +9010,41 @@ ArrowFrame:SetScript("OnUpdate", function(self, elapsed)
     if lastUpdate < 0.05 then return end
     lastUpdate = 0
     
+    if not targetMapId or not targetX or not targetY then
+        -- self:Hide() -- comentado temporalmente
+        return
+    end
+
     local px, py, pInstance = HBD_Arrow:GetPlayerWorldPosition()
     if not px or not py then return end
     
+    -- Convertir target a coordenadas de mundo (0-1)
     local x01, y01 = targetX / 100, targetY / 100
-    local tx, ty, tInstance = HBD_Arrow:GetWorldCoordinatesFromZone(x01, y01, targetUiMapId)
+    local tx, ty, tInstance = HBD_Arrow:GetWorldCoordinatesFromZone(x01, y01, targetMapId)
     if not tx or pInstance ~= tInstance then
         distText:SetText("N/A")
         arrowTex:SetVertexColor(0.5, 0.5, 0.5)
         return
     end
     
-    local angle, dist = HBD_Arrow:GetWorldVector(pInstance, px, py, tx, ty)
+    local dist, angle = HBD_Arrow:GetWorldVector(pInstance, px, py, tx, ty)
     if not dist then return end
 
-    -- Restauramos la conversión matemática correcta ahora que los valores no están al revés
+    -- angle de HBD: 0 es Norte, pi/2 es Oeste (Counter-Clockwise)
+    -- GetPlayerFacing(): 0 es Norte, pi/2 es Oeste (Counter-Clockwise)
     local facing = GetPlayerFacing() or 0
-    local target_wow_angle = (3 * math.pi / 2) - angle
-    local bearing = target_wow_angle - facing
+    local bearing = angle - facing
     
+    -- Interface\Minimap\MinimapArrow apunta hacia Arriba (Norte = 0 rads) por defecto en su textura sin rotar.
     arrowTex:SetRotation(bearing)
     
+    -- Mostrar distancia y colorear flecha segn proximidad
     if dist < 20 then
         distText:SetText(math.floor(dist) .. " yd")
         arrowTex:SetVertexColor(0, 1, 0) -- Verde (llegando)
-    elseif dist < 80 then
+    elseif dist < 100 then
         distText:SetText(math.floor(dist) .. " yd")
-        arrowTex:SetVertexColor(1, 1, 0) -- Amarillo (cerca)
+        arrowTex:SetVertexColor(1, 1, 0) -- Amarillo
     else
         distText:SetText(math.floor(dist) .. " yd")
         arrowTex:SetVertexColor(1, 0, 0) -- Rojo (lejos)
@@ -9061,39 +9064,10 @@ end)
 ArrowFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 -- API Global
-function SKQ_Arrow_SetWaypoint(mapId, x, y, title, coords)
-    if SKQ_InitMapIdCaches then SKQ_InitMapIdCaches() end
-    local uiMapId = (zoneIdToModernMapIdCache and zoneIdToModernMapIdCache[mapId]) or mapId
-    
-    -- Si tenemos multiples coordenadas, calcular el punto mas concentrado
-    local bestX, bestY = x, y
-    if coords and #coords > 1 then
-        local maxDensity = -1
-        for i, c1 in ipairs(coords) do
-            local density = 0
-            for j, c2 in ipairs(coords) do
-                if i ~= j then
-                    local dx = c1[1] - c2[1]
-                    local dy = c1[2] - c2[2]
-                    local distSq = dx*dx + dy*dy
-                    if distSq < 16 then -- Dentro de 4 unidades de mapa (aprox)
-                        density = density + 1
-                    end
-                end
-            end
-            if density > maxDensity then
-                maxDensity = density
-                bestX = c1[1]
-                bestY = c1[2]
-            end
-        end
-    end
-    
+function SKQ_Arrow_SetWaypoint(mapId, x, y, title)
     targetMapId = mapId
-    targetUiMapId = uiMapId
-    targetX = bestX
-    targetY = bestY
-    targetCoords = coords
+    targetX = x
+    targetY = y
     targetTitle = title
     ArrowFrame:ClearAllPoints()
     ArrowFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 100)
@@ -9103,10 +9077,8 @@ end
 
 function SKQ_Arrow_ClearWaypoint()
     targetMapId = nil
-    targetUiMapId = nil
     targetX = nil
     targetY = nil
-    targetCoords = nil
     targetTitle = nil
     ArrowFrame:Hide()
     print("|cff00ff00SKquests:|r GPS detenido.")

@@ -19,6 +19,15 @@ local altAddon  = "SKquests"
 local SKquests  = {}
 _G.SKquests = SKquests
 
+-- Compat: el cliente moderno (build 11508+, Classic Era/SoD) requiere el mixin
+-- BackdropTemplateMixin para usar SetBackdrop en frames creados sin el template
+-- "BackdropTemplate". El cliente legacy 3.3.5a no lo necesita (no existe el mixin).
+function SKQ_EnsureBackdrop(f)
+    if f and not f.SetBackdrop and BackdropTemplateMixin then
+        Mixin(f, BackdropTemplateMixin)
+    end
+end
+
 -- Fallback Pro (build público sin ProCodes): bloqueado por defecto
 if not SKquests.IsProUnlocked then function SKquests:IsProUnlocked() return false end end
 if not SKquests.TryUnlockPro  then function SKquests:TryUnlockPro()  return false end end
@@ -31,17 +40,24 @@ local defaults = {
     profile = {
         currentGuide = "Horde",
         currentStep  = 1,
-        language     = "enUS",
+        language     = (GetLocale and (GetLocale() == "esES" or GetLocale() == "esMX")) and "esES" or "enUS",
     },
     config = {
-        showTitle          = true,
-        showImage          = true,
-        imageSize          = "medium",
-        textSize           = "normal",
-        opacity            = 0.9,
-        frameColor         = { r=0, g=0, b=0 },
-        autoMinimize       = false,
-        questieIntegration = true,
+        showTitle              = true,
+        showImage              = true,
+        imageSize              = "medium",
+        textSize               = "normal",
+        opacity                = 0.9,
+        frameColor             = { r=0, g=0, b=0 },
+        autoMinimize           = false,
+        questieIntegration     = true,
+        showTracker            = true,
+        trackerMinimized       = false,
+        trackerShowObjectives  = true,
+        trackerCurrentZoneOnly = true,
+        trackerQuestLimit      = 10,
+        trackerWidth           = 260,
+        trackerHeight          = 300,
     }
 }
 
@@ -68,6 +84,12 @@ local function InitializeDB()
     if not SKquestsDB.questIds           then SKquestsDB.questIds           = {} end
     if not SKquestsDB.completedQuests    then SKquestsDB.completedQuests    = {} end
     if not SKquestsDB.activeQuests       then SKquestsDB.activeQuests       = {} end
+    if not SKquestsDB.collected          then SKquestsDB.collected          = {} end
+    if not SKquestsDB.collectedItems     then SKquestsDB.collectedItems     = {} end
+    if not SKquestsDB.hiddenQuests       then SKquestsDB.hiddenQuests       = {} end
+    if not SKquestsDB.config.trackerCollapsedQuests then SKquestsDB.config.trackerCollapsedQuests = {} end
+    if not SKquestsDB.config.manualTrackState then SKquestsDB.config.manualTrackState = {} end
+    if not SKquestsDB.config.userSortPriority then SKquestsDB.config.userSortPriority = {} end
 
     for k,v in pairs(defaults.profile) do
         if SKquestsDB.profile[k] == nil then SKquestsDB.profile[k] = v end
@@ -78,9 +100,13 @@ local function InitializeDB()
 
     SKquests.db              = SKquestsDB.profile
     SKquests.config          = SKquestsDB.config
+    SKquests.config.trackerCollapsedQuests = SKquestsDB.config.trackerCollapsedQuests
+    SKquests.config.manualTrackState       = SKquestsDB.config.manualTrackState
+    SKquests.config.userSortPriority       = SKquestsDB.config.userSortPriority
     SKquests.questIds        = SKquestsDB.questIds
     SKquests.completedQuests = SKquestsDB.completedQuests
     SKquests.activeQuests    = SKquestsDB.activeQuests
+    SKquests.hiddenQuests    = SKquestsDB.hiddenQuests
 end
 
 local function InitLanguage()
@@ -177,7 +203,7 @@ function SKquests:GetQuestWowheadUrl(name)
     if SKquests_DetailDB then
         for id, q in pairs(SKquests_DetailDB) do
             if q.name and q.name:lower() == name:lower() then
-                return "https://www.wowhead.com/wotlk/quest=" .. id
+                return "https://www.wowhead.com/classic/quest=" .. id
             end
         end
     end
@@ -258,8 +284,12 @@ local function PrintHelp()
     SKquests:Print("  /skq step N      - Ir al paso N")
     SKquests:Print("  /skq guide Alliance|Horde")
     SKquests:Print("  /skq export      - Exportar progreso para la web")
+    SKquests:Print("  /skq export lua  - Ventana copiable con quests/items custom de SoD")
+    SKquests:Print("  /skq merge       - Forzar re-chequeo: agrega quests custom a la guia ya mismo")
     SKquests:Print('  /skq setid "Nombre" ID')
     SKquests:Print("  /skq lang enUS|esES")
+    SKquests:Print("  /skq tracker     - Mostrar/ocultar Mini-Tracker")
+    SKquests:Print("  /skq xp          - XP Appraiser (medidor de XP/hora)")
     SKquests:Print("  /skq help        - Esta ayuda")
 end
 
@@ -272,6 +302,12 @@ end
 SLASH_SKQUESTS1 = "/skq"
 SLASH_SKQUESTS2 = "/skquests"
 SlashCmdList["SKQUESTS"] = function(msg)
+    if msg == "unhide" or msg == "reset" then
+        if SKquestsDB then SKquestsDB.hiddenQuests = {} end
+        if SKquests then SKquests.hiddenQuests = {} end
+        print("|cff00ff00SKquests:|r Misiones ocultas restauradas.")
+        return
+    end
     if msg == "debug" then
         local numQuests = 0
         if SKquests_DetailDB then
@@ -336,7 +372,49 @@ SlashCmdList["SKQUESTS"] = function(msg)
         if SKquests:SetCurrentGuide(rest) then SKquests:Print("Guia: " .. rest)
         else SKquests:Print("Uso: /skq guide Alliance|Horde") end
     elseif cmd == "export" then
-        SKquests:ExportToChat()
+        if rest == "lua" then
+            if SKquests.Collector and SKquests.Collector.ShowExportFrame then
+                local qN, iN = SKquests.Collector:ShowExportFrame()
+                SKquests:Print(("Ventana de exportacion abierta: %d quests custom, %d items custom."):format(qN or 0, iN or 0))
+            end
+        else
+            SKquests:ExportToChat()
+            if SKquests.Collector and SKquests.Collector.Export then
+                SKquests.Collector:Export()
+            end
+        end
+    elseif cmd == "merge" then
+        if SKquests.Collector and SKquests.Collector.MergeCustomQuests then
+            local n = SKquests.Collector:MergeCustomQuests()
+            local es = SKquests_Localization and SKquests_Localization.currentLanguage == "esES"
+            if es then
+                SKquests:Print(("Re-chequeo completo: %d quests custom en la guia/explorador."):format(n or 0))
+            else
+                SKquests:Print(("Re-check complete: %d custom quests in the guide/explorer."):format(n or 0))
+            end
+        end
+    elseif cmd == "tracker" then
+        local show = not SKquests.config.showTracker
+        SKquests.config.showTracker = show
+        SKquestsDB.config.showTracker = show
+        if show then
+            if not SKquests_MiniTracker then
+                SKquests:CreateMiniTracker()
+            end
+            SKquests_MiniTracker:Show()
+            SKquests:RefreshMiniTracker()
+            SKquests:Print(SKquests_Localization and SKquests_Localization.currentLanguage == "esES" and "Mini-Tracker mostrado." or "Mini-Tracker shown.")
+        else
+            if SKquests_MiniTracker then
+                SKquests_MiniTracker:Hide()
+            end
+            SKquests:Print(SKquests_Localization and SKquests_Localization.currentLanguage == "esES" and "Mini-Tracker ocultado." or "Mini-Tracker hidden.")
+        end
+        if SKquests_CB_showTracker then
+            SKquests_CB_showTracker:SetChecked(show)
+        end
+    elseif cmd == "xp"     then
+        if SKquests.XPCommand then SKquests:XPCommand(rest) end
     elseif cmd == "setid"  then
         local name, id = rest:match('^"([^"]+)"%s+(%d+)$')
         if not name then
@@ -377,5 +455,5 @@ initFrame:SetScript("OnEvent", function(_, event, arg1)
         SKquests:InitConfig()
     end
 
-    SKquests:Print("Cargado! Version Alpha 0.1.2 - Escribe /skq para abrir la interfaz")
+    SKquests:Print("Cargado! Version Beta 0.5.11 - Escribe /skq para abrir la interfaz")
 end)

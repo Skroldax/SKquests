@@ -1,33 +1,53 @@
-## Interface: 30300
-## Title: SKquests
+﻿## Interface: 11508
+## Title: SKquests (Season of Discovery)
 ## Author: Skroldax
-## Version: Beta 0.0.1
-## Notes: Leveling Guide & Quest Explorer Addon
-## Notes-esES: Addon de Guía de Leveo y Explorador de Misiones
+## Version: Beta 0.5.19-SoD
+## Notes: v31 - Optimizacion: cache O(1) para tooltips de progreso + agrupado de refresh del Tracker
+## Notes-esES: Addon de GuÃ­a de Leveo y Explorador de Misiones (Season of Discovery)
 ## Copyright: Copyright (c) 2026 Skroldax. All rights reserved.
 ## License: GNU GPL v3
-## SavedVariables: SKquestsDB
+## SavedVariables: SKquestsDB, SKQ_CollectedData, SKQ_XPStats, SKQ_Stats
 
+libs\LibStub\LibStub.lua
+libs\HereBeDragons\HereBeDragons-2.0.lua
+libs\HereBeDragons\HereBeDragons-Pins-2.0.lua
 
 SKquests_Localization.lua
 quest_origin_pfquest.lua
+Media\db\init.lua
+Media\db\meta.lua
+Media\db\minimap.lua
+Media\db\areatrigger.lua
+Media\db\zones.lua
 Media\db\units.lua
-Media\db\units-ascension.lua
-Media\db\esES\quests.lua
+Media\db\objects.lua
+Media\db\items.lua
+Media\db\quests.lua
+Media\db\quests-itemreq.lua
+Media\db\refloot.lua
 Media\db\esES\zones.lua
+Media\db\esES\units.lua
+Media\db\esES\objects.lua
+Media\db\esES\items.lua
+Media\db\esES\quests.lua
 SKquests_DetailDB.lua
 SKquests_ObjectiveDB.lua
 SKquests_SpawnData_Questie.lua
 SKquests_MapData.lua
-BronzebeardQuestChains.lua
 Alliance_1_60.lua
 Horde_1_60.lua
 SKquests_Guide_esES.lua
+SKquests_Collector.lua
 SKquests.lua
-SKquests_ProCodes.lua
 SKquests_Tracker.lua
 SKquests_MinimapButton.lua
 SKquests_Rewards.lua
 SKquests_Themes.lua
 SKquests_ThemeEditor.lua
+SKquests_Risk.lua
+SKquests_Stats.lua
+SKquests_XPTracker.lua
+
 SKquests_UI.lua
+
+test_load.lua

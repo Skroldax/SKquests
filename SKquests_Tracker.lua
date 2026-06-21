@@ -43,7 +43,7 @@ function T:Refresh()
     local collapsedHeaders = {}
     local numEntries = GetNumQuestLogEntries()
     for i = numEntries, 1, -1 do
-        local _, _, _, _, isHeader, isCollapsed = GetQuestLogTitle(i)
+        local _, _, _, isHeader, isCollapsed = GetQuestLogTitle(i)
         if isHeader and isCollapsed then
             table.insert(collapsedHeaders, i)
             ExpandQuestHeader(i)
@@ -52,35 +52,43 @@ function T:Refresh()
 
     -- Escanear todo (ahora esta totalmente expandido)
     numEntries = GetNumQuestLogEntries()
+    -- nil (no "Unknown") para que una quest sin encabezado detectado nunca
+    -- quede oculta a la fuerza por el filtro de zona del mini-tracker.
+    local currentHeader = nil
     for i = 1, numEntries do
-        local title, level, _, _, isHeader, _, isComplete, _, questID = GetQuestLogTitle(i)
-        if title and not isHeader then
-            local objectives = {}
-            local numObj = GetNumQuestLeaderBoards(i)
-            for o = 1, numObj do
-                local text, _, finished = GetQuestLogLeaderBoard(o, i)
-                if text then
-                    -- Extrae numeros de progreso "X/Y" del texto
-                    local done, total = text:match("(%d+)/(%d+)")
-                    table.insert(objectives, {
-                        text     = text,
-                        done     = finished,
-                        numDone  = tonumber(done)  or 0,
-                        numTotal = tonumber(total) or 0,
-                    })
+        local title, level, _, isHeader, _, isComplete, _, questID = GetQuestLogTitle(i)
+        if title then
+            if isHeader then
+                currentHeader = title
+            else
+                local objectives = {}
+                local numObj = GetNumQuestLeaderBoards(i)
+                for o = 1, numObj do
+                    local text, _, finished = GetQuestLogLeaderBoard(o, i)
+                    if text then
+                        -- Extrae numeros de progreso "X/Y" del texto
+                        local done, total = text:match("(%d+)/(%d+)")
+                        table.insert(objectives, {
+                            text     = text,
+                            done     = finished,
+                            numDone  = tonumber(done)  or 0,
+                            numTotal = tonumber(total) or 0,
+                        })
+                    end
                 end
-            end
 
-            local entry = {
-                logIndex   = i,
-                title      = title,
-                level      = level or 0,
-                isComplete = (isComplete == 1 or isComplete == true),
-                objectives = objectives,
-                id         = questID,
-            }
-            self._cache[i]              = entry
-            self._byTitle[title:lower()] = i
+                local entry = {
+                    logIndex   = i,
+                    title      = title,
+                    level      = level or 0,
+                    isComplete = (isComplete == 1 or isComplete == true),
+                    objectives = objectives,
+                    id         = questID,
+                    category   = currentHeader,
+                }
+                self._cache[i]              = entry
+                self._byTitle[title:lower()] = i
+            end
         end
     end
 
@@ -146,9 +154,35 @@ trackerFrame:RegisterEvent("QUEST_LOG_UPDATE")
 trackerFrame:RegisterEvent("UNIT_QUEST_LOG_CHANGED")
 trackerFrame:RegisterEvent("QUEST_WATCH_UPDATE")
 trackerFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+-- El mini-tracker puede filtrar por "zona actual" (trackerCurrentZoneOnly).
+-- Sin estos 3 eventos, ese filtro solo se re-evaluaba cuando cambiaba el
+-- quest log, no cuando el jugador simplemente se movia de zona/subzona -
+-- por eso una quest podia quedar "atascada" oculta o visible hasta que
+-- algun evento de quest log no relacionado disparara un refresh tardio.
+trackerFrame:RegisterEvent("ZONE_CHANGED")
+trackerFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+trackerFrame:RegisterEvent("ZONE_CHANGED_INDOORS")
+
+-- Varios de estos eventos suelen dispararse en rafaga (2-4 veces) por una
+-- sola accion del jugador: aceptar/entregar una quest dispara QUEST_LOG_UPDATE
+-- y UNIT_QUEST_LOG_CHANGED casi al mismo tiempo. Cada Refresh() es O(n) sobre
+-- el quest log completo e incluye expandir y volver a colapsar TODOS los
+-- headers, asi que sin agrupar esas rafagas se repetia ese trabajo varias
+-- veces de forma redundante. Se agrupan en un unico Refresh() en el siguiente
+-- frame (latencia imperceptible, ~1 frame).
+local refreshPending = false
+local function RequestRefresh()
+    if refreshPending then return end
+    refreshPending = true
+    trackerFrame:SetScript("OnUpdate", function(self)
+        self:SetScript("OnUpdate", nil)
+        refreshPending = false
+        addon.Tracker:Refresh()
+    end)
+end
 
 trackerFrame:SetScript("OnEvent", function(_, event, arg1)
     -- UNIT_QUEST_LOG_CHANGED solo nos interesa para el jugador
     if event == "UNIT_QUEST_LOG_CHANGED" and arg1 ~= "player" then return end
-    addon.Tracker:Refresh()
+    RequestRefresh()
 end)
