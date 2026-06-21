@@ -4985,8 +4985,8 @@ function addon:CreateModernUI()
     tomtomBtn:SetText(IsSpanish() and "Seguir GPS" or "Track GPS")
     tomtomBtn:Hide()
     tomtomBtn:SetScript("OnClick", function(self)
-        print("|cff00ff00SKquests:|r Botón GPS clickeado. mapId:", self.targetMapId, "x:", self.targetX, "y:", self.targetY)
-        if SKQ_Arrow_GetTarget and SKQ_Arrow_GetTarget() == self.targetMapId and self.targetMapId ~= nil then
+        local cM, cX, cY, cTitle = SKQ_Arrow_GetTarget()
+        if cM == self.targetMapId and cTitle == self.targetTitle and self.targetTitle ~= nil then
             if SKQ_Arrow_ClearWaypoint then SKQ_Arrow_ClearWaypoint() end
             self:SetText(IsSpanish() and "Seguir GPS" or "Track GPS")
             return
@@ -6697,7 +6697,8 @@ function addon:RefreshDetail()
             ch.objSec.tomtomBtn.targetCoords = tCoords
             ch.objSec.tomtomBtn.targetTitle = tN or GetLocalizedQuestName(q)
             ch.objSec.tomtomBtn:Show()
-            if SKQ_Arrow_GetTarget and SKQ_Arrow_GetTarget() == tM then
+            local cM, cX, cY, cTitle = SKQ_Arrow_GetTarget()
+            if cM == tM and cTitle == ch.objSec.tomtomBtn.targetTitle then
                 ch.objSec.tomtomBtn:SetText(IsSpanish() and "Detener GPS" or "Stop GPS")
             else
                 ch.objSec.tomtomBtn:SetText(IsSpanish() and "Seguir GPS" or "Track GPS")
@@ -7152,7 +7153,8 @@ function addon:RefreshDetail()
             ch.objSec.tomtomBtn.targetCoords = tCoords
             ch.objSec.tomtomBtn.targetTitle = tN or (dbQ and GetLocalizedQuestName(dbQ)) or entry.title
             ch.objSec.tomtomBtn:Show()
-            if SKQ_Arrow_GetTarget and SKQ_Arrow_GetTarget() == tM then
+            local cM, cX, cY, cTitle = SKQ_Arrow_GetTarget()
+            if cM == tM and cTitle == ch.objSec.tomtomBtn.targetTitle then
                 ch.objSec.tomtomBtn:SetText(IsSpanish() and "Detener GPS" or "Stop GPS")
             else
                 ch.objSec.tomtomBtn:SetText(IsSpanish() and "Seguir GPS" or "Track GPS")
@@ -9065,26 +9067,23 @@ function SKQ_Arrow_SetWaypoint(mapId, x, y, title, coords)
     if SKQ_InitMapIdCaches then SKQ_InitMapIdCaches() end
     local uiMapId = (zoneIdToModernMapIdCache and zoneIdToModernMapIdCache[mapId]) or mapId
     
-    -- Si tenemos multiples coordenadas, calcular el punto mas concentrado
+    -- Si tenemos multiples coordenadas, calcular el punto mas cercano al jugador
     local bestX, bestY = x, y
     if coords and #coords > 1 then
-        local maxDensity = -1
-        for i, c1 in ipairs(coords) do
-            local density = 0
-            for j, c2 in ipairs(coords) do
-                if i ~= j then
-                    local dx = c1[1] - c2[1]
-                    local dy = c1[2] - c2[2]
+        local px, py, pInstance = HBD_Arrow:GetPlayerWorldPosition()
+        if px and py then
+            local minDist = math.huge
+            for i, c in ipairs(coords) do
+                local tx, ty, tInstance = HBD_Arrow:GetWorldCoordinatesFromZone(c[1]/100, c[2]/100, uiMapId)
+                if tx and tInstance == pInstance then
+                    local dx, dy = px - tx, py - ty
                     local distSq = dx*dx + dy*dy
-                    if distSq < 16 then -- Dentro de 4 unidades de mapa (aprox)
-                        density = density + 1
+                    if distSq < minDist then
+                        minDist = distSq
+                        bestX = c[1]
+                        bestY = c[2]
                     end
                 end
-            end
-            if density > maxDensity then
-                maxDensity = density
-                bestX = c1[1]
-                bestY = c1[2]
             end
         end
     end
@@ -9113,7 +9112,7 @@ function SKQ_Arrow_ClearWaypoint()
 end
 
 function SKQ_Arrow_GetTarget()
-    return targetMapId, targetX, targetY
+    return targetMapId, targetX, targetY, targetTitle
 end
 
 SLASH_SKQARROW1 = "/skqarrow"
