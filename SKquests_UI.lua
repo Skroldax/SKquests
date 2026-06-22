@@ -8955,8 +8955,8 @@ function addon:RefreshMiniTracker()
             local itemPrefix = ""
             if entry.logIndex then
                 local _, itemIcon = GetQuestLogSpecialItemInfo(entry.logIndex)
-                if type(itemIcon) == "string" and itemIcon ~= "" then
-                    itemPrefix = "|T" .. itemIcon .. ":12:12:0:0|t "
+                if itemIcon then
+                    itemPrefix = "|T" .. itemIcon .. ":14:14:0:0:64:64:4:60:4:60|t "
                 end
             end
 
