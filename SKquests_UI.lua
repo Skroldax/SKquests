@@ -9051,6 +9051,26 @@ ArrowFrame:SetScript("OnUpdate", function(self, elapsed)
     local px, py, pInstance = HBD_Arrow:GetPlayerWorldPosition()
     if not px or not py then return end
     
+    -- Dynamically recalculate closest point if multiple spawns exist
+    if targetCoords and #targetCoords > 1 then
+        local minDistSq = math.huge
+        local bestX, bestY = targetX, targetY
+        for _, c in ipairs(targetCoords) do
+            local cx, cy, cInstance = HBD_Arrow:GetWorldCoordinatesFromZone(c[1]/100, c[2]/100, targetUiMapId)
+            if cx and cInstance == pInstance then
+                local dx, dy = px - cx, py - cy
+                local distSq = dx*dx + dy*dy
+                if distSq < minDistSq then
+                    minDistSq = distSq
+                    bestX = c[1]
+                    bestY = c[2]
+                end
+            end
+        end
+        targetX = bestX
+        targetY = bestY
+    end
+    
     local x01, y01 = targetX / 100, targetY / 100
     local tx, ty, tInstance = HBD_Arrow:GetWorldCoordinatesFromZone(x01, y01, targetUiMapId)
     if not tx or pInstance ~= tInstance then
