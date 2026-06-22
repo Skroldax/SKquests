@@ -6322,14 +6322,19 @@ local function SKQ_IsObjectiveFinished(qEntry, sdName)
     local numObjectives = GetNumQuestLeaderBoards(qEntry.index)
     if not numObjectives or numObjectives == 0 then return false end
 
+    local sdLower = string.lower(sdName)
     local isFinished = false
     local isAlsoUnfinished = false
-    local sdLower = string.lower(sdName)
+    
+    local unfinishedWords = {}
+    local finishedWords = {}
 
     for i = 1, numObjectives do
         local text, objType, finished = GetQuestLogLeaderBoard(i, qEntry.index)
         if text then
             local textLower = string.lower(text)
+            
+            -- Lógica exacta original
             if string.find(textLower, sdLower, 1, true) then
                 if finished then
                     isFinished = true
@@ -6337,10 +6342,49 @@ local function SKQ_IsObjectiveFinished(qEntry, sdName)
                     isAlsoUnfinished = true
                 end
             end
+            
+            -- Heurística de palabras clave (para drops: Ej. "Surf Crawler" -> "Crawler Mucus")
+            local cleanText = string.gsub(textLower, ":.*", "")
+            cleanText = string.gsub(cleanText, "%d+/%d+", "")
+            cleanText = string.gsub(cleanText, " completado", "")
+            cleanText = string.gsub(cleanText, " slain", "")
+            cleanText = string.gsub(cleanText, " done", "")
+            
+            for word in string.gmatch(cleanText, "%S+") do
+                if string.len(word) >= 4 then
+                    if finished then
+                        finishedWords[word] = true
+                    else
+                        unfinishedWords[word] = true
+                    end
+                end
+            end
         end
     end
     
-    return isFinished and not isAlsoUnfinished
+    -- Si la coincidencia exacta encontró algo, confiamos en ella
+    if isFinished and not isAlsoUnfinished then return true end
+    
+    -- Heurística fallback: comprobamos si el NPC comparte palabra clave
+    local npcClean = string.gsub(sdLower, "[%p%c]", " ")
+    local npcHasFinishedWord = false
+    local npcHasUnfinishedWord = false
+    
+    for word in string.gmatch(npcClean, "%S+") do
+        if string.len(word) >= 4 then
+            if unfinishedWords[word] then
+                npcHasUnfinishedWord = true
+            elseif finishedWords[word] then
+                npcHasFinishedWord = true
+            end
+        end
+    end
+    
+    if npcHasFinishedWord and not npcHasUnfinishedWord then
+        return true
+    end
+    
+    return false
 end
 
 -- ============================================================
