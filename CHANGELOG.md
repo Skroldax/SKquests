@@ -1,3 +1,15 @@
+## [0.6.0-beta] - 2026-06-21
+
+### Added
+- **Intelligent Objective Filtering:** The UI now reads the WoW Quest Log and automatically filters out map pins and GPS waypoints for objectives that are already fulfilled within a multi-objective quest (e.g. killing 10/10 Razormane Defenders will hide them while leaving Geomancers visible).
+- **Smart GPS Targeting:** The GPS waypoint arrow will now calculate the closest individual objective coordinate to your character's current position instead of pointing to the geographic center of all spawns.
+- **Dual Localization Support:** System messages (slash commands, errors, chat notifications) are now fully localized and respond to the active language configuration in Settings (English / Spanish).
+- **SoD Client Compatibility:** Implemented BackdropTemplateMixin support to ensure UI frames render backgrounds flawlessly on the modern Season of Discovery client while maintaining backwards compatibility.
+
+### Fixed
+- **GPS Arrow Rotation Math:** Fixed a critical compass calculation error that caused the GPS arrow to point backwards (180 degrees offset) when using certain tracking tools.
+- **Quest Tracking Toggle:** Corrected the UI tracking toggle logic to ensure switching between quests on the exact same map updates the GPS properly without getting stuck.
+
 # Changelog
 
 All notable changes to SKquests will be documented in this file.
@@ -388,3 +400,4 @@ Comprehensive rebuild after integrating the full server database (`quest_templat
 - **Zone filter crash**: `zonesData` variable scoping issue that made the zone dropdown fail silently and render as a black box.
 - **Tab freezing**: reconnected the Sidenav logic — clicking "Quest Log" or "Zones" did not refresh the central list.
 - **Sorting protection**: wrapped `table.sort` in `pcall` so minor database inconsistencies can't halt the entire addon.
+

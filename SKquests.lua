@@ -462,5 +462,5 @@ initFrame:SetScript("OnEvent", function(_, event, arg1)
         SKquests:InitConfig()
     end
 
-    SKquests:Print(IsSpanish() and "Cargado! Version Beta 0.5.11 - Escribe /skq para abrir la interfaz" or "Loaded! Beta 0.5.11 - Type /skq to open the interface")
+    SKquests:Print(IsSpanish() and "Cargado! Version Beta 0.6.0 - Escribe /skq para abrir la interfaz" or "Loaded! Beta 0.6.0 - Type /skq to open the interface")
 end)
