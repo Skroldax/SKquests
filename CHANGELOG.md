@@ -1,3 +1,13 @@
+## [0.6.1-beta] - 2026-06-21
+
+### Added
+- **Dynamic GPS Recalculation:** The GPS arrow now recalculates the closest coordinate 20 times per second while you move, jumping dynamically to the closest valid spawn point among multiple options.
+- **Smart Item-Drop Heuristic:** Extended the completed-objective filter to intelligently parse Item Drops. It now automatically maps objectives like "Crawler Mucus" to map pins like "Pygmy Surf Crawler" using shared descriptive keywords, successfully hiding map pins for completed item drops without needing a database mapping.
+- **Inline Quest Icons:** The UI now fetches the official item icons from the WoW client and displays them directly inline next to collection objectives in the Tracker and Quests tab.
+
+### Fixed
+- **Provided Quest Items:** Fixed a bug in modern clients (Season of Discovery) where the "Provided Item" icon (e.g., Foreman's Blackjack) failed to render next to the Quest Title in the Tracker due to the API returning File IDs instead of string paths.
+
 ## [0.6.0-beta] - 2026-06-21
 
 ### Added
@@ -400,4 +410,5 @@ Comprehensive rebuild after integrating the full server database (`quest_templat
 - **Zone filter crash**: `zonesData` variable scoping issue that made the zone dropdown fail silently and render as a black box.
 - **Tab freezing**: reconnected the Sidenav logic — clicking "Quest Log" or "Zones" did not refresh the central list.
 - **Sorting protection**: wrapped `table.sort` in `pcall` so minor database inconsistencies can't halt the entire addon.
+
 

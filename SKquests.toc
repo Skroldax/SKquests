@@ -1,7 +1,7 @@
 ## Interface: 11508
 ## Title: SKquests (Season of Discovery)
 ## Author: Skroldax
-## Version: Beta 0.6.0-SoD
+## Version: Beta 0.6.1-SoD
 ## Notes: v31 - Optimizacion: cache O(1) para tooltips de progreso + agrupado de refresh del Tracker
 ## Notes-esES: Addon de GuÃ­a de Leveo y Explorador de Misiones (Season of Discovery)
 ## Copyright: Copyright (c) 2026 Skroldax. All rights reserved.
