@@ -6387,6 +6387,27 @@ local function SKQ_IsObjectiveFinished(qEntry, sdName)
     return false
 end
 
+local function SKQ_GetObjectiveIcon(text)
+    if not text then return "" end
+    local name = string.match(text, "^(.-): %d+/%d+")
+    if not name then
+        name = string.match(text, "^(.-) completado")
+        if not name then
+            name = string.match(text, "^(.-) done")
+        end
+    end
+    if name then
+        if string.find(name, " slain$") or string.find(name, " asesinado$") or string.find(name, " muerto$") then
+            return ""
+        end
+        local _, _, _, _, _, _, _, _, _, icon = GetItemInfo(name)
+        if icon then
+            return "|T" .. icon .. ":14:14:0:0:64:64:4:60:4:60|t "
+        end
+    end
+    return ""
+end
+
 -- ============================================================
 -- HELPER PARA OBTENER COORDENADAS GPS
 -- ============================================================
@@ -6556,8 +6577,9 @@ function addon:RefreshDetail()
                 for _, obj in ipairs(objs) do
                     local color = obj.done and "|cff00ff00" or "|cffffffff"
                     local isExploration = obj.text and (string.match(obj.text:lower(), "^explore ") or string.match(obj.text:lower(), "^explorar "))
+                    local itemIcon = SKQ_GetObjectiveIcon(obj.text)
                     local mark = obj.done and "|TInterface\\Buttons\\UI-CheckBox-Check:14|t " or (isExploration and "|TInterface\\Icons\\INV_Misc_Spyglass_02:14|t " or "- ")
-                    str = str .. color .. mark .. obj.text .. "|r\n"
+                    str = str .. color .. mark .. itemIcon .. obj.text .. "|r\n"
                 end
                 ch.objSec.box.text:SetText(str)
             end
@@ -6981,8 +7003,9 @@ function addon:RefreshDetail()
             for _, obj in ipairs(objs) do
                 local color = obj.done and "|cff00ff00" or "|cffffffff"
                 local isExploration = obj.text and (string.match(obj.text:lower(), "^explore ") or string.match(obj.text:lower(), "^explorar "))
+                local itemIcon = SKQ_GetObjectiveIcon(obj.text)
                 local mark = obj.done and "|TInterface\\Buttons\\UI-CheckBox-Check:14|t " or (isExploration and "|TInterface\\Icons\\INV_Misc_Spyglass_02:14|t " or "- ")
-                str = str .. color .. mark .. obj.text .. "|r\n"
+                str = str .. color .. mark .. itemIcon .. obj.text .. "|r\n"
                 -- Añadir al share cualquier objetivo pendiente, tenga o no
                 -- contador numérico (antes exigía "/" como en "5/7", lo que
                 -- dejaba el botón oculto en quests de un solo paso, p.ej.
@@ -8978,7 +9001,8 @@ function addon:RefreshMiniTracker()
                     
                     -- Usar la textura de checkmark oficial de WoW dentro del texto para evitar fallos de fuente
                     local mark = obj.done and "|TInterface\\Buttons\\UI-CheckBox-Check:14|t " or "- "
-                    fs:SetText("  " .. mark .. (obj.text or ""))
+                    local itemIcon = SKQ_GetObjectiveIcon(obj.text)
+                    fs:SetText("  " .. mark .. itemIcon .. (obj.text or ""))
                     fs:SetPoint("TOPLEFT", content, "TOPLEFT", 18, yOffset)
                     fs:Show()
                     yOffset = yOffset - 14
