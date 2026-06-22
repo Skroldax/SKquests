@@ -28,6 +28,10 @@ function SKQ_EnsureBackdrop(f)
     end
 end
 
+local function IsSpanish()
+    return SKquests_Localization and SKquests_Localization.currentLanguage == "esES"
+end
+
 -- Fallback Pro (build público sin ProCodes): bloqueado por defecto
 if not SKquests.IsProUnlocked then function SKquests:IsProUnlocked() return false end end
 if not SKquests.TryUnlockPro  then function SKquests:TryUnlockPro()  return false end end
@@ -275,22 +279,22 @@ end
 -- SLASH COMMANDS
 -- ====================================================
 local function PrintHelp()
-    SKquests:Print("Comandos disponibles:")
-    SKquests:Print("  /skq             - Abrir/cerrar ventana")
-    SKquests:Print("  /skq show        - Mostrar")
-    SKquests:Print("  /skq hide        - Ocultar")
-    SKquests:Print("  /skq next        - Siguiente paso")
-    SKquests:Print("  /skq prev        - Paso anterior")
-    SKquests:Print("  /skq step N      - Ir al paso N")
+    SKquests:Print(IsSpanish() and "Comandos disponibles:" or "Available commands:")
+    SKquests:Print(IsSpanish() and "  /skq             - Abrir/cerrar ventana" or "  /skq             - Open/close window")
+    SKquests:Print(IsSpanish() and "  /skq show        - Mostrar" or "  /skq show        - Show")
+    SKquests:Print(IsSpanish() and "  /skq hide        - Ocultar" or "  /skq hide        - Hide")
+    SKquests:Print(IsSpanish() and "  /skq next        - Siguiente paso" or "  /skq next        - Next step")
+    SKquests:Print(IsSpanish() and "  /skq prev        - Paso anterior" or "  /skq prev        - Previous step")
+    SKquests:Print(IsSpanish() and "  /skq step N      - Ir al paso N" or "  /skq step N      - Go to step N")
     SKquests:Print("  /skq guide Alliance|Horde")
-    SKquests:Print("  /skq export      - Exportar progreso para la web")
-    SKquests:Print("  /skq export lua  - Ventana copiable con quests/items custom de SoD")
-    SKquests:Print("  /skq merge       - Forzar re-chequeo: agrega quests custom a la guia ya mismo")
+    SKquests:Print(IsSpanish() and "  /skq export      - Exportar progreso para la web" or "  /skq export      - Export progress for web")
+    SKquests:Print(IsSpanish() and "  /skq export lua  - Ventana copiable con quests/items custom de SoD" or "  /skq export lua  - Copyable window with SoD custom quests/items")
+    SKquests:Print(IsSpanish() and "  /skq merge       - Forzar re-chequeo: agrega quests custom a la guia ya mismo" or "  /skq merge       - Force re-check: adds custom quests to the guide immediately")
     SKquests:Print('  /skq setid "Nombre" ID')
     SKquests:Print("  /skq lang enUS|esES")
-    SKquests:Print("  /skq tracker     - Mostrar/ocultar Mini-Tracker")
-    SKquests:Print("  /skq xp          - XP Appraiser (medidor de XP/hora)")
-    SKquests:Print("  /skq help        - Esta ayuda")
+    SKquests:Print(IsSpanish() and "  /skq tracker     - Mostrar/ocultar Mini-Tracker" or "  /skq tracker     - Show/hide Mini-Tracker")
+    SKquests:Print(IsSpanish() and "  /skq xp          - XP Appraiser (medidor de XP/hora)" or "  /skq xp          - XP Appraiser (XP/hour tracker)")
+    SKquests:Print(IsSpanish() and "  /skq help        - Esta ayuda" or "  /skq help        - This help")
 end
 
 -- Comando de diagnóstico de una sola palabra (sin argumentos)
@@ -305,7 +309,7 @@ SlashCmdList["SKQUESTS"] = function(msg)
     if msg == "unhide" or msg == "reset" then
         if SKquestsDB then SKquestsDB.hiddenQuests = {} end
         if SKquests then SKquests.hiddenQuests = {} end
-        print("|cff00ff00SKquests:|r Misiones ocultas restauradas.")
+        print(IsSpanish() and "|cff00ff00SKquests:|r Misiones ocultas restauradas." or "|cff00ff00SKquests:|r Hidden quests restored.")
         return
     end
     if msg == "debug" then
@@ -367,15 +371,19 @@ SlashCmdList["SKQUESTS"] = function(msg)
     elseif cmd == "step"   then
         local n = tonumber(rest)
         if n then SKquests:SetCurrentStep(n)
-        else SKquests:Print("Uso: /skq step <numero>") end
+        else SKquests:Print(IsSpanish() and "Uso: /skq step <numero>" or "Usage: /skq step <number>") end
     elseif cmd == "guide"  then
-        if SKquests:SetCurrentGuide(rest) then SKquests:Print("Guia: " .. rest)
-        else SKquests:Print("Uso: /skq guide Alliance|Horde") end
+        if SKquests:SetCurrentGuide(rest) then SKquests:Print((IsSpanish() and "Guia: " or "Guide: ") .. rest)
+        else SKquests:Print(IsSpanish() and "Uso: /skq guide Alliance|Horde" or "Usage: /skq guide Alliance|Horde") end
     elseif cmd == "export" then
         if rest == "lua" then
             if SKquests.Collector and SKquests.Collector.ShowExportFrame then
                 local qN, iN = SKquests.Collector:ShowExportFrame()
-                SKquests:Print(("Ventana de exportacion abierta: %d quests custom, %d items custom."):format(qN or 0, iN or 0))
+                if IsSpanish() then
+                    SKquests:Print(("Ventana de exportacion abierta: %d quests custom, %d items custom."):format(qN or 0, iN or 0))
+                else
+                    SKquests:Print(("Export window opened: %d custom quests, %d custom items."):format(qN or 0, iN or 0))
+                end
             end
         else
             SKquests:ExportToChat()
@@ -386,8 +394,7 @@ SlashCmdList["SKQUESTS"] = function(msg)
     elseif cmd == "merge" then
         if SKquests.Collector and SKquests.Collector.MergeCustomQuests then
             local n = SKquests.Collector:MergeCustomQuests()
-            local es = SKquests_Localization and SKquests_Localization.currentLanguage == "esES"
-            if es then
+            if IsSpanish() then
                 SKquests:Print(("Re-chequeo completo: %d quests custom en la guia/explorador."):format(n or 0))
             else
                 SKquests:Print(("Re-check complete: %d custom quests in the guide/explorer."):format(n or 0))
@@ -428,11 +435,11 @@ SlashCmdList["SKQUESTS"] = function(msg)
             SKquests.db.language            = rest
             SKquestsDB.profile.language     = rest
             InitLanguage()
-            SKquests:Print("Idioma: " .. rest)
-        else SKquests:Print("Uso: /skq lang enUS|esES") end
+            SKquests:Print((IsSpanish() and "Idioma: " or "Language: ") .. rest)
+        else SKquests:Print(IsSpanish() and "Uso: /skq lang enUS|esES" or "Usage: /skq lang enUS|esES") end
     elseif cmd == "help"   then PrintHelp()
     else
-        SKquests:Print("Comando desconocido. /skq help para ver la lista")
+        SKquests:Print(IsSpanish() and "Comando desconocido. /skq help para ver la lista" or "Unknown command. /skq help to view list")
     end
 end
 
@@ -455,5 +462,5 @@ initFrame:SetScript("OnEvent", function(_, event, arg1)
         SKquests:InitConfig()
     end
 
-    SKquests:Print("Cargado! Version Beta 0.5.11 - Escribe /skq para abrir la interfaz")
+    SKquests:Print(IsSpanish() and "Cargado! Version Beta 0.5.11 - Escribe /skq para abrir la interfaz" or "Loaded! Beta 0.5.11 - Type /skq to open the interface")
 end)

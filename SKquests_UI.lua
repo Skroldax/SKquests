@@ -7875,7 +7875,7 @@ local function SKQ_GetWorldMapPin(i)
                     if not SKquestsDB.hiddenQuests then SKquestsDB.hiddenQuests = {} end
                     SKquests.hiddenQuests[self.qId] = true
                     SKquestsDB.hiddenQuests[self.qId] = true
-                    print("|cff00ff00SKquests:|r Misión oculta del mapa. Para volver a verla, usa /skq unhide")
+                    print(IsSpanish() and "|cff00ff00SKquests:|r Misión oculta del mapa. Para volver a verla, usa /skq unhide" or "|cff00ff00SKquests:|r Quest hidden from map. To unhide it, use /skq unhide")
                     if SKQ_RefreshWorldMapPins then SKQ_RefreshWorldMapPins() end
                     if SKQ_RefreshMinimapPinsFull then SKQ_RefreshMinimapPinsFull() end
                 else
@@ -8103,7 +8103,7 @@ local function SKQ_GetMinimapPin(i)
                     if not SKquestsDB.hiddenQuests then SKquestsDB.hiddenQuests = {} end
                     SKquests.hiddenQuests[self.qId] = true
                     SKquestsDB.hiddenQuests[self.qId] = true
-                    print("|cff00ff00SKquests:|r Misión oculta del mapa. Para volver a verla, usa /skq unhide")
+                    print(IsSpanish() and "|cff00ff00SKquests:|r Misión oculta del mapa. Para volver a verla, usa /skq unhide" or "|cff00ff00SKquests:|r Quest hidden from map. To unhide it, use /skq unhide")
                     if SKQ_RefreshWorldMapPins then SKQ_RefreshWorldMapPins() end
                     if SKQ_RefreshMinimapPinsFull then SKQ_RefreshMinimapPinsFull() end
                 else
@@ -9127,7 +9127,7 @@ function SKQ_Arrow_SetWaypoint(mapId, x, y, title, coords)
     ArrowFrame:ClearAllPoints()
     ArrowFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 100)
     ArrowFrame:Show()
-    print("|cff00ff00SKquests:|r GPS configurado hacia: " .. (title or "Destino") .. " (" .. x .. ", " .. y .. ")")
+    print("|cff00ff00SKquests:|r " .. (IsSpanish() and "GPS configurado hacia: " or "GPS pointing to: ") .. (title or (IsSpanish() and "Destino" or "Destination")) .. " (" .. math.floor(x) .. ", " .. math.floor(y) .. ")")
 end
 
 function SKQ_Arrow_ClearWaypoint()
@@ -9138,7 +9138,7 @@ function SKQ_Arrow_ClearWaypoint()
     targetCoords = nil
     targetTitle = nil
     ArrowFrame:Hide()
-    print("|cff00ff00SKquests:|r GPS detenido.")
+    print(IsSpanish() and "|cff00ff00SKquests:|r GPS detenido." or "|cff00ff00SKquests:|r GPS stopped.")
 end
 
 function SKQ_Arrow_GetTarget()
@@ -9152,7 +9152,7 @@ SlashCmdList["SKQARROW"] = function()
     ArrowFrame:SetSize(100, 100)
     ArrowFrame:SetFrameLevel(99)
     ArrowFrame:Show()
-    print("SKquests: Flecha forzada a mostrarse en el centro.")
+    print(IsSpanish() and "SKquests: Flecha forzada a mostrarse en el centro." or "SKquests: Arrow forced to show in the center.")
 end
 
 

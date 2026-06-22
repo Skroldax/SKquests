@@ -140,7 +140,7 @@ local function OpenEditor()
     local themeKey = SKquestsDB and SKquestsDB.config and SKquestsDB.config.theme
     local theme = addon.ThemesByKey and addon.ThemesByKey[themeKey]
     if not theme or not theme.isEditable then
-        addon:Print("El editor no funciona con los temas por defecto. Elige otro tema (ej. ElvUI Dark) en Ajustes primero.")
+        addon:Print(SKquests_Localization and SKquests_Localization.currentLanguage == "esES" and "El editor no funciona con los temas por defecto. Elige otro tema (ej. ElvUI Dark) en Ajustes primero." or "The editor does not work with default themes. Choose another theme (e.g. ElvUI Dark) in Settings first.")
         return
     end
 
@@ -205,7 +205,7 @@ StaticPopupDialogs["SKQUESTS_ADMIN_PASS"] = {
             SKquestsDB.config.adminUnlocked = true
             OpenEditor()
         else
-            addon:Print("Contraseña incorrecta.")
+            addon:Print(SKquests_Localization and SKquests_Localization.currentLanguage == "esES" and "Contraseña incorrecta." or "Incorrect password.")
         end
     end,
     EditBoxOnEnterPressed = function(self)
@@ -216,7 +216,7 @@ StaticPopupDialogs["SKQUESTS_ADMIN_PASS"] = {
             parent:Hide()
             OpenEditor()
         else
-            addon:Print("Contraseña incorrecta.")
+            addon:Print(SKquests_Localization and SKquests_Localization.currentLanguage == "esES" and "Contraseña incorrecta." or "Incorrect password.")
             parent:Hide()
         end
     end,
