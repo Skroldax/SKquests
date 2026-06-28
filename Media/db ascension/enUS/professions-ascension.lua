@@ -1,2 +1,0 @@
-pfDB["professions"]["enUS-ascension"] = {
-}

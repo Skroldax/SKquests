@@ -107,7 +107,6 @@ local function BuildEditor()
     editorFrame:RegisterForDrag("LeftButton")
     editorFrame:SetScript("OnDragStart", editorFrame.StartMoving)
     editorFrame:SetScript("OnDragStop", editorFrame.StopMovingOrSizing)
-    SKQ_EnsureBackdrop(editorFrame)
     editorFrame:SetBackdrop({
         bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",

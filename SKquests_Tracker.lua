@@ -43,7 +43,7 @@ function T:Refresh()
     local collapsedHeaders = {}
     local numEntries = GetNumQuestLogEntries()
     for i = numEntries, 1, -1 do
-        local _, _, _, isHeader, isCollapsed = GetQuestLogTitle(i)
+        local _, _, _, _, isHeader, isCollapsed = GetQuestLogTitle(i)
         if isHeader and isCollapsed then
             table.insert(collapsedHeaders, i)
             ExpandQuestHeader(i)
@@ -52,11 +52,9 @@ function T:Refresh()
 
     -- Escanear todo (ahora esta totalmente expandido)
     numEntries = GetNumQuestLogEntries()
-    -- nil (no "Unknown") para que una quest sin encabezado detectado nunca
-    -- quede oculta a la fuerza por el filtro de zona del mini-tracker.
-    local currentHeader = nil
+    local currentHeader = "Unknown"
     for i = 1, numEntries do
-        local title, level, _, isHeader, _, isComplete, _, questID = GetQuestLogTitle(i)
+        local title, level, _, _, isHeader, _, isComplete, _, questID = GetQuestLogTitle(i)
         if title then
             if isHeader then
                 currentHeader = title
@@ -154,14 +152,6 @@ trackerFrame:RegisterEvent("QUEST_LOG_UPDATE")
 trackerFrame:RegisterEvent("UNIT_QUEST_LOG_CHANGED")
 trackerFrame:RegisterEvent("QUEST_WATCH_UPDATE")
 trackerFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
--- El mini-tracker puede filtrar por "zona actual" (trackerCurrentZoneOnly).
--- Sin estos 3 eventos, ese filtro solo se re-evaluaba cuando cambiaba el
--- quest log, no cuando el jugador simplemente se movia de zona/subzona -
--- por eso una quest podia quedar "atascada" oculta o visible hasta que
--- algun evento de quest log no relacionado disparara un refresh tardio.
-trackerFrame:RegisterEvent("ZONE_CHANGED")
-trackerFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-trackerFrame:RegisterEvent("ZONE_CHANGED_INDOORS")
 
 -- Varios de estos eventos suelen dispararse en rafaga (2-4 veces) por una
 -- sola accion del jugador: aceptar/entregar una quest dispara QUEST_LOG_UPDATE

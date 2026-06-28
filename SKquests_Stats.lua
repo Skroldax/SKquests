@@ -98,62 +98,12 @@ end
 -- ── F6: observador pasivo de NPCs (escribe en SKQ_CollectedData.npcs) ────────
 local function NpcIdFromGuid(guid)
     if not guid or guid == "" then return nil end
-    -- Formato moderno de este servidor: "Creature-0-1469-0-11-2951-0000123456"
-    local id = tonumber(guid:match("-(%d+)-%x+$"), 10)
-    if id and id > 0 then return id end
-    -- Fallback: formato hex clasico "0xF130001E2A000B87"
-    id = tonumber(guid:sub(7, 10), 16)
+    local id = tonumber(guid:sub(9, 12), 16)
     if id and id > 0 then return id end
     return nil
 end
 
--- C_Map.GetBestMapForUnit("player") puede devolver el mapa MAS ESPECIFICO
--- que contenga al jugador (p.ej. un area/POI dentro de la zona, con su propio
--- UiMapID y su propio sistema de coordenadas 0-1), no necesariamente el mapa
--- de la zona completa. Si el jugador camina cerca del borde de una de esas
--- sub-areas, GetBestMapForUnit puede ir y volver entre el mapa de zona y el
--- mapa del area chica de un llamado a otro: como cada uno tiene su propia
--- escala, las coords saltan de golpe y "se refrescan"/corrigen solas, aunque
--- el jugador este caminando en linea recta. Subimos por mapInfo.parentMapID
--- hasta llegar al mapa de tipo "Zone" para fijar siempre el mismo sistema de
--- coordenadas (el mismo que usan los anchos/altos de pfDB.minimap).
-local function SKQ_ZoneLevelMapId(mapId)
-    if not (C_Map and C_Map.GetMapInfo) then return mapId end
-    local id, seen = mapId, {}
-    for _ = 1, 10 do
-        if not id or seen[id] then break end
-        seen[id] = true
-        local info = C_Map.GetMapInfo(id)
-        if not info then break end
-        if not (Enum and Enum.UIMapType) or info.mapType == Enum.UIMapType.Zone then
-            return id
-        end
-        if not info.parentMapID or info.parentMapID == 0 then
-            return id
-        end
-        id = info.parentMapID
-    end
-    return id or mapId
-end
-
 local function PlayerCoords()
-    -- Los clientes modernos (Classic Era/SoD build 11508+) ya no exponen
-    -- GetPlayerMapPosition; la posicion del jugador se obtiene via C_Map.
-    -- Esto es lo que hacia que las coords de NPC quedaran siempre en "-".
-    if C_Map and C_Map.GetBestMapForUnit and C_Map.GetPlayerMapPosition then
-        local mapId = SKQ_ZoneLevelMapId(C_Map.GetBestMapForUnit("player"))
-        if mapId then
-            local pos = C_Map.GetPlayerMapPosition(mapId, "player")
-            if pos then
-                local x, y = pos:GetXY()
-                if x and y and not (x == 0 and y == 0) then
-                    return math.floor(x * 1000) / 10, math.floor(y * 1000) / 10
-                end
-            end
-        end
-        return nil, nil
-    end
-    -- Fallback para clientes clasicos legados sin C_Map
     if SetMapToCurrentZone then SetMapToCurrentZone() end
     if not GetPlayerMapPosition then return nil, nil end
     local x, y = GetPlayerMapPosition("player")
@@ -161,8 +111,8 @@ local function PlayerCoords()
     return math.floor(x * 1000) / 10, math.floor(y * 1000) / 10
 end
 
--- Acceso publico para otros modulos (marcador "tu posicion" en el mapa
--- interactivo de SKquests_UI.lua). Devuelve x, y en escala 0-100.
+-- API publica usada por el marcador "tu posicion" del mapa interactivo
+-- (SKquests_UI.lua).
 function SK:GetPlayerMapCoords()
     return PlayerCoords()
 end
@@ -363,33 +313,23 @@ f:SetScript("OnEvent", function(self, event, a1, a2, a3, a4, a5, a6, a7, a8)
         end
 
     elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
-        -- Este servidor usa la convencion MODERNA del combat log (igual que su
-        -- formato de GUID con guiones): COMBAT_LOG_EVENT_UNFILTERED dispara SIN
-        -- argumentos directos, hay que pedirlos con CombatLogGetCurrentEventInfo().
-        -- Confirmado porque las librerias oUF incluidas (RUF) ya dependen de eso.
-        -- Fallback a los argumentos directos por si corre en un cliente clasico real.
-        local subevent, srcGUID, dstGUID, dstName
-        if CombatLogGetCurrentEventInfo then
-            local _, sub, _, sGUID, _, _, _, dGUID, dName = CombatLogGetCurrentEventInfo()
-            subevent, srcGUID, dstGUID, dstName = sub, sGUID, dGUID, dName
-        else
-            subevent, srcGUID, dstGUID, dstName = a2, a3, a6, a7
-        end
-        if subevent ~= "PARTY_KILL" then return end
-        local mine = (srcGUID and (srcGUID == playerGUID))
+        -- 3.3.5a: a1=timestamp, a2=subevent, a3=srcGUID, a4=srcName, a5=srcFlags,
+        --         a6=dstGUID, a7=dstName, a8=dstFlags
+        if a2 ~= "PARTY_KILL" then return end
+        local mine = (a3 and (a3 == playerGUID))
         if not mine and UnitGUID then
             local pet = UnitGUID("pet")
-            if pet and srcGUID == pet then mine = true end
+            if pet and a3 == pet then mine = true end
         end
         if not mine then return end
-        local name = dstName
+        local name = a7
         if not name or name == "" then return end
         local s = EnsureStats()
         s.global.mobsKilled = s.global.mobsKilled + 1
         local m = s.mobs[name]
         if not m then m = { name = name, kills = 0, xpTotal = 0, xpKills = 0, loot = {}, looted = 0 }; s.mobs[name] = m end
         m.kills = (m.kills or 0) + 1
-        if not m.id then m.id = NpcIdFromGuid(dstGUID) end
+        if not m.id then m.id = NpcIdFromGuid(a6) end
         lastKill = { name = name, t = (GetTime and GetTime()) or 0 }
 
     elseif event == "PLAYER_TARGET_CHANGED" then

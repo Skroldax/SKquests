@@ -1,2 +1,0 @@
-pfDB["areatrigger"]["data-ascension"] = {
-}

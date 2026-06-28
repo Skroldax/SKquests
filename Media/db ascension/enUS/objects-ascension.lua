@@ -1,2 +1,0 @@
-pfDB["objects"]["enUS-ascension"] = {
-}
