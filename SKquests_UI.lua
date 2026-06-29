@@ -1825,6 +1825,34 @@ local ZoneCoordinates = {
 
     [154]  = { continent = 2, x = 38, y = 14 }, -- Deathknell -> Tirisfal Glades
 
+    -- Continent 3: Outland
+    [3483] = { continent = 3 },
+    [3518] = { continent = 3 },
+    [3519] = { continent = 3 },
+    [3520] = { continent = 3 },
+    [3521] = { continent = 3 },
+    [3522] = { continent = 3 },
+    [3523] = { continent = 3 },
+    [3487] = { continent = 3 },
+    [3430] = { continent = 2 }, -- Eversong is in EK
+    [3433] = { continent = 2 }, -- Ghostlands is in EK
+    [3524] = { continent = 1 }, -- Azuremyst is in Kalimdor
+    [3525] = { continent = 1 }, -- Bloodmyst is in Kalimdor
+    [3557] = { continent = 1 }, -- Exodar is in Kalimdor
+    [4080] = { continent = 2 }, -- Isle of QD is in EK
+
+    -- Continent 4: Northrend
+    [3537] = { continent = 4 },
+    [495]  = { continent = 4 },
+    [65]   = { continent = 4 },
+    [394]  = { continent = 4 },
+    [66]   = { continent = 4 },
+    [206]  = { continent = 4 },
+    [210]  = { continent = 4 },
+    [67]   = { continent = 4 },
+    [4723] = { continent = 4 },
+    [1196] = { continent = 4 },
+    [4395] = { continent = 4 },
 }
 
 
@@ -2696,29 +2724,29 @@ local function IsQuestEligible(id, q)
 
     -- 1) Tabla de origen por quest ID (pfDB.quest_origin, de pfQuest)
 
-    if pfDB and pfDB['quest_origin'] and pfDB['quest_origin'][id] == 'tbc' then
+    --     if pfDB and pfDB['quest_origin'] and pfDB['quest_origin'][id] == 'tbc' then
+    -- 
+    --         return false
 
-        return false
-
-    end
+    --     end
 
     -- 2) Zonas de Outland/Northrend/capitales TBC (sin entrada en ZoneCoordinates
 
     --    tras la exclusión de esas zonas; usamos la lista explícita como respaldo)
 
-    if q.zoneId and EXPANSION_EXCLUDED_ZONES[q.zoneId] then
-
-        return false
-
-    end
+    --     if q.zoneId and EXPANSION_EXCLUDED_ZONES[q.zoneId] then
+    --         -- return false
+    --         return false
+    -- 
+    --     end
 
     -- 3) Respaldo por nivel: nada en Vanilla/SoD supera el nivel 60
 
-    if l1 > 60 or l2 > 60 or l3 > 60 or l4 > 60 then
-
-        return false
-
-    end
+    --     if l1 > 60 or l2 > 60 or l3 > 60 or l4 > 60 then
+    -- 
+    --         return false
+    -- 
+    --     end
 
     return true
 
@@ -3013,6 +3041,8 @@ local function MatchLevelRange(lvl, range)
     elseif range == "41-50" then return l >= 41 and l <= 50
 
     elseif range == "51-59" then return l >= 51 and l <= 59
+    elseif range == "60-70" then return l >= 60 and l <= 70
+    elseif range == "71-80" then return l >= 71 and l <= 80
 
     end
 

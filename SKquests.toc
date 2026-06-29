@@ -1,7 +1,7 @@
-﻿## Interface: 30300
+## Interface: 30300
 ## Title: SKquests (WotLK Classic)
 ## Author: Skroldax
-## Version: Beta 0.5.15
+## Version: Beta 0.5.16
 ## Notes: v27 - Fix: marcador "tu posicion" en el mapa de mision (faltaba fallback de nombres en ingles)
 ## Notes-esES: Addon de GuÃ­a de Leveo y Explorador de Misiones
 ## Copyright: Copyright (c) 2026 Skroldax. All rights reserved.
