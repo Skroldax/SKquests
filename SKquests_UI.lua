@@ -16879,28 +16879,26 @@ function addon:ShowQuest(questId)
 
     -- Fallback: buscar por nombre coincidente
 
-    if not logIndex and SKquests_DetailDB then
-
-        local q = SKquests_DetailDB[questId]
-
-        local qTitle = q and q.name
-
-        if qTitle then
-
+    if not logIndex then
+        if type(questId) == "string" and not tonumber(questId) then
             for idx, entry in pairs(activeQuests) do
-
-                if entry.title:lower() == qTitle:lower() then
-
+                if entry.title:lower() == questId:lower() then
                     logIndex = idx
-
                     break
-
                 end
-
             end
-
+        elseif SKquests_DetailDB then
+            local q = SKquests_DetailDB[questId]
+            local qTitle = q and q.name
+            if qTitle then
+                for idx, entry in pairs(activeQuests) do
+                    if entry.title:lower() == qTitle:lower() then
+                        logIndex = idx
+                        break
+                    end
+                end
+            end
         end
-
     end
 
     
