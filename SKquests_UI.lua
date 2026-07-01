@@ -17922,19 +17922,12 @@ function addon:RefreshMiniTracker()
             local questId = entry.id or GetQuestIdByName(entry.title)
 
             btn:SetScript("OnClick", function()
-
-                if questId then
-
-                    addon:ShowQuest(questId)
-
+                if entry.title then
+                    addon:ShowQuest(entry.title)
                 else
-
                     addon:ShowFrame()
-
                     addon:SwitchTab("questlog")
-
                 end
-
             end)
 
             

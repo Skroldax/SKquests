@@ -56,6 +56,10 @@ function T:Refresh()
     for i = 1, numEntries do
         local title, level, _, _, isHeader, _, isComplete, _, questID = GetQuestLogTitle(i)
         if title then
+            if not isHeader and not questID then
+                local link = GetQuestLink and GetQuestLink(i)
+                if link then questID = tonumber(link:match("quest:(%d+)")) end
+            end
             if isHeader then
                 currentHeader = title
             else
