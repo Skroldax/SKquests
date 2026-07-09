@@ -1,5 +1,6 @@
 
--- WotLK Backdrop Polyfill
+local addonName, addon = ...
+SKQ_ExpandedSpawns = SKQ_ExpandedSpawns or {}
 function SKQ_EnsureBackdrop(frame)
     if not frame then return end
     if frame.SetBackdrop then return end
@@ -4350,7 +4351,7 @@ function addon:CreateModernUI()
 
           addon:UpdateListRows()
 
-          PlaySound(SOUND.IG_MAINMENU_OPTION or 856)
+          PlaySound("igMainMenuOption")
 
       end)
 
@@ -4598,7 +4599,7 @@ function addon:CreateModernUI()
 
         ApplyLevelFilter()
 
-        PlaySound(SOUND.IG_MAINMENU_OPTION_CHECKBOX_ON or 856)
+        PlaySound("igMainMenuOptionCheckBoxOn")
 
     end)
 
@@ -5266,7 +5267,7 @@ function addon:CreateModernUI()
 
                     end
 
-                    PlaySound(SOUND.IG_MAINMENU_OPTION or 856)
+                    PlaySound("igMainMenuOption")
 
                 else
 
@@ -5768,7 +5769,7 @@ function addon:CreateModernUI()
 
                         addon:UpdateListRows()
 
-                        PlaySound(SOUND.IG_MAINMENU_OPTION or 856)
+                        PlaySound("igMainMenuOption")
 
                     end)
 
@@ -6238,7 +6239,7 @@ function addon:CreateModernUI()
 
         UpdateContinentTabs()
 
-        PlaySound(SOUND.IG_MAINMENU_OPTION or 856)
+        PlaySound("igMainMenuOption")
 
     end)
 
@@ -6499,7 +6500,7 @@ function addon:CreateModernUI()
 
                 UpdateContinentTabs()
 
-                PlaySound(SOUND.IG_MAINMENU_OPTION or 856)
+                PlaySound("igMainMenuOption")
 
             end
 
@@ -6547,7 +6548,7 @@ function addon:CreateModernUI()
 
                 UpdateContinentTabs()
 
-                PlaySound(SOUND.IG_MAINMENU_OPTION or 856)
+                PlaySound("igMainMenuOption")
 
             end
 
@@ -7249,7 +7250,7 @@ function addon:CreateModernUI()
 
                 UpdateContinentTabs()
 
-                PlaySound(SOUND.IG_MAINMENU_OPTION or 856)
+                PlaySound("igMainMenuOption")
 
             end)
 
@@ -7379,7 +7380,7 @@ function addon:CreateModernUI()
 
                 addon:SelectQuestById(self.questId)
 
-                PlaySound(SOUND.IG_MAINMENU_OPTION or 856)
+                PlaySound("igMainMenuOption")
 
             end)
 
@@ -8413,7 +8414,7 @@ function addon:CreateModernUI()
 
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 
-                GameTooltip:SetText(self.label or "", 1, 0.82, 0)
+                GameTooltip:SetText((self.label and self.label ~= "") and self.label or "Desconocido", 1, 0.82, 0)
 
                 if self.sub then GameTooltip:AddLine(self.sub, 1, 1, 1) end
 
@@ -10893,6 +10894,21 @@ function addon:CreateModernUI()
 
     end)
 
+    SettingsPanel.mmQuestGiversBtn = CreateFrame("CheckButton", "SKquests_CB_mmQuestGivers", SettingsPanel, "UICheckButtonTemplate")
+    SettingsPanel.mmQuestGiversBtn:SetPoint("TOPLEFT", 180, -170)
+    SettingsPanel.mmQuestGiversLabel = _G["SKquests_CB_mmQuestGiversText"]
+    if SettingsPanel.mmQuestGiversLabel then
+        SettingsPanel.mmQuestGiversLabel:SetText(IsSpanish() and "Givers/Enders en mapa" or "Show Givers/Enders")
+        table.insert(SettingsPanel.labels, SettingsPanel.mmQuestGiversLabel)
+    end
+    SettingsPanel.mmQuestGiversBtn:SetChecked(SKquestsDB and SKquestsDB.config and SKquestsDB.config.showMinimapQuestGivers ~= false)
+    SettingsPanel.mmQuestGiversBtn:SetScript("OnClick", function(self)
+        local show = self:GetChecked() and true or false
+        SKquests.config.showMinimapQuestGivers = show
+        SKquestsDB.config.showMinimapQuestGivers = show
+        if skqMinimapWatcher then skqMinimapWatcher.acc = 1 end
+    end)
+
 
 
     local limitLbl = SettingsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -11720,11 +11736,10 @@ function addon:CreateModernUI()
     local eventFrame = CreateFrame("Frame")
 
     eventFrame:RegisterEvent("QUEST_ACCEPTED")
-
     eventFrame:RegisterEvent("QUEST_TURNED_IN")
-
     eventFrame:RegisterEvent("QUEST_LOG_UPDATE")
-
+    eventFrame:RegisterEvent("QUEST_QUERY_COMPLETE")
+    eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
     eventFrame._acc = 0
 
     eventFrame._tries = 0
@@ -11764,29 +11779,36 @@ function addon:CreateModernUI()
     end)
 
     eventFrame:SetScript("OnEvent", function(self, event, arg1)
-
         if event == "QUEST_ACCEPTED" then
-
             addon:CaptureQuestCoord(arg1)
-
             addon:CaptureQuestRewards(arg1)
-
         elseif event == "QUEST_LOG_UPDATE" then
-
-            -- Un unico escaneo completo del registro tras iniciar sesion para
-
-            -- rellenar las quests ya aceptadas; los nuevos aceptados se capturan
-
-            -- en QUEST_ACCEPTED.
-
             if not self._scannedLog then
-
                 self._scannedLog = true
-
                 addon:ScanQuestLogRewards()
-
             end
-
+        elseif event == "QUEST_TURNED_IN" then
+            addon.completedQuests = addon.completedQuests or {}
+            if arg1 then addon.completedQuests[tostring(arg1)] = true end
+            if MainFrame and MainFrame:IsShown() then addon:RefreshDetail() end
+        elseif event == "PLAYER_ENTERING_WORLD" then
+            if not self._sentQuery then
+                self._sentQuery = true
+                QueryQuestsCompleted()
+            end
+        elseif event == "QUEST_QUERY_COMPLETE" then
+            addon.completedQuests = addon.completedQuests or {}
+            GetQuestsCompleted(addon.completedQuests)
+            local temp = {}
+            for k, v in pairs(addon.completedQuests) do
+                if type(v) == "number" then
+                    temp[tostring(v)] = true
+                else
+                    temp[tostring(k)] = true
+                end
+            end
+            addon.completedQuests = temp
+            if MainFrame and MainFrame:IsShown() then addon:RefreshDetail() end
         end
 
         if MainFrame and MainFrame:IsShown() then
@@ -12137,14 +12159,12 @@ function addon:RefreshList()
 
                 local isDone = false
 
-                if C_QuestLog and C_QuestLog.IsQuestFlaggedCompleted then
-
+                if addon and addon.completedQuests and addon.completedQuests[tostring(id)] then
+                    isDone = true
+                elseif C_QuestLog and C_QuestLog.IsQuestFlaggedCompleted then
                     isDone = C_QuestLog.IsQuestFlaggedCompleted(id) == true
-
                 elseif IsQuestFlaggedCompleted then
-
                     isDone = IsQuestFlaggedCompleted(id) == true
-
                 end
 
                 
@@ -12575,15 +12595,44 @@ addon.GetDiagRender = function(self) return addon._diagRender end
 
 -- ============================================================
 
-local function SKQ_IsObjectiveFinished(qEntry, sdName)
+local function SKQ_GetObjectiveProgressText(questLogIndex, sdName)
+    if not questLogIndex or not sdName then return nil end
+    if not GetNumQuestLeaderBoards or not GetQuestLogLeaderBoard then return nil end
 
-    if not qEntry or not qEntry.index or not sdName then return false end
+    local numObjectives = GetNumQuestLeaderBoards(questLogIndex)
+    if not numObjectives or numObjectives == 0 then return nil end
+
+    local sdLower = string.lower(sdName)
+    local uncompleted = {}
+
+    for i = 1, numObjectives do
+        local text, objType, finished = GetQuestLogLeaderBoard(i, questLogIndex)
+        if text then
+            local textLower = string.lower(text)
+            if string.find(textLower, sdLower, 1, true) then
+                return text
+            end
+            if not finished then
+                table.insert(uncompleted, text)
+            end
+        end
+    end
+    
+    if #uncompleted > 0 then
+        return table.concat(uncompleted, "\n")
+    end
+    return nil
+end
+
+local function SKQ_IsObjectiveFinished(questLogIndex, sdName)
+
+    if not questLogIndex or not sdName then return false end
 
     if not GetNumQuestLeaderBoards or not GetQuestLogLeaderBoard then return false end
 
     
 
-    local numObjectives = GetNumQuestLeaderBoards(qEntry.index)
+    local numObjectives = GetNumQuestLeaderBoards(questLogIndex)
 
     if not numObjectives or numObjectives == 0 then return false end
 
@@ -12605,7 +12654,7 @@ local function SKQ_IsObjectiveFinished(qEntry, sdName)
 
     for i = 1, numObjectives do
 
-        local text, objType, finished = GetQuestLogLeaderBoard(i, qEntry.index)
+        local text, objType, finished = GetQuestLogLeaderBoard(i, questLogIndex)
 
         if text then
 
@@ -12782,7 +12831,7 @@ local function SKQ_GetFirstQuestCoordinate(q)
             local sd = SKquests_SpawnData[typeName] and SKQ_JIT_Unpack(SKquests_SpawnData[typeName], id)
             if sd and sd.spawns_str and not sd.spawns then sd.spawns = SKQ_ParseSpawns(sd.spawns_str) end
 
-            if sd and sd.spawns and not SKQ_IsObjectiveFinished(q, sd.name) then
+            if sd and sd.spawns and not SKQ_IsObjectiveFinished(q.index, sd.name) then
 
                 for mapId, coords in pairs(sd.spawns) do
 
@@ -13715,6 +13764,8 @@ function addon:RefreshDetail()
         if ch.header.trackBtn then
 
             local qKey = entry.id or entry.title
+
+            SKquests.config.manualTrackState = SKquests.config.manualTrackState or {}
 
             ch.header.trackBtn:SetScript("OnClick", function()
 
@@ -15465,21 +15516,16 @@ end
 -- quests ya completadas se mostraban para siempre como disponibles ("!").
 
 local function SKQ_IsQuestCompletedCompat(questId)
-
     if not questId then return false end
-
+    if addon and addon.completedQuests and addon.completedQuests[tostring(questId)] then
+        return true
+    end
     if C_QuestLog and C_QuestLog.IsQuestFlaggedCompleted then
-
         return C_QuestLog.IsQuestFlaggedCompleted(questId) == true
-
     end
-
     if IsQuestFlaggedCompleted then
-
         return IsQuestFlaggedCompleted(questId) == true
-
     end
-
     return false
 
 end
@@ -15804,15 +15850,27 @@ local function SKQ_GetWorldMapPin(i)
 
         pin = CreateFrame("Frame", nil, WorldMapDetailFrame)
 
-        pin:SetSize(10, 10)
+        pin:SetSize(18, 18)
 
-        pin:SetFrameStrata("TOOLTIP")
+        pin:SetFrameStrata("HIGH")
+
+        local bg = pin:CreateTexture(nil, "ARTWORK")
+        bg:SetTexture("Interface\\CHARACTERFRAME\\TempPortraitAlphaMask")
+        bg:SetSize(22, 22)
+        bg:SetPoint("CENTER")
+        bg:SetVertexColor(0.1, 0.1, 0.1, 0.9)
+        bg:Hide()
+        pin.bg = bg
 
         local tex = pin:CreateTexture(nil, "OVERLAY")
-
         tex:SetAllPoints()
 
         pin.tex = tex
+
+        local text = pin:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmallOutline")
+        text:SetPoint("LEFT", pin, "RIGHT", 4, 0)
+        text:Hide()
+        pin.text = text
 
         pin:EnableMouse(true)
 
@@ -15820,7 +15878,7 @@ local function SKQ_GetWorldMapPin(i)
 
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 
-            GameTooltip:SetText(self.label or "", 1, 1, 1)
+            GameTooltip:SetText((self.label and self.label ~= "") and self.label or "Desconocido", 1, 1, 1)
 
             if self.sub then GameTooltip:AddLine(self.sub, 1, 0.82, 0, true) end
 
@@ -15833,6 +15891,12 @@ local function SKQ_GetWorldMapPin(i)
         pin:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
         pin:SetScript("OnMouseUp", function(self, button)
+
+            if button == "LeftButton" and self.spawnKey then
+                SKQ_ExpandedSpawns[self.spawnKey] = not SKQ_ExpandedSpawns[self.spawnKey]
+                if SKQ_RefreshWorldMapPins then SKQ_RefreshWorldMapPins() end
+                return
+            end
 
             if button == "RightButton" and self.qId then
 
@@ -15885,8 +15949,10 @@ end
 local function SKQ_GetActiveQuestIds()
 
     local ids = {}
+    local order = {}
+    local logIndices = {}
 
-    if type(GetNumQuestLogEntries) ~= "function" then return ids end
+    if type(GetNumQuestLogEntries) ~= "function" then return ids, order, logIndices end
 
     local n = GetNumQuestLogEntries() or 0
 
@@ -15897,12 +15963,14 @@ local function SKQ_GetActiveQuestIds()
         if not isHeader and questID and questID > 0 then
 
             ids[questID] = title
+            table.insert(order, questID)
+            logIndices[questID] = i
 
         end
 
     end
 
-    return ids
+    return ids, order, logIndices
 
 end
 
@@ -16041,63 +16109,69 @@ SKQ_RefreshWorldMapPins = function()
     end
     
     local zoneId = skq_InternalMapToZoneId[mapName] or skq_InternalMapToZoneId[string.lower(mapName)]
-    if not zoneId then return end
     if not zoneId then 
-        -- Fallback to non-localized if they differ
-        zoneId = skq_MapInfoToZoneId[SKQ_NormZoneName(mapName)]
+        SKQ_InitZoneCaches()
+        if skq_MapInfoToZoneId then
+            zoneId = skq_MapInfoToZoneId[SKQ_NormZoneName(mapName)]
+        end
     end
-    if not zoneId then return end
+    if not zoneId then 
+        for i = 1, skqWorldMapPinCount do skqWorldMapPins[i]:Hide() end
+        skqWorldMapPinCount = 0
+        return 
+    end
 
 
 
     local n = 0
 
-    
+    if SKquests.config.showMinimapQuestGivers ~= false then
+        -- 1. Quest Givers
+        for _, p in ipairs(SKQ_GetZoneQuestPins(zoneId)) do
 
-    -- 1. Quest Givers
+            local x, y, realZone = SKQ_GetNpcCoordInZone(p.npcId, zoneId)
 
-    for _, p in ipairs(SKQ_GetZoneQuestPins(zoneId)) do
+            if x and y then
 
-        local x, y, realZone = SKQ_GetNpcCoordInZone(p.npcId, zoneId)
+                n = n + 1
 
-        if x and y then
+                local pin = SKQ_GetWorldMapPin(n)
 
-            n = n + 1
+                pin.tex:SetTexture(SKQ_PinIconFor(p.status))
+                pin.tex:SetTexCoord(0, 1, 0, 1)
+                pin.tex:ClearAllPoints()
+                pin.tex:SetSize(14, 14)
+                pin.tex:SetPoint("CENTER")
+                if pin.bg then pin.bg:Show() end
 
-            local pin = SKQ_GetWorldMapPin(n)
+                pin.tex:SetTexCoord(0, 1, 0, 1)
 
-            pin.tex:SetTexture(SKQ_PinIconFor(p.status))
+                pin.tex:SetVertexColor(1, 1, 1)
 
-            pin.tex:SetTexCoord(0, 1, 0, 1)
+                pin.label = GetLocalizedQuestName(p.q) or p.q.name
 
-            pin.tex:SetVertexColor(1, 1, 1)
+                pin.sub = UnitDisplayName(p.npcId)
+                pin.qId = p.questId
 
-            pin.label = GetLocalizedQuestName(p.q) or p.q.name
+                
 
-            pin.sub = UnitDisplayName(p.npcId)
+                -- 1 = HBD_PINS_WORLDMAP_SHOW_PARENT (solo zona actual o su padre si esta configurado)
 
-            pin.qId = p.questId
+                local drawZoneId = realZone or zoneId
+                if zoneId == drawZoneId then
+                    pin:ClearAllPoints()
+                    pin:SetParent(WorldMapDetailFrame)
+                    pin:SetFrameLevel(WorldMapDetailFrame:GetFrameLevel() + 5)
+                    pin:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", (x/100) * WorldMapDetailFrame:GetWidth(), -(y/100) * WorldMapDetailFrame:GetHeight())
+                    pin:Show()
+                else
+                    pin:Hide()
+                end
 
-            
-
-            -- 1 = HBD_PINS_WORLDMAP_SHOW_PARENT (solo zona actual o su padre si esta configurado)
-
-            local drawZoneId = realZone or zoneId
-            if zoneId == drawZoneId then
-                pin:ClearAllPoints()
-                pin:SetParent(WorldMapDetailFrame)
-                pin:SetFrameLevel(WorldMapDetailFrame:GetFrameLevel() + 5)
-                pin:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", (x/100) * WorldMapDetailFrame:GetWidth(), -(y/100) * WorldMapDetailFrame:GetHeight())
-                pin:Show()
-            else
-                pin:Hide()
             end
 
         end
-
     end
-
-
 
     -- 2. Quest Objectives
 
@@ -16105,26 +16179,24 @@ SKQ_RefreshWorldMapPins = function()
 
         local activeQuestsDict = addon.Tracker and addon.Tracker:GetActiveQuests() or {}
 
-        local activeQuests = SKQ_GetActiveQuestIds()
+        local activeQuests, orderedQuests, logIndices = SKQ_GetActiveQuestIds()
+        
+        local questOrderMap = {}
+        local currentOrder = 1
 
-        for qId, qTitle in pairs(activeQuests) do
-              if not (SKquests.hiddenQuests and SKquests.hiddenQuests[qId]) then
+        for _, qId in ipairs(orderedQuests) do
+            local qTitle = activeQuests[qId]
+            local questLogIndex = logIndices[qId]
+            if not (SKquests.hiddenQuests and SKquests.hiddenQuests[qId]) then
 
             local qEntry = nil
 
             for i = 1, 100 do
-
                 if activeQuestsDict[i] and activeQuestsDict[i].id == qId then
-
                     qEntry = activeQuestsDict[i]
-
                     break
-
                 end
-
             end
-
-            
 
             if not qEntry or not qEntry.isComplete then
 
@@ -16134,62 +16206,131 @@ SKQ_RefreshWorldMapPins = function()
 
                     local idsToSpawn = {}
 
-                    for _, id in ipairs(links.npcs or {}) do idsToSpawn[id] = { type="npc", icon="slay_mono.tga" } end
+                    for _, id in ipairs(links.npcs or {}) do idsToSpawn[id] = { type="npc", icon="Interface\\GossipFrame\\BattleMasterGossipIcon" } end
 
-                    for _, id in ipairs(links.item_npcs or {}) do idsToSpawn[id] = { type="npc", icon="slay_mono.tga" } end
+                    for _, id in ipairs(links.item_npcs or {}) do idsToSpawn[id] = { type="npc", icon="Interface\\GossipFrame\\BattleMasterGossipIcon" } end
 
-                    for _, id in ipairs(links.objects or {}) do idsToSpawn[id] = { type="object", icon="loot_mono.tga" } end
+                    for _, id in ipairs(links.objects or {}) do idsToSpawn[id] = { type="object", icon="Interface\\GossipFrame\\VendorGossipIcon" } end
 
-                    for _, id in ipairs(links.item_objects or {}) do idsToSpawn[id] = { type="object", icon="loot_mono.tga" } end
+                    for _, id in ipairs(links.item_objects or {}) do idsToSpawn[id] = { type="object", icon="Interface\\GossipFrame\\VendorGossipIcon" } end
 
+                    local allSpawns = {}
+                    local progressLines = {}
+                    local defaultIcon = "Interface\\GossipFrame\\BattleMasterGossipIcon"
                     
-
                     for id, info in pairs(idsToSpawn) do
-
                         local spawnInfo = SKquests_SpawnData[info.type .. "s"] and SKQ_JIT_Unpack(SKquests_SpawnData[info.type .. "s"], id)
                         if spawnInfo and spawnInfo.spawns_str and not spawnInfo.spawns then spawnInfo.spawns = SKQ_ParseSpawns(spawnInfo.spawns_str) end
 
-                        -- Solo iteramos los spawns en la zona especifica que estamos mirando
-
-                        if spawnInfo and spawnInfo.spawns and spawnInfo.spawns[zoneId] and not SKQ_IsObjectiveFinished(qEntry, spawnInfo.name) then
-
-                            for _, coord in ipairs(spawnInfo.spawns[zoneId]) do
-
-                                local x, y = coord[1], coord[2]
-
-                                n = n + 1
-
-                                local pin = SKQ_GetWorldMapPin(n)
-
-                                pin.tex:SetTexture("Interface\\AddOns\\SKquests\\Media\\textures\\QuestieIcons\\" .. info.icon)
-
-                                pin.tex:SetTexCoord(0, 1, 0, 1)
-
-                                pin.tex:SetVertexColor(SKQ_GetQuestColor(qId))
-
-                                pin.label = qTitle or tostring(qId)
-
-                                pin.sub = spawnInfo.name or "Objetivo"
-
-                                pin.qId = qId
-
-                                
-
-            local drawZoneId = realZone or zoneId
-            if zoneId == drawZoneId then
-                pin:ClearAllPoints()
-                pin:SetParent(WorldMapDetailFrame)
-                pin:SetFrameLevel(WorldMapDetailFrame:GetFrameLevel() + 5)
-                pin:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", (x/100) * WorldMapDetailFrame:GetWidth(), -(y/100) * WorldMapDetailFrame:GetHeight())
-                pin:Show()
-            else
-                pin:Hide()
-            end
-
+                        if spawnInfo and spawnInfo.spawns and spawnInfo.spawns[zoneId] and not SKQ_IsObjectiveFinished(questLogIndex, spawnInfo.name) then
+                            defaultIcon = info.icon
+                            local progressText = SKQ_GetObjectiveProgressText(questLogIndex, spawnInfo.name)
+                            local line = spawnInfo.name
+                            if progressText and progressText ~= spawnInfo.name then
+                                line = spawnInfo.name .. "\n  - " .. string.gsub(progressText, "\n", "\n  - ")
                             end
-
+                            if line then
+                                local found = false
+                                for _, existing in ipairs(progressLines) do if existing == line then found = true break end end
+                                if not found then table.insert(progressLines, line) end
+                            end
+                            
+                            for _, coord in ipairs(spawnInfo.spawns[zoneId]) do
+                                table.insert(allSpawns, {x = coord[1], y = coord[2], icon = info.icon, name = spawnInfo.name})
+                            end
                         end
-
+                    end
+                    
+                    local count = #allSpawns
+                    if count > 0 then
+                        local spawnKey = tostring(qId) -- One key per quest!
+                        local isExpanded = SKQ_ExpandedSpawns[spawnKey]
+                        
+                        local bestX, bestY = 0, 0
+                        local maxNeighbors = -1
+                        local RADIUS_SQ = 25
+                        
+                        if not questOrderMap[qId] then
+                            questOrderMap[qId] = currentOrder
+                            currentOrder = currentOrder + 1
+                        end
+                        local trackerOrder = questOrderMap[qId]
+                        
+                        -- Draw child pins and calculate density
+                        for idx1, s1 in ipairs(allSpawns) do
+                            local neighbors = 0
+                            for idx2, s2 in ipairs(allSpawns) do
+                                if idx1 ~= idx2 then
+                                    local dx = s1.x - s2.x
+                                    local dy = s1.y - s2.y
+                                    if (dx*dx + dy*dy) <= RADIUS_SQ then
+                                        neighbors = neighbors + 1
+                                    end
+                                end
+                            end
+                            if neighbors > maxNeighbors then
+                                maxNeighbors = neighbors
+                                bestX = s1.x
+                                bestY = s1.y
+                            end
+                            
+                            n = n + 1
+                            local pin = SKQ_GetWorldMapPin(n)
+                            pin.tex:SetTexture(s1.icon)
+                            pin.tex:SetTexCoord(0, 1, 0, 1)
+                            pin.tex:ClearAllPoints()
+                            pin.tex:SetSize(14, 14)
+                            pin.tex:SetPoint("CENTER")
+                            if pin.bg then pin.bg:Hide() end
+                            if pin.text then pin.text:Hide() end
+                            
+                            pin.tex:SetVertexColor(SKQ_GetQuestColor(qId))
+                            pin.label = qTitle or tostring(qId)
+                            pin.sub = s1.name or "Objetivo"
+                            pin.qId = qId
+                            
+                            pin:ClearAllPoints()
+                            pin:SetParent(WorldMapDetailFrame)
+                            pin:SetFrameLevel(WorldMapDetailFrame:GetFrameLevel() + 5)
+                            pin:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", (s1.x/100) * WorldMapDetailFrame:GetWidth(), -(s1.y/100) * WorldMapDetailFrame:GetHeight())
+                            
+                            if isExpanded then pin:Show() else pin:Hide() end
+                        end
+                        
+                        -- Draw ONE central pin
+                        n = n + 1
+                        local pin = SKQ_GetWorldMapPin(n)
+                        pin:SetSize(24, 24)
+                        pin.tex:SetTexture(defaultIcon)
+                        pin.tex:SetTexCoord(0, 1, 0, 1)
+                        pin.tex:ClearAllPoints()
+                        pin.tex:SetAllPoints()
+                        pin.tex:SetVertexColor(1, 1, 1, 0)
+                        
+                        if pin.bg then 
+                            pin.bg:SetSize(28, 28)
+                            pin.bg:Show() 
+                        end
+                        if pin.text then
+                            local r, g, b = SKQ_GetQuestColor(qId)
+                            pin.text:SetFont(STANDARD_TEXT_FONT, 14, "OUTLINE")
+                            pin.text:SetText(tostring(trackerOrder))
+                            pin.text:SetTextColor(r, g, b)
+                            pin.text:ClearAllPoints()
+                            pin.text:SetPoint("CENTER", pin, "CENTER", 1, 0)
+                            pin.text:Show()
+                        end
+                        
+                        pin.label = qTitle or tostring(qId)
+                        pin.sub = table.concat(progressLines, "\n")
+                        pin.qId = qId
+                        pin.spawnKey = spawnKey
+                        
+                        pin:ClearAllPoints()
+                        pin:SetParent(WorldMapDetailFrame)
+                        pin:SetFrameLevel(WorldMapDetailFrame:GetFrameLevel() + 6)
+                        pin:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", (bestX/100) * WorldMapDetailFrame:GetWidth(), -(bestY/100) * WorldMapDetailFrame:GetHeight())
+                        pin:Show()
                     end
 
                 end
@@ -16197,10 +16338,9 @@ SKQ_RefreshWorldMapPins = function()
             end
 
         end
-
+    end
     end
 
-        end
     for i = n + 1, skqWorldMapPinCount do skqWorldMapPins[i]:Hide() end
 
     skqWorldMapPinCount = n
@@ -16317,15 +16457,27 @@ local function SKQ_GetMinimapPin(i)
 
         pin = CreateFrame("Frame", nil, Minimap)
 
-        pin:SetSize(10, 10)
+        pin:SetSize(18, 18)
 
-        pin:SetFrameStrata("TOOLTIP")
+        pin:SetFrameStrata("HIGH")
+
+        local bg = pin:CreateTexture(nil, "ARTWORK")
+        bg:SetTexture("Interface\\CHARACTERFRAME\\TempPortraitAlphaMask")
+        bg:SetSize(22, 22)
+        bg:SetPoint("CENTER")
+        bg:SetVertexColor(0.1, 0.1, 0.1, 0.9)
+        bg:Hide()
+        pin.bg = bg
 
         local tex = pin:CreateTexture(nil, "OVERLAY")
-
         tex:SetAllPoints()
 
         pin.tex = tex
+
+        local text = pin:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmallOutline")
+        text:SetPoint("LEFT", pin, "RIGHT", 4, 0)
+        text:Hide()
+        pin.text = text
 
         pin:EnableMouse(true)
 
@@ -16333,7 +16485,7 @@ local function SKQ_GetMinimapPin(i)
 
             GameTooltip:SetOwner(self, "ANCHOR_LEFT")
 
-            GameTooltip:SetText(self.label or "", 1, 1, 1)
+            GameTooltip:SetText((self.label and self.label ~= "") and self.label or "Desconocido", 1, 1, 1)
 
             if self.sub then GameTooltip:AddLine(self.sub, 1, 0.82, 0, true) end
 
@@ -16473,6 +16625,9 @@ end
 
 
 
+local skqCurrentMinimapZoneId
+local skqCurrentMinimapMapId
+
 SKQ_RefreshMinimapPinsFull = function()
 
     if SKquestsDB and SKquestsDB.config and SKquestsDB.config.showMapPins == false then
@@ -16494,8 +16649,16 @@ SKQ_RefreshMinimapPinsFull = function()
     local realZone = GetRealZoneText and GetRealZoneText()
 
     local zoneId = realZone and SKQ_ResolveZoneIdFromRealZone(realZone)
+    skqCurrentMinimapZoneId = zoneId
 
-    if not zoneId then return end
+    if not zoneId then 
+        for i = 1, skqMinimapPinCount do
+            skqMinimapPins[i]:Hide()
+            if HBDPins then HBDPins:RemoveMinimapIcon(addon, skqMinimapPins[i]) end
+        end
+        skqMinimapPinCount = 0
+        return 
+    end
 
     
 
@@ -16503,48 +16666,50 @@ SKQ_RefreshMinimapPinsFull = function()
       local mapId = GetCurrentMapAreaID()
 
     if not mapId then return end
+    skqCurrentMinimapMapId = (zoneId and zoneIdToModernMapIdCache and zoneIdToModernMapIdCache[zoneId]) or mapId
 
     
 
     local n = 0
 
-    
+    if SKquests.config.showMinimapQuestGivers ~= false then
+        -- 1. Quest Givers and Enders
+        for _, p in ipairs(SKQ_GetZoneQuestPins(zoneId)) do
 
-    -- 1. Quest Givers and Enders
+            local x, y, realZone = SKQ_GetNpcCoordInZone(p.npcId, zoneId)
 
-    for _, p in ipairs(SKQ_GetZoneQuestPins(zoneId)) do
+            if x and y then
 
-        local x, y, realZone = SKQ_GetNpcCoordInZone(p.npcId, zoneId)
+                n = n + 1
 
-        if x and y then
+                local pin = SKQ_GetMinimapPin(n)
 
-            n = n + 1
+                pin.tex:SetTexture(SKQ_PinIconFor(p.status))
+                pin.tex:SetTexCoord(0, 1, 0, 1)
+                pin.tex:ClearAllPoints()
+                pin.tex:SetSize(14, 14)
+                pin.tex:SetPoint("CENTER")
+                if pin.bg then pin.bg:Show() end
 
-            local pin = SKQ_GetMinimapPin(n)
+                pin.tex:SetVertexColor(1, 1, 1) -- Reset color
 
-            pin.tex:SetTexture(SKQ_PinIconFor(p.status))
+                pin.label = GetLocalizedQuestName(p.q) or p.q.name
 
-            pin.tex:SetTexCoord(0, 1, 0, 1) -- Reset tex coord
+                pin.sub = UnitDisplayName(p.npcId)
 
-            pin.tex:SetVertexColor(1, 1, 1) -- Reset color
+                pin.qId = p.questId
+                pin.relX = x / 100
+                pin.relY = y / 100
+                if HBDPins and skqCurrentMinimapMapId then
+                    HBDPins:AddMinimapIconMap(addon, pin, skqCurrentMinimapMapId, pin.relX, pin.relY, false, false)
+                else
+                    pin:Show()
+                end
 
-            pin.label = GetLocalizedQuestName(p.q) or p.q.name
-
-            pin.sub = UnitDisplayName(p.npcId)
-
-            pin.qId = p.questId
-
-            
-
-                local drawMapId = (realZone and zoneIdToModernMapIdCache and zoneIdToModernMapIdCache[realZone]) or mapId
-
-                -- Manual Minimap tracking handles this in OnUpdate
+            end
 
         end
-
     end
-
-    
 
     -- 2. Quest Objectives (Mobs/Items)
 
@@ -16552,10 +16717,15 @@ SKQ_RefreshMinimapPinsFull = function()
 
         local activeQuestsDict = addon.Tracker and addon.Tracker:GetActiveQuests() or {}
 
-        local activeQuests = SKQ_GetActiveQuestIds()
+        local activeQuests, orderedQuests, logIndices = SKQ_GetActiveQuestIds()
+        
+        local questOrderMap = {}
+        local currentOrder = 1
 
-        for qId, qTitle in pairs(activeQuests) do
-              if not (SKquests.hiddenQuests and SKquests.hiddenQuests[qId]) then
+        for _, qId in ipairs(orderedQuests) do
+            local qTitle = activeQuests[qId]
+            local questLogIndex = logIndices[qId]
+            if not (SKquests.hiddenQuests and SKquests.hiddenQuests[qId]) then
 
             local qEntry = nil
 
@@ -16581,67 +16751,151 @@ SKQ_RefreshMinimapPinsFull = function()
 
                     local idsToSpawn = {}
 
-                    for _, id in ipairs(links.npcs or {}) do idsToSpawn[id] = { type="npc", icon="slay_mono.tga" } end
+                    for _, id in ipairs(links.npcs or {}) do idsToSpawn[id] = { type="npc", icon="Interface\\GossipFrame\\BattleMasterGossipIcon" } end
 
-                    for _, id in ipairs(links.item_npcs or {}) do idsToSpawn[id] = { type="npc", icon="slay_mono.tga" } end
+                    for _, id in ipairs(links.item_npcs or {}) do idsToSpawn[id] = { type="npc", icon="Interface\\GossipFrame\\BattleMasterGossipIcon" } end
 
-                    for _, id in ipairs(links.objects or {}) do idsToSpawn[id] = { type="object", icon="loot_mono.tga" } end
+                    for _, id in ipairs(links.objects or {}) do idsToSpawn[id] = { type="object", icon="Interface\\GossipFrame\\VendorGossipIcon" } end
 
-                    for _, id in ipairs(links.item_objects or {}) do idsToSpawn[id] = { type="object", icon="loot_mono.tga" } end
+                    for _, id in ipairs(links.item_objects or {}) do idsToSpawn[id] = { type="object", icon="Interface\\GossipFrame\\VendorGossipIcon" } end
 
                     
 
+                    local allSpawns = {}
+                    local progressLines = {}
+                    local defaultIcon = "Interface\\GossipFrame\\BattleMasterGossipIcon"
+                    
                     for id, info in pairs(idsToSpawn) do
-
                         local spawnInfo = SKquests_SpawnData[info.type .. "s"] and SKQ_JIT_Unpack(SKquests_SpawnData[info.type .. "s"], id)
                         if spawnInfo and spawnInfo.spawns_str and not spawnInfo.spawns then spawnInfo.spawns = SKQ_ParseSpawns(spawnInfo.spawns_str) end
 
-                        if spawnInfo and spawnInfo.spawns and spawnInfo.spawns[zoneId] and not SKQ_IsObjectiveFinished(qEntry, spawnInfo.name) then
-
-                            for _, coord in ipairs(spawnInfo.spawns[zoneId]) do
-
-                                local x, y = coord[1], coord[2]
-
-                                n = n + 1
-
-                                local pin = SKQ_GetMinimapPin(n)
-
-                                pin.tex:SetTexture("Interface\\AddOns\\SKquests\\Media\\textures\\QuestieIcons\\" .. info.icon)
-
-                                pin.tex:SetTexCoord(0, 1, 0, 1) -- Reset tex coord
-
-                                pin.tex:SetVertexColor(SKQ_GetQuestColor(qId))
-
-                                pin.label = qTitle or tostring(qId)
-
-                                pin.sub = spawnInfo.name or "Objetivo"
-
-                                pin.qId = qId
-
-                                
-
-                local drawMapId = (realZone and zoneIdToModernMapIdCache and zoneIdToModernMapIdCache[realZone]) or mapId
-
-                -- Manual Minimap tracking handles this in OnUpdate
-
+                        if spawnInfo and spawnInfo.spawns and spawnInfo.spawns[zoneId] and not SKQ_IsObjectiveFinished(questLogIndex, spawnInfo.name) then
+                            defaultIcon = info.icon
+                            local progressText = SKQ_GetObjectiveProgressText(questLogIndex, spawnInfo.name)
+                            local line = spawnInfo.name
+                            if progressText and progressText ~= spawnInfo.name then
+                                line = spawnInfo.name .. "\n  - " .. string.gsub(progressText, "\n", "\n  - ")
                             end
-
+                            if line then
+                                local found = false
+                                for _, existing in ipairs(progressLines) do if existing == line then found = true break end end
+                                if not found then table.insert(progressLines, line) end
+                            end
+                            
+                            for _, coord in ipairs(spawnInfo.spawns[zoneId]) do
+                                table.insert(allSpawns, {x = coord[1], y = coord[2], icon = info.icon, name = spawnInfo.name})
+                            end
                         end
-
+                    end
+                    
+                    local count = #allSpawns
+                    if count > 0 then
+                        local spawnKey = tostring(qId)
+                        local isExpanded = SKQ_ExpandedSpawns[spawnKey]
+                        
+                        local bestX, bestY = 0, 0
+                        local maxNeighbors = -1
+                        local RADIUS_SQ = 25
+                        
+                        if not questOrderMap[qId] then
+                            questOrderMap[qId] = currentOrder
+                            currentOrder = currentOrder + 1
+                        end
+                        local trackerOrder = questOrderMap[qId]
+                        
+                        -- Draw child pins and calculate density
+                        for idx1, s1 in ipairs(allSpawns) do
+                            local neighbors = 0
+                            for idx2, s2 in ipairs(allSpawns) do
+                                if idx1 ~= idx2 then
+                                    local dx = s1.x - s2.x
+                                    local dy = s1.y - s2.y
+                                    if (dx*dx + dy*dy) <= RADIUS_SQ then
+                                        neighbors = neighbors + 1
+                                    end
+                                end
+                            end
+                            if neighbors > maxNeighbors then
+                                maxNeighbors = neighbors
+                                bestX = s1.x
+                                bestY = s1.y
+                            end
+                            
+                            n = n + 1
+                            local pin = SKQ_GetMinimapPin(n)
+                            pin.tex:SetTexture(s1.icon)
+                            pin.tex:SetTexCoord(0, 1, 0, 1)
+                            pin.tex:ClearAllPoints()
+                            pin.tex:SetSize(14, 14)
+                            pin.tex:SetPoint("CENTER")
+                            if pin.bg then pin.bg:Hide() end
+                            if pin.text then pin.text:Hide() end
+                            
+                            pin.tex:SetVertexColor(SKQ_GetQuestColor(qId))
+                            pin.label = qTitle or tostring(qId)
+                            pin.sub = s1.name or "Objetivo"
+                            pin.qId = qId
+                            
+                            pin.relX = s1.x / 100
+                            pin.relY = s1.y / 100
+                            if HBDPins and skqCurrentMinimapMapId then
+                                if isExpanded then
+                                    HBDPins:AddMinimapIconMap(addon, pin, skqCurrentMinimapMapId, pin.relX, pin.relY, false, false)
+                                end
+                            else
+                                if isExpanded then pin:Show() else pin:Hide() end
+                            end
+                        end
+                        
+                        -- Draw ONE central pin
+                        n = n + 1
+                        local pin = SKQ_GetMinimapPin(n)
+                        pin:SetSize(24, 24)
+                        pin.tex:SetTexture(defaultIcon)
+                        pin.tex:SetTexCoord(0, 1, 0, 1)
+                        pin.tex:ClearAllPoints()
+                        pin.tex:SetAllPoints()
+                        pin.tex:SetVertexColor(1, 1, 1, 0)
+                        
+                        if pin.bg then 
+                            pin.bg:SetSize(28, 28)
+                            pin.bg:Show() 
+                        end
+                        if pin.text then
+                            local r, g, b = SKQ_GetQuestColor(qId)
+                            pin.text:SetFont(STANDARD_TEXT_FONT, 14, "OUTLINE")
+                            pin.text:SetText(tostring(trackerOrder))
+                            pin.text:SetTextColor(r, g, b)
+                            pin.text:ClearAllPoints()
+                            pin.text:SetPoint("CENTER", pin, "CENTER", 1, 0)
+                            pin.text:Show()
+                        end
+                        
+                        pin.label = qTitle or tostring(qId)
+                        pin.sub = table.concat(progressLines, "\n")
+                        pin.qId = qId
+                        pin.spawnKey = spawnKey
+                        
+                        pin.relX = bestX / 100
+                        pin.relY = bestY / 100
+                        if HBDPins and skqCurrentMinimapMapId then
+                            HBDPins:AddMinimapIconMap(addon, pin, skqCurrentMinimapMapId, pin.relX, pin.relY, false, false)
+                        else
+                            pin:Show()
+                        end
                     end
 
                 end
 
             end
-
-        end
-
+    end
+    end
     end
 
-    
-
-        end
-    for i = n + 1, skqMinimapPinCount do skqMinimapPins[i]:Hide() end
+    for i = n + 1, skqMinimapPinCount do 
+        skqMinimapPins[i]:Hide() 
+        if HBDPins then HBDPins:RemoveMinimapIcon(addon, skqMinimapPins[i]) end
+    end
 
     skqMinimapPinCount = n
 
@@ -16766,36 +17020,48 @@ skqMinimapWatcher:SetScript("OnUpdate", function(self, elapsed)
     end
 
     
-    local px, py = GetPlayerMapPosition("player")
+    local px, py = SKQ_GetPlayerCoordsSafe()
     if px and px > 0 then
         local facing = GetPlayerFacing()
-        local scaleRadius = 200
-        if Astrolabe and Astrolabe.GetUnitPosition then
-            -- Fallback if we add astrolabe later
-        end
+        local zoom = Minimap:GetZoom() or 0
+        local zoomRadii = { [0] = 233.33, [1] = 199.66, [2] = 166.66, [3] = 133.33, [4] = 100, [5] = 66.66 }
+        local scaleRadius = zoomRadii[zoom] or 200
         local mmRadiusPx = (Minimap:GetWidth() or 140) / 2
         -- Use the zoneId passed down from SKQ_RefreshMinimapPinsFull
-        local dims = pfDB and pfDB["minimap"] and pfDB["minimap"][zoneId]
+        local dims = pfDB and pfDB["minimap"] and pfDB["minimap"][skqCurrentMinimapZoneId]
+        local dimW, dimH
         if dims then
+            dimW, dimH = dims[1], dims[2]
+        elseif HBD and skqCurrentMinimapMapId then
+            dimW, dimH = HBD:GetZoneSize(skqCurrentMinimapMapId)
+        end
+        if not HBDPins and dimW and dimH and dimW > 0 and dimH > 0 then
             for i = 1, skqMinimapPinCount do
                 local pin = skqMinimapPins[i]
                 if pin and pin:IsShown() and pin.relX and pin.relY then
                     local dx = pin.relX - px
                     local dy = pin.relY - py
-                    local dxYards = dx * dims[1]
-                    local dyYards = dy * dims[2]
+                    local dxYards = dx * dimW
+                    local dyYards = dy * dimH
                     local distYards = math.sqrt(dxYards*dxYards + dyYards*dyYards)
                     local distRatio = distYards / scaleRadius
-                    if distRatio > 1 then distRatio = 1 end
+                    if distRatio > 1 then 
+                        pin:SetAlpha(0)
+                        pin:EnableMouse(false)
+                        distRatio = 1 
+                    else
+                        pin:SetAlpha(1)
+                        pin:EnableMouse(true)
+                    end
 
-                    local angle = math.atan2(-dxYards, dyYards)
+                    local angle = math.atan2(-dyYards, dxYards)
                     local playerAngle = facing or 0
                     if GetCVar("rotateMinimap") == "1" then
                         angle = angle - playerAngle
                     end
 
-                    local pixelX = math.sin(angle) * (distRatio * mmRadiusPx)
-                    local pixelY = math.cos(angle) * (distRatio * mmRadiusPx)
+                    local pixelX = math.cos(angle) * (distRatio * mmRadiusPx)
+                    local pixelY = math.sin(angle) * (distRatio * mmRadiusPx)
 
                     pin:ClearAllPoints()
                     pin:SetPoint("CENTER", Minimap, "CENTER", pixelX, pixelY)
@@ -16822,11 +17088,9 @@ skqMinimapWatcher:RegisterEvent("ZONE_CHANGED")
 skqMinimapWatcher:RegisterEvent("ZONE_CHANGED_INDOORS")
 
 skqMinimapWatcher:SetScript("OnEvent", function(self)
-
     self.acc, self.fullAcc = 0, 0
-
     SKQ_RefreshMinimapPinsFull()
-
+    if addon.RefreshMiniTracker then addon:RefreshMiniTracker() end
 end)
 
 
@@ -17444,12 +17708,13 @@ function addon:RefreshMiniTracker()
         end
 
         if minBtn then minBtn:Hide() end
-
-        if lockBtn then lockBtn:Hide() end
-
         if resizeBtn then resizeBtn:Hide() end
-
         if mt.titleFS then mt.titleFS:Hide() end
+
+        if lockBtn then 
+            lockBtn.txt:SetText("unlock")
+            lockBtn:Show()
+        end
 
         mt:EnableMouse(false)
 
@@ -17723,43 +17988,7 @@ function addon:RefreshMiniTracker()
 
                 if not (matchesZone or matchesSubZone) then
 
-                    -- No ocultamos una quest en la que ya hay progreso real
-
-                    -- (objetivo con X/Y > 0): esas son justo las quests que
-
-                    -- el jugador esta "haciendo" activamente, y es normal
-
-                    -- alejarse de su zona de origen para cumplir objetivos
-
-                    -- (viajar a otra zona, entrar a una cueva/subzona, etc.).
-
-                    -- Sin esto, el filtro de zona las ocultaba de golpe en
-
-                    -- cuanto el jugador salia de la zona donde se acepto.
-
-                    local hasProgress = false
-
-                    if entry.objectives then
-
-                        for _, obj in ipairs(entry.objectives) do
-
-                            if obj.numDone and obj.numDone > 0 then
-
-                                hasProgress = true
-
-                                break
-
-                            end
-
-                        end
-
-                    end
-
-                    if not hasProgress then
-
-                        passZone = false
-
-                    end
+                    passZone = false
 
                 end
 
@@ -18533,6 +18762,13 @@ SlashCmdList["SKQARROW"] = function()
     print(IsSpanish() and "SKquests: Flecha forzada a mostrarse en el centro." or "SKquests: Arrow forced to show in the center.")
 
 end
+
+
+
+
+
+
+
 
 
 

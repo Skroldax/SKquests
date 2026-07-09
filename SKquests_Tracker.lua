@@ -61,6 +61,7 @@ function T:Refresh()
                 if link then questID = tonumber(link:match("quest:(%d+)")) end
             end
             if isHeader then
+                if title:find("Missing header") then title = "WotLK / TBC Misiones" end
                 currentHeader = title
             else
                 local objectives = {}

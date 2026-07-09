@@ -1,3 +1,10 @@
+## [1.0.0] - 2026-07-09
+
+### Added
+- Major map pin update: pins are now numbered relatively (1, 2, 3...) per zone instead of globally.
+- Map pins tooltip now displays full quest progress data directly on hover, supporting multi-objective and item drop progress accurately by falling back to the quest log directly.
+- Overhauled map pin aesthetics with a larger footprint for better visibility and a higher UI strata to prevent overlapping tooltips.
+
 # Changelog
 
 All notable changes to SKquests will be documented in this file.
@@ -355,3 +362,4 @@ Comprehensive rebuild after integrating the full server database (`quest_templat
 - **Zone filter crash**: `zonesData` variable scoping issue that made the zone dropdown fail silently and render as a black box.
 - **Tab freezing**: reconnected the Sidenav logic — clicking "Quest Log" or "Zones" did not refresh the central list.
 - **Sorting protection**: wrapped `table.sort` in `pcall` so minor database inconsistencies can't halt the entire addon.
+
